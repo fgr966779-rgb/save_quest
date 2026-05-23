@@ -13,12 +13,10 @@ class AppTheme {
       
       // Color Scheme
       colorScheme: const ColorScheme.dark(
-        background: AppColors.background,
         surface: AppColors.cardBg,
         primary: AppColors.cyanAccent,
         secondary: AppColors.magentaAccent,
         error: Colors.redAccent,
-        onBackground: AppColors.textPrimary,
         onSurface: AppColors.textPrimary,
         onPrimary: AppColors.background,
         onSecondary: AppColors.background,
@@ -43,23 +41,15 @@ class AppTheme {
       ),
 
       // Card Theme
-      cardTheme: CardTheme(
+      cardTheme: const CardThemeData(
         color: AppColors.cardBg,
         elevation: 0,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(24.0),
-          side: BorderSide(color: Colors.white.withOpacity(0.06), width: 1.0),
-        ),
       ),
 
       // Dialog Theme
-      dialogTheme: DialogTheme(
+      dialogTheme: const DialogThemeData(
         backgroundColor: AppColors.cardBg,
         elevation: 10,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(24.0),
-          side: const BorderSide(color: AppColors.cyanAccent, width: 1.5),
-        ),
       ),
 
       // Divider Theme
@@ -100,12 +90,10 @@ class AppTheme {
       
       // Color Scheme
       colorScheme: const ColorScheme.light(
-        background: AppColors.lightBg,
         surface: AppColors.lightSurface,
         primary: AppColors.cyanAccent,
         secondary: AppColors.magentaAccent,
         error: Colors.redAccent,
-        onBackground: AppColors.textLightPrimary,
         onSurface: AppColors.textLightPrimary,
         onPrimary: Colors.white,
         onSecondary: Colors.white,
@@ -130,23 +118,15 @@ class AppTheme {
       ),
 
       // Card Theme
-      cardTheme: CardTheme(
+      cardTheme: const CardThemeData(
         color: AppColors.lightSurface,
         elevation: 0,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(24.0),
-          side: BorderSide(color: Colors.black.withOpacity(0.04), width: 1.0),
-        ),
       ),
 
       // Dialog Theme
-      dialogTheme: DialogTheme(
+      dialogTheme: const DialogThemeData(
         backgroundColor: AppColors.lightSurface,
         elevation: 10,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(24.0),
-          side: const BorderSide(color: AppColors.cyanAccent, width: 1.5),
-        ),
       ),
 
       // Divider Theme

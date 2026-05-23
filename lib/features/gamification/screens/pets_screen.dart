@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:go_router/go_router.dart';
 import 'package:uuid/uuid.dart';
 
@@ -25,6 +27,17 @@ class PetsScreen extends ConsumerWidget {
     return (pet.happinessLevel - loss).clamp(0, 100);
   }
 
+  int _xpRequiredForNextLevel(int level) {
+    return level * 100;
+  }
+
+  String _getEvolutionStage(int level) {
+    if (level >= 20) return 'PRIME';
+    if (level >= 10) return 'ALPHA';
+    if (level >= 5) return 'EVOLVED';
+    return 'PROTO';
+  }
+
   Future<void> _feedPet(BuildContext context, WidgetRef ref, Pet pet) async {
     final db = ref.read(databaseProvider);
     final profile = await db.getUserProfile();
@@ -39,13 +52,36 @@ class PetsScreen extends ConsumerWidget {
       return;
     }
 
+    final int xpGain = 25;
+    int newXp = pet.xp + xpGain;
+    int newLevel = pet.level;
+    bool leveledUp = false;
+
+    while (newXp >= _xpRequiredForNextLevel(newLevel)) {
+      newXp -= _xpRequiredForNextLevel(newLevel);
+      newLevel++;
+      leveledUp = true;
+    }
+
     await db.transaction(() async {
       await db.update(db.pets).replace(pet.copyWith(
-        happinessLevel: 100,
-        lastFedAt: DateTime.now(),
-      ));
+            happinessLevel: 100,
+            lastFedAt: DateTime.now(),
+            xp: newXp,
+            level: newLevel,
+          ));
       await db.insertUserProfile(profile.copyWith(skillPoints: profile.skillPoints - 1));
     });
+
+    if (leveledUp && context.mounted) {
+      HapticFeedback.heavyImpact();
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('ЛЕВЕЛ АП! Твій пітомець тепер ${newLevel} рівня!'),
+          backgroundColor: AppColors.goldGlow,
+        ),
+      );
+    }
 
     // ignore: unused_result
     ref.refresh(userProfileProvider);
@@ -56,13 +92,15 @@ class PetsScreen extends ConsumerWidget {
   Future<void> _adoptPet(BuildContext context, WidgetRef ref, String type) async {
     final db = ref.read(databaseProvider);
     await db.into(db.pets).insert(
-      Pet(
-        id: const Uuid().v4(),
-        petType: type,
-        happinessLevel: 100,
-        lastFedAt: DateTime.now(),
-      ),
-    );
+          Pet(
+            id: const Uuid().v4(),
+            petType: type,
+            happinessLevel: 100,
+            xp: 0,
+            level: 1,
+            lastFedAt: DateTime.now(),
+          ),
+        );
     // ignore: unused_result
     ref.refresh(petsProvider);
   }
@@ -97,8 +135,14 @@ class PetsScreen extends ConsumerWidget {
 
           final pet = pets.first;
           final happiness = _calculateHappiness(pet);
+          final evolutionStage = _getEvolutionStage(pet.level);
+          final xpNeeded = _xpRequiredForNextLevel(pet.level);
+
           Color statusColor = AppColors.cyanAccent;
-          if (happiness < 50) statusColor = AppColors.goldGlow;
+          if (pet.level >= 5) statusColor = AppColors.magentaAccent;
+          if (pet.level >= 10) statusColor = AppColors.goldGlow;
+          if (pet.level >= 20) statusColor = Colors.purpleAccent;
+
           if (happiness < 20) statusColor = Colors.redAccent;
 
           return Padding(
@@ -115,26 +159,50 @@ class PetsScreen extends ConsumerWidget {
                         pet.petType == 'dragon' ? Icons.cruelty_free : Icons.pets,
                         size: 100,
                         color: statusColor,
+                      ).animate(onPlay: (c) => c.repeat(reverse: true)).scale(
+                            begin: const Offset(1, 1),
+                            end: const Offset(1.1, 1.1),
+                            duration: 2.seconds,
+                          ),
+                      const SizedBox(height: 16.0),
+                      Text(
+                        '$evolutionStage ${pet.petType.toUpperCase()}',
+                        style: AppTextStyles.orbitronHeading(fontSize: 20.0, color: statusColor),
+                      ),
+                      const SizedBox(height: 4.0),
+                      Text(
+                        'LEVEL ${pet.level}',
+                        style: AppTextStyles.orbitronHeading(fontSize: 14.0, color: Colors.white70),
                       ),
                       const SizedBox(height: 24.0),
-                      Text(
-                        pet.petType.toUpperCase(),
-                        style: AppTextStyles.orbitronHeading(fontSize: 24.0, color: Colors.white),
-                      ),
-                      const SizedBox(height: 16.0),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text('ЩАСТЯ', style: AppTextStyles.rajdhaniMedium(fontSize: 14.0, color: AppColors.textSecondary)),
-                          Text('$happiness%', style: AppTextStyles.orbitronHeading(fontSize: 16.0, color: statusColor)),
+                          Text('$happiness%', style: AppTextStyles.orbitronHeading(fontSize: 16.0, color: happiness < 20 ? Colors.redAccent : statusColor)),
                         ],
                       ),
                       const SizedBox(height: 8.0),
                       LinearProgressIndicator(
                         value: happiness / 100,
                         backgroundColor: AppColors.cardBg,
-                        color: statusColor,
+                        color: happiness < 20 ? Colors.redAccent : statusColor,
                         minHeight: 8.0,
+                      ),
+                      const SizedBox(height: 16.0),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text('XP', style: AppTextStyles.rajdhaniMedium(fontSize: 14.0, color: AppColors.textSecondary)),
+                          Text('${pet.xp} / $xpNeeded', style: AppTextStyles.orbitronHeading(fontSize: 12.0, color: statusColor)),
+                        ],
+                      ),
+                      const SizedBox(height: 8.0),
+                      LinearProgressIndicator(
+                        value: (pet.xp / xpNeeded).clamp(0.0, 1.0),
+                        backgroundColor: AppColors.cardBg,
+                        color: statusColor,
+                        minHeight: 4.0,
                       ),
                     ],
                   ),
@@ -142,10 +210,16 @@ class PetsScreen extends ConsumerWidget {
                 const Spacer(),
                 NeonButton(
                   text: 'НАГОДУВАТИ (1 SP)',
-                  baseColor: AppColors.cyanAccent,
-                  glowColor: AppColors.cyanAccent,
+                  baseColor: statusColor,
+                  glowColor: statusColor,
                   icon: const Icon(Icons.restaurant, color: Colors.black, size: 20),
                   onPressed: () => _feedPet(context, ref, pet),
+                ),
+                const SizedBox(height: 12.0),
+                Text(
+                  'Годування відновлює щастя та дає +25 XP',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(color: AppColors.textSecondary, fontSize: 12.0),
                 ),
                 const SizedBox(height: 32.0),
               ],
