@@ -42,7 +42,7 @@ Future<List<LeaderboardEntry>> weeklyLeaderboard(Ref ref) async {
     final weeklyScore = profile.xp > 0 ? (profile.xp * 0.3).toInt().clamp(50, 4500) : 0;
     
     entries.add(LeaderboardEntry(
-      id: profile.id,
+      id: profile.id.toString(),
       displayName: 'You (Player)', // or profile name if we have one
       score: weeklyScore,
       level: profile.level,
@@ -83,7 +83,7 @@ Future<List<LeaderboardEntry>> monthlyLeaderboard(Ref ref) async {
 
   if (profile != null) {
     entries.add(LeaderboardEntry(
-      id: profile.id,
+      id: profile.id.toString(),
       displayName: 'You (Player)',
       score: profile.xp, // Monthly score might just be their total XP for now
       level: profile.level,

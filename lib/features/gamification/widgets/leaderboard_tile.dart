@@ -69,14 +69,14 @@ class LeaderboardTile extends StatelessWidget {
               children: [
                 Text(
                   entry.displayName,
-                  style: AppTextStyles.h3.copyWith(
+                  style: AppTextStyles.rajdhaniBold(
                     color: entry.isCurrentUser ? AppColors.cyanAccent : AppColors.textPrimary,
                     fontSize: 16,
                   ),
                 ),
                 Text(
                   'Рівень ${entry.level}',
-                  style: AppTextStyles.bodyText.copyWith(
+                  style: AppTextStyles.interBody(
                     color: AppColors.textSecondary,
                     fontSize: 12,
                   ),
@@ -90,7 +90,7 @@ class LeaderboardTile extends StatelessWidget {
             children: [
               Text(
                 '${entry.score}',
-                style: AppTextStyles.h2.copyWith(
+                style: AppTextStyles.orbitronHeading(
                   color: position <= 3 ? positionColor : AppColors.textPrimary,
                   fontSize: 18,
                 ),
@@ -173,14 +173,14 @@ class AllianceLeaderboardTile extends StatelessWidget {
               children: [
                 Text(
                   entry.name,
-                  style: AppTextStyles.h3.copyWith(
+                  style: AppTextStyles.rajdhaniBold(
                     color: entry.isUserAlliance ? AppColors.magentaAccent : AppColors.textPrimary,
                     fontSize: 16,
                   ),
                 ),
                 Text(
                   '${entry.membersCount} учасників',
-                  style: AppTextStyles.bodyText.copyWith(
+                  style: AppTextStyles.interBody(
                     color: AppColors.textSecondary,
                     fontSize: 12,
                   ),
@@ -193,7 +193,7 @@ class AllianceLeaderboardTile extends StatelessWidget {
             children: [
               Text(
                 '${entry.totalScore}',
-                style: AppTextStyles.h2.copyWith(
+                style: AppTextStyles.orbitronHeading(
                   color: position <= 3 ? positionColor : AppColors.textPrimary,
                   fontSize: 18,
                 ),
