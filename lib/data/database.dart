@@ -92,6 +92,8 @@ class Pets extends Table {
   TextColumn get id => text()();
   TextColumn get petType => text()();
   IntColumn get happinessLevel => integer().withDefault(const Constant(100))();
+  IntColumn get xp => integer().withDefault(const Constant(0))();
+  IntColumn get level => integer().withDefault(const Constant(1))();
   DateTimeColumn get lastFedAt => dateTime()();
 
   @override
@@ -192,7 +194,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase.connect(QueryExecutor connection) : super(connection);
 
   @override
-  int get schemaVersion => 7;
+  int get schemaVersion => 8;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -280,6 +282,10 @@ class AppDatabase extends _$AppDatabase {
           if (from < 7) {
             await m.createTable(jointGoals);
             await m.createTable(jointGoalMembers);
+          }
+          if (from < 8) {
+            await m.addColumn(pets, pets.xp);
+            await m.addColumn(pets, pets.level);
           }
         },
       );

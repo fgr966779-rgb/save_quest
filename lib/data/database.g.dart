@@ -2331,6 +2331,20 @@ class $PetsTable extends Pets with TableInfo<$PetsTable, Pet> {
       type: DriftSqlType.int,
       requiredDuringInsert: false,
       defaultValue: const Constant(100));
+  static const VerificationMeta _xpMeta = const VerificationMeta('xp');
+  @override
+  late final GeneratedColumn<int> xp = GeneratedColumn<int>(
+      'xp', aliasedName, false,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultValue: const Constant(0));
+  static const VerificationMeta _levelMeta = const VerificationMeta('level');
+  @override
+  late final GeneratedColumn<int> level = GeneratedColumn<int>(
+      'level', aliasedName, false,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultValue: const Constant(1));
   static const VerificationMeta _lastFedAtMeta =
       const VerificationMeta('lastFedAt');
   @override
@@ -2339,7 +2353,7 @@ class $PetsTable extends Pets with TableInfo<$PetsTable, Pet> {
       type: DriftSqlType.dateTime, requiredDuringInsert: true);
   @override
   List<GeneratedColumn> get $columns =>
-      [id, petType, happinessLevel, lastFedAt];
+      [id, petType, happinessLevel, xp, level, lastFedAt];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
@@ -2367,6 +2381,13 @@ class $PetsTable extends Pets with TableInfo<$PetsTable, Pet> {
           happinessLevel.isAcceptableOrUnknown(
               data['happiness_level']!, _happinessLevelMeta));
     }
+    if (data.containsKey('xp')) {
+      context.handle(_xpMeta, xp.isAcceptableOrUnknown(data['xp']!, _xpMeta));
+    }
+    if (data.containsKey('level')) {
+      context.handle(
+          _levelMeta, level.isAcceptableOrUnknown(data['level']!, _levelMeta));
+    }
     if (data.containsKey('last_fed_at')) {
       context.handle(
           _lastFedAtMeta,
@@ -2390,6 +2411,10 @@ class $PetsTable extends Pets with TableInfo<$PetsTable, Pet> {
           .read(DriftSqlType.string, data['${effectivePrefix}pet_type'])!,
       happinessLevel: attachedDatabase.typeMapping
           .read(DriftSqlType.int, data['${effectivePrefix}happiness_level'])!,
+      xp: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}xp'])!,
+      level: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}level'])!,
       lastFedAt: attachedDatabase.typeMapping
           .read(DriftSqlType.dateTime, data['${effectivePrefix}last_fed_at'])!,
     );
@@ -2405,11 +2430,15 @@ class Pet extends DataClass implements Insertable<Pet> {
   final String id;
   final String petType;
   final int happinessLevel;
+  final int xp;
+  final int level;
   final DateTime lastFedAt;
   const Pet(
       {required this.id,
       required this.petType,
       required this.happinessLevel,
+      required this.xp,
+      required this.level,
       required this.lastFedAt});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -2417,6 +2446,8 @@ class Pet extends DataClass implements Insertable<Pet> {
     map['id'] = Variable<String>(id);
     map['pet_type'] = Variable<String>(petType);
     map['happiness_level'] = Variable<int>(happinessLevel);
+    map['xp'] = Variable<int>(xp);
+    map['level'] = Variable<int>(level);
     map['last_fed_at'] = Variable<DateTime>(lastFedAt);
     return map;
   }
@@ -2426,6 +2457,8 @@ class Pet extends DataClass implements Insertable<Pet> {
       id: Value(id),
       petType: Value(petType),
       happinessLevel: Value(happinessLevel),
+      xp: Value(xp),
+      level: Value(level),
       lastFedAt: Value(lastFedAt),
     );
   }
@@ -2437,6 +2470,8 @@ class Pet extends DataClass implements Insertable<Pet> {
       id: serializer.fromJson<String>(json['id']),
       petType: serializer.fromJson<String>(json['petType']),
       happinessLevel: serializer.fromJson<int>(json['happinessLevel']),
+      xp: serializer.fromJson<int>(json['xp']),
+      level: serializer.fromJson<int>(json['level']),
       lastFedAt: serializer.fromJson<DateTime>(json['lastFedAt']),
     );
   }
@@ -2447,6 +2482,8 @@ class Pet extends DataClass implements Insertable<Pet> {
       'id': serializer.toJson<String>(id),
       'petType': serializer.toJson<String>(petType),
       'happinessLevel': serializer.toJson<int>(happinessLevel),
+      'xp': serializer.toJson<int>(xp),
+      'level': serializer.toJson<int>(level),
       'lastFedAt': serializer.toJson<DateTime>(lastFedAt),
     };
   }
@@ -2455,11 +2492,15 @@ class Pet extends DataClass implements Insertable<Pet> {
           {String? id,
           String? petType,
           int? happinessLevel,
+          int? xp,
+          int? level,
           DateTime? lastFedAt}) =>
       Pet(
         id: id ?? this.id,
         petType: petType ?? this.petType,
         happinessLevel: happinessLevel ?? this.happinessLevel,
+        xp: xp ?? this.xp,
+        level: level ?? this.level,
         lastFedAt: lastFedAt ?? this.lastFedAt,
       );
   Pet copyWithCompanion(PetsCompanion data) {
@@ -2469,6 +2510,8 @@ class Pet extends DataClass implements Insertable<Pet> {
       happinessLevel: data.happinessLevel.present
           ? data.happinessLevel.value
           : this.happinessLevel,
+      xp: data.xp.present ? data.xp.value : this.xp,
+      level: data.level.present ? data.level.value : this.level,
       lastFedAt: data.lastFedAt.present ? data.lastFedAt.value : this.lastFedAt,
     );
   }
@@ -2479,13 +2522,16 @@ class Pet extends DataClass implements Insertable<Pet> {
           ..write('id: $id, ')
           ..write('petType: $petType, ')
           ..write('happinessLevel: $happinessLevel, ')
+          ..write('xp: $xp, ')
+          ..write('level: $level, ')
           ..write('lastFedAt: $lastFedAt')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => Object.hash(id, petType, happinessLevel, lastFedAt);
+  int get hashCode =>
+      Object.hash(id, petType, happinessLevel, xp, level, lastFedAt);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -2493,6 +2539,8 @@ class Pet extends DataClass implements Insertable<Pet> {
           other.id == this.id &&
           other.petType == this.petType &&
           other.happinessLevel == this.happinessLevel &&
+          other.xp == this.xp &&
+          other.level == this.level &&
           other.lastFedAt == this.lastFedAt);
 }
 
@@ -2500,12 +2548,16 @@ class PetsCompanion extends UpdateCompanion<Pet> {
   final Value<String> id;
   final Value<String> petType;
   final Value<int> happinessLevel;
+  final Value<int> xp;
+  final Value<int> level;
   final Value<DateTime> lastFedAt;
   final Value<int> rowid;
   const PetsCompanion({
     this.id = const Value.absent(),
     this.petType = const Value.absent(),
     this.happinessLevel = const Value.absent(),
+    this.xp = const Value.absent(),
+    this.level = const Value.absent(),
     this.lastFedAt = const Value.absent(),
     this.rowid = const Value.absent(),
   });
@@ -2513,6 +2565,8 @@ class PetsCompanion extends UpdateCompanion<Pet> {
     required String id,
     required String petType,
     this.happinessLevel = const Value.absent(),
+    this.xp = const Value.absent(),
+    this.level = const Value.absent(),
     required DateTime lastFedAt,
     this.rowid = const Value.absent(),
   })  : id = Value(id),
@@ -2522,6 +2576,8 @@ class PetsCompanion extends UpdateCompanion<Pet> {
     Expression<String>? id,
     Expression<String>? petType,
     Expression<int>? happinessLevel,
+    Expression<int>? xp,
+    Expression<int>? level,
     Expression<DateTime>? lastFedAt,
     Expression<int>? rowid,
   }) {
@@ -2529,6 +2585,8 @@ class PetsCompanion extends UpdateCompanion<Pet> {
       if (id != null) 'id': id,
       if (petType != null) 'pet_type': petType,
       if (happinessLevel != null) 'happiness_level': happinessLevel,
+      if (xp != null) 'xp': xp,
+      if (level != null) 'level': level,
       if (lastFedAt != null) 'last_fed_at': lastFedAt,
       if (rowid != null) 'rowid': rowid,
     });
@@ -2538,12 +2596,16 @@ class PetsCompanion extends UpdateCompanion<Pet> {
       {Value<String>? id,
       Value<String>? petType,
       Value<int>? happinessLevel,
+      Value<int>? xp,
+      Value<int>? level,
       Value<DateTime>? lastFedAt,
       Value<int>? rowid}) {
     return PetsCompanion(
       id: id ?? this.id,
       petType: petType ?? this.petType,
       happinessLevel: happinessLevel ?? this.happinessLevel,
+      xp: xp ?? this.xp,
+      level: level ?? this.level,
       lastFedAt: lastFedAt ?? this.lastFedAt,
       rowid: rowid ?? this.rowid,
     );
@@ -2561,6 +2623,12 @@ class PetsCompanion extends UpdateCompanion<Pet> {
     if (happinessLevel.present) {
       map['happiness_level'] = Variable<int>(happinessLevel.value);
     }
+    if (xp.present) {
+      map['xp'] = Variable<int>(xp.value);
+    }
+    if (level.present) {
+      map['level'] = Variable<int>(level.value);
+    }
     if (lastFedAt.present) {
       map['last_fed_at'] = Variable<DateTime>(lastFedAt.value);
     }
@@ -2576,6 +2644,8 @@ class PetsCompanion extends UpdateCompanion<Pet> {
           ..write('id: $id, ')
           ..write('petType: $petType, ')
           ..write('happinessLevel: $happinessLevel, ')
+          ..write('xp: $xp, ')
+          ..write('level: $level, ')
           ..write('lastFedAt: $lastFedAt, ')
           ..write('rowid: $rowid')
           ..write(')'))
@@ -5795,6 +5865,8 @@ typedef $$PetsTableCreateCompanionBuilder = PetsCompanion Function({
   required String id,
   required String petType,
   Value<int> happinessLevel,
+  Value<int> xp,
+  Value<int> level,
   required DateTime lastFedAt,
   Value<int> rowid,
 });
@@ -5802,6 +5874,8 @@ typedef $$PetsTableUpdateCompanionBuilder = PetsCompanion Function({
   Value<String> id,
   Value<String> petType,
   Value<int> happinessLevel,
+  Value<int> xp,
+  Value<int> level,
   Value<DateTime> lastFedAt,
   Value<int> rowid,
 });
@@ -5823,6 +5897,12 @@ class $$PetsTableFilterComposer extends Composer<_$AppDatabase, $PetsTable> {
   ColumnFilters<int> get happinessLevel => $composableBuilder(
       column: $table.happinessLevel,
       builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get xp => $composableBuilder(
+      column: $table.xp, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get level => $composableBuilder(
+      column: $table.level, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<DateTime> get lastFedAt => $composableBuilder(
       column: $table.lastFedAt, builder: (column) => ColumnFilters(column));
@@ -5846,6 +5926,12 @@ class $$PetsTableOrderingComposer extends Composer<_$AppDatabase, $PetsTable> {
       column: $table.happinessLevel,
       builder: (column) => ColumnOrderings(column));
 
+  ColumnOrderings<int> get xp => $composableBuilder(
+      column: $table.xp, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get level => $composableBuilder(
+      column: $table.level, builder: (column) => ColumnOrderings(column));
+
   ColumnOrderings<DateTime> get lastFedAt => $composableBuilder(
       column: $table.lastFedAt, builder: (column) => ColumnOrderings(column));
 }
@@ -5867,6 +5953,12 @@ class $$PetsTableAnnotationComposer
 
   GeneratedColumn<int> get happinessLevel => $composableBuilder(
       column: $table.happinessLevel, builder: (column) => column);
+
+  GeneratedColumn<int> get xp =>
+      $composableBuilder(column: $table.xp, builder: (column) => column);
+
+  GeneratedColumn<int> get level =>
+      $composableBuilder(column: $table.level, builder: (column) => column);
 
   GeneratedColumn<DateTime> get lastFedAt =>
       $composableBuilder(column: $table.lastFedAt, builder: (column) => column);
@@ -5898,6 +5990,8 @@ class $$PetsTableTableManager extends RootTableManager<
             Value<String> id = const Value.absent(),
             Value<String> petType = const Value.absent(),
             Value<int> happinessLevel = const Value.absent(),
+            Value<int> xp = const Value.absent(),
+            Value<int> level = const Value.absent(),
             Value<DateTime> lastFedAt = const Value.absent(),
             Value<int> rowid = const Value.absent(),
           }) =>
@@ -5905,6 +5999,8 @@ class $$PetsTableTableManager extends RootTableManager<
             id: id,
             petType: petType,
             happinessLevel: happinessLevel,
+            xp: xp,
+            level: level,
             lastFedAt: lastFedAt,
             rowid: rowid,
           ),
@@ -5912,6 +6008,8 @@ class $$PetsTableTableManager extends RootTableManager<
             required String id,
             required String petType,
             Value<int> happinessLevel = const Value.absent(),
+            Value<int> xp = const Value.absent(),
+            Value<int> level = const Value.absent(),
             required DateTime lastFedAt,
             Value<int> rowid = const Value.absent(),
           }) =>
@@ -5919,6 +6017,8 @@ class $$PetsTableTableManager extends RootTableManager<
             id: id,
             petType: petType,
             happinessLevel: happinessLevel,
+            xp: xp,
+            level: level,
             lastFedAt: lastFedAt,
             rowid: rowid,
           ),
