@@ -4,6 +4,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_text_styles.dart';
+import '../../../core/providers/providers.dart';
+import '../../../core/services/openrouter_service.dart';
 import '../../../core/services/price_analysis_service.dart';
 import '../../../core/utils/money_utils.dart';
 import '../../../core/widgets/glass_card.dart';
@@ -28,7 +30,9 @@ class PriceAnalysisScreen extends ConsumerStatefulWidget {
 
 class _PriceAnalysisScreenState extends ConsumerState<PriceAnalysisScreen> {
   late final TextEditingController _controller;
+  late final TextEditingController _apiKeyController;
   bool _isLoading = false;
+  bool _showApiKeyField = false;
   PriceAnalysis? _analysis;
   String? _error;
 
@@ -36,12 +40,35 @@ class _PriceAnalysisScreenState extends ConsumerState<PriceAnalysisScreen> {
   void initState() {
     super.initState();
     _controller = TextEditingController(text: widget.initialQuery ?? '');
+    final settings = ref.read(settingsServiceProvider);
+    _apiKeyController = TextEditingController(text: settings.openRouterApiKey);
+    _showApiKeyField = settings.openRouterApiKey.trim().isEmpty;
   }
 
   @override
   void dispose() {
     _controller.dispose();
+    _apiKeyController.dispose();
     super.dispose();
+  }
+
+  void _saveApiKey() {
+    final value = _apiKeyController.text.trim();
+    final settings = ref.read(settingsServiceProvider);
+    settings.openRouterApiKey = value;
+    ref.invalidate(openRouterProvider);
+    setState(() {
+      _showApiKeyField = value.isEmpty;
+    });
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        backgroundColor: AppColors.greenAccent.withOpacity(0.85),
+        content: Text(
+          value.isEmpty ? 'API-ключ очищено' : 'API-ключ збережено',
+          style: const TextStyle(color: Colors.black),
+        ),
+      ),
+    );
   }
 
   Future<void> _run() async {
@@ -92,6 +119,8 @@ class _PriceAnalysisScreenState extends ConsumerState<PriceAnalysisScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
+                    _buildApiKeyCard(),
+                    const SizedBox(height: 16.0),
                     _buildSearchCard(),
                     const SizedBox(height: 20.0),
                     if (_error != null) _buildErrorCard(_error!),
@@ -153,6 +182,127 @@ class _PriceAnalysisScreenState extends ConsumerState<PriceAnalysisScreen> {
               ],
             ),
           ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildApiKeyCard() {
+    final openRouter = ref.watch(openRouterProvider);
+    final hasKey = openRouter.isAvailable;
+    final color = hasKey ? AppColors.greenAccent : AppColors.goldAccent;
+
+    return GlassCard(
+      padding: const EdgeInsets.all(14.0),
+      borderColor: color.withOpacity(0.4),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Row(
+            children: [
+              Icon(
+                hasKey ? Icons.cloud_done_rounded : Icons.cloud_off_rounded,
+                color: color,
+                size: 22,
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      hasKey ? 'ШІ-АНАЛІЗ АКТИВНИЙ' : 'ОФЛАЙН-РЕЖИМ',
+                      style: TextStyle(
+                        fontSize: 9.5,
+                        color: color,
+                        fontWeight: FontWeight.bold,
+                        letterSpacing: 1.2,
+                      ),
+                    ),
+                    const SizedBox(height: 3),
+                    Text(
+                      hasKey
+                          ? 'Ціни оцінюватиме DeepSeek через OpenRouter API.'
+                          : 'Без API-ключа використовується вбудований каталог. '
+                              'Додайте ключ OpenRouter для живих оцінок.',
+                      style: const TextStyle(
+                        fontSize: 12,
+                        color: AppColors.textPrimary,
+                        height: 1.35,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              TextButton(
+                onPressed: () {
+                  setState(() => _showApiKeyField = !_showApiKeyField);
+                },
+                child: Text(
+                  _showApiKeyField ? 'СХОВАТИ' : (hasKey ? 'ЗМІНИТИ' : 'ДОДАТИ'),
+                  style: TextStyle(
+                    fontSize: 11,
+                    color: color,
+                    fontWeight: FontWeight.bold,
+                    letterSpacing: 1.1,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          if (_showApiKeyField) ...[
+            const SizedBox(height: 12),
+            TextField(
+              controller: _apiKeyController,
+              obscureText: true,
+              style:
+                  const TextStyle(color: AppColors.textPrimary, fontSize: 13),
+              decoration: InputDecoration(
+                hintText: 'sk-or-v1-...',
+                hintStyle: const TextStyle(color: AppColors.textMuted),
+                filled: true,
+                fillColor: AppColors.cardBgLight,
+                prefixIcon: const Icon(Icons.key_rounded,
+                    color: AppColors.goldAccent, size: 18),
+                isDense: true,
+                contentPadding: const EdgeInsets.symmetric(
+                    horizontal: 12, vertical: 12),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10.0),
+                  borderSide: BorderSide(
+                    color: AppColors.borderNeon.withOpacity(0.5),
+                  ),
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10.0),
+                  borderSide: BorderSide(
+                    color: AppColors.borderNeon.withOpacity(0.5),
+                  ),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10.0),
+                  borderSide: BorderSide(color: color),
+                ),
+              ),
+            ),
+            const SizedBox(height: 10),
+            Align(
+              alignment: Alignment.centerRight,
+              child: TextButton.icon(
+                onPressed: _saveApiKey,
+                icon: Icon(Icons.save_rounded, color: color, size: 16),
+                label: Text(
+                  'ЗБЕРЕГТИ КЛЮЧ',
+                  style: TextStyle(
+                    fontSize: 11,
+                    color: color,
+                    fontWeight: FontWeight.bold,
+                    letterSpacing: 1.2,
+                  ),
+                ),
+              ),
+            ),
+          ],
         ],
       ),
     );
