@@ -8,6 +8,7 @@ import '../../../../core/constants/app_colors.dart';
 import '../../../../core/widgets/particle_background.dart';
 import '../../../../core/providers/providers.dart';
 import '../../../../core/providers/l10n.dart';
+import 'dart:math' as math;
 
 class ShellScaffold extends ConsumerWidget {
   final Widget child;
@@ -57,12 +58,36 @@ class ShellScaffold extends ConsumerWidget {
     final currentLocale = ref.watch(localeProvider);
     String t(String key) => AppLocalizations.get(currentLocale, key);
 
+    // Global Economic Pulse: Tint background based on daily random "market mood"
+    // In production, this would come from an API
+    final marketMoodSeed = DateTime.now().day;
+    final random = math.Random(marketMoodSeed);
+    final isBullMarket = random.nextBool();
+    final pulseColor = isBullMarket ? Colors.greenAccent : Colors.orangeAccent;
+
     return Scaffold(
       backgroundColor: AppColors.background,
       body: Stack(
         children: [
           // Slow continuous neon particle floaters in background
           const ParticleBackground(),
+          // Global Economic Pulse Overlay
+          Positioned.fill(
+            child: IgnorePointer(
+              child: Container(
+                decoration: BoxDecoration(
+                  gradient: RadialGradient(
+                    colors: [
+                      pulseColor.withOpacity(0.03),
+                      Colors.transparent,
+                    ],
+                    radius: 1.5,
+                  ),
+                ),
+              ),
+            ).animate(onPlay: (c) => c.repeat(reverse: true))
+             .fadeIn(duration: 3.seconds, curve: Curves.easeInOut),
+          ),
           // Content with Glitch UI if infected
           SafeArea(
             bottom: false,

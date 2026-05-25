@@ -29,6 +29,7 @@ import '../../gamification/models/daily_quest.dart';
 import '../../gamification/providers/daily_bonus_provider.dart';
 import '../../gamification/widgets/daily_bonus_dialog.dart';
 import '../../gamification/widgets/shield_activation_dialog.dart';
+import '../../gamification/widgets/neural_calibration_dialog.dart';
 
 class DashboardScreen extends ConsumerStatefulWidget {
   const DashboardScreen({Key? key}) : super(key: key);
@@ -38,6 +39,15 @@ class DashboardScreen extends ConsumerStatefulWidget {
 }
 
 class _DashboardScreenState extends ConsumerState<DashboardScreen> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      // Show neural calibration on every dashboard entry for now (Singularity feature)
+      NeuralCalibrationDialog.show(context);
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     ref.listen<AsyncValue<DailyBonusState>>(dailyBonusProvider, (previous, next) {
