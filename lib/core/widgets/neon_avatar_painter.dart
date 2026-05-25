@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:ui' as ui;
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import '../constants/app_colors.dart';
 import '../../features/gamification/models/badge_model.dart';
 
@@ -307,7 +308,7 @@ class NeonAvatarPainter extends CustomPainter {
   }
 }
 
-class NeonAvatarWidget extends StatelessWidget {
+class NeonAvatarWidget extends StatefulWidget {
   final AvatarConfig config;
   final double size;
 
@@ -318,13 +319,61 @@ class NeonAvatarWidget extends StatelessWidget {
   }) : super(key: key);
 
   @override
+  State<NeonAvatarWidget> createState() => _NeonAvatarWidgetState();
+}
+
+class _NeonAvatarWidgetState extends State<NeonAvatarWidget> with SingleTickerProviderStateMixin {
+  late AnimationController _heartbeatController;
+
+  @override
+  void initState() {
+    super.initState();
+    _heartbeatController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1000),
+    );
+
+    _heartbeatController.addStatusListener((status) {
+      if (status == AnimationStatus.completed) {
+        if (widget.config.integrity > 0.8) {
+          // Heartbeat haptics: double tap feeling
+          HapticFeedback.lightImpact();
+          Future.delayed(const Duration(milliseconds: 150), () {
+            HapticFeedback.lightImpact();
+          });
+        }
+        _heartbeatController.forward(from: 0.0);
+      }
+    });
+
+    _heartbeatController.forward();
+  }
+
+  @override
+  void dispose() {
+    _heartbeatController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      width: size,
-      height: size,
-      child: CustomPaint(
-        painter: NeonAvatarPainter(config: config),
-      ),
+    return AnimatedBuilder(
+      animation: _heartbeatController,
+      builder: (context, child) {
+        // Subtle scale animation based on controller
+        final scale = 1.0 + (0.05 * math.sin(_heartbeatController.value * 2 * math.pi));
+
+        return Transform.scale(
+          scale: scale,
+          child: SizedBox(
+            width: widget.size,
+            height: widget.size,
+            child: CustomPaint(
+              painter: NeonAvatarPainter(config: widget.config),
+            ),
+          ),
+        );
+      },
     );
   }
 }

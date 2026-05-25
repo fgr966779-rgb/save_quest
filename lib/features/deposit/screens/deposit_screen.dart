@@ -577,19 +577,37 @@ class _DepositScreenState extends ConsumerState<DepositScreen> with SingleTicker
           ),
 
           const Spacer(),
-          NeonButton(
-            text: 'ЗАТВЕРДИТИ ТРАНЗАКЦІЮ',
-            baseColor: Colors.greenAccent,
-            glowColor: Colors.greenAccent,
-            onPressed: () {
-              HapticFeedback.heavyImpact();
-              setState(() => _currentStep = DepositStep.undoWindow);
-              _startUndoTimer();
-            },
-          ),
+          _buildConfirmButton(context, ref),
           const SizedBox(height: 16.0),
         ],
       ),
+    );
+  }
+
+  Widget _buildConfirmButton(BuildContext context, WidgetRef ref) {
+    final profileAsync = ref.watch(userProfileProvider);
+    final hasPenalty = profileAsync.value != null && profileAsync.value!.penaltyBalance > 0;
+
+    if (!hasPenalty) {
+      return NeonButton(
+        text: 'ЗАТВЕРДИТИ ТРАНЗАКЦІЮ',
+        baseColor: Colors.greenAccent,
+        glowColor: Colors.greenAccent,
+        onPressed: () {
+          HapticFeedback.heavyImpact();
+          setState(() => _currentStep = DepositStep.undoWindow);
+          _startUndoTimer();
+        },
+      );
+    }
+
+    // Bio-Lock Budget: Require long press if penalties exist
+    return _BioLockButton(
+      onComplete: () {
+        HapticFeedback.heavyImpact();
+        setState(() => _currentStep = DepositStep.undoWindow);
+        _startUndoTimer();
+      },
     );
   }
 
@@ -841,6 +859,96 @@ class CelebrationConfetti {
     y += vy * 0.01;
     vy += 0.08; // Gravity effect
     rotation += rotationSpeed;
+  }
+}
+
+class _BioLockButton extends StatefulWidget {
+  final VoidCallback onComplete;
+
+  const _BioLockButton({required this.onComplete});
+
+  @override
+  State<_BioLockButton> createState() => _BioLockButtonState();
+}
+
+class _BioLockButtonState extends State<_BioLockButton> with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  bool _isPressing = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 3),
+    );
+    _controller.addStatusListener((status) {
+      if (status == AnimationStatus.completed) {
+        widget.onComplete();
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onLongPressStart: (_) {
+        setState(() => _isPressing = true);
+        _controller.forward();
+        HapticFeedback.mediumImpact();
+      },
+      onLongPressEnd: (_) {
+        setState(() => _isPressing = false);
+        if (_controller.status != AnimationStatus.completed) {
+          _controller.reverse();
+        }
+      },
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          NeonButton(
+            text: _isPressing ? 'ЗНЯТТЯ БЛОКУВАННЯ...' : 'BIO-LOCK: УТРИМУЙТЕ 3с',
+            baseColor: Colors.orangeAccent,
+            glowColor: Colors.orangeAccent,
+            onPressed: () {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('BIO-LOCK АКТИВНО: Утримуйте кнопку 3 секунди для підтвердження!')),
+              );
+            },
+          ),
+          if (_isPressing)
+            Positioned.fill(
+              child: IgnorePointer(
+                child: AnimatedBuilder(
+                  animation: _controller,
+                  builder: (context, child) {
+                    return Container(
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(color: Colors.white, width: 2),
+                      ),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(10),
+                        child: LinearProgressIndicator(
+                          value: _controller.value,
+                          backgroundColor: Colors.transparent,
+                          valueColor: const AlwaysStoppedAnimation<Color>(Colors.white30),
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ),
+            ),
+        ],
+      ),
+    );
   }
 }
 

@@ -53,8 +53,9 @@ final aiInsightsProvider =
     FutureProvider.autoDispose<List<AIInsight>>((ref) async {
   final transactions = ref.watch(mockBankingProvider);
   final settings = ref.watch(settingsServiceProvider);
+  final profile = ref.watch(userProfileProvider).value;
   final apiKey = settings.openRouterApiKey;
-  return _generateInsights(transactions, apiKey: apiKey, settings: settings);
+  return _generateInsights(transactions, apiKey: apiKey, settings: settings, profile: profile);
 });
 
 // --- Mock Banking Notifier ---
@@ -143,6 +144,7 @@ Future<List<AIInsight>> _generateInsights(
   List<BankTransaction> transactions, {
   String apiKey = '',
   required SettingsService settings,
+  UserProfile? profile,
 }) async {
   if (transactions.isEmpty) return [];
 
@@ -159,11 +161,20 @@ Future<List<AIInsight>> _generateInsights(
     }
   }
 
+  final hasPenalty = profile != null && profile.penaltyBalance > 0;
+
   // --- Try LLM for the latest transaction ---
   final latestTx = transactions.first;
+  var personality = CoachPersonalityExt.fromKey(settings.coachPersonality);
+
+  // If in Detox Mode (penalties), force a hostile/aggressive persona
+  if (hasPenalty) {
+    personality = CoachPersonality.hacker; // Use Hacker for cynical tone
+  }
+
   final service = OpenRouterService(
     apiKey: apiKey, 
-    personality: CoachPersonalityExt.fromKey(settings.coachPersonality)
+    personality: personality
   );
 
   if (service.isAvailable) {
@@ -198,9 +209,10 @@ Future<List<AIInsight>> _generateInsights(
   if (totalPendingRoundUp >= 500) {
     insights.add(AIInsight(
       id: 'round_up_1',
-      title: 'Магія Округлення ✨',
-      description:
-          'Ви здійснили кілька покупок. Округлити їх і відкласти ${centsToDisplay(totalPendingRoundUp)}?',
+      title: hasPenalty ? '🛑 ШТРАФНИЙ ПРОТОКОЛ' : 'Магія Округлення ✨',
+      description: hasPenalty
+          ? 'Твій борг росте. Округли ці копійки і віддай їх у сейф негайно. Потрібно ${centsToDisplay(totalPendingRoundUp)}.'
+          : 'Ви здійснили кілька покупок. Округлити їх і відкласти ${centsToDisplay(totalPendingRoundUp)}?',
       type: 'round_up',
       suggestedAmountKopecks: totalPendingRoundUp,
     ));
@@ -216,9 +228,10 @@ Future<List<AIInsight>> _generateInsights(
   if (todayCafeKopecks > 0 && todayCafeKopecks < 5000) {
     insights.add(AIInsight(
       id: 'ai_save_1',
-      title: 'Розумна Економія 🧠',
-      description:
-          'Схоже, сьогодні ви зекономили на каві! Можливо, перекажемо 50 грн у Сховище?',
+      title: hasPenalty ? '👎 СЛАБКА СПРОБА' : 'Розумна Економія 🧠',
+      description: hasPenalty
+          ? 'Ти зекономив на каві? Це не покриє твої гріхи. Внось 50 грн як мінімум.'
+          : 'Схоже, сьогодні ви зекономили на каві! Можливо, перекажемо 50 грн у Сховище?',
       type: 'savings_opportunity',
       suggestedAmountKopecks: 5000,
     ));
@@ -226,9 +239,10 @@ Future<List<AIInsight>> _generateInsights(
       latestTx.category == 'Tech') {
     insights.add(AIInsight(
       id: 'ai_spend_1',
-      title: 'Ігровий Баланс 🎮',
-      description:
-          'Ви щойно витратили на розваги. Збалансуйте карму — закиньте 100 грн на ціль!',
+      title: hasPenalty ? '☢️ СИСТЕМА ПЕРЕГРІТА' : 'Ігровий Баланс 🎮',
+      description: hasPenalty
+          ? 'Знову ігри? Ти безнадійний. Штраф у 100 грн — це твоя ціна за слабкість.'
+          : 'Ви щойно витратили на розваги. Збалансуйте карму — закиньте 100 грн на ціль!',
       type: 'spending_alert',
       suggestedAmountKopecks: 10000,
     ));

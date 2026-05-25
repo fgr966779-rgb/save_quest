@@ -333,7 +333,74 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                   .animate()
                   .fadeIn(duration: 500.ms, delay: 300.ms)
                   .slideY(begin: 0.1, end: 0.0),
-              const SizedBox(height: 12.0),
+              const SizedBox(height: 24.0),
+
+              // SOS: The Signal Flare
+              _buildSOSButton(context)
+                  .animate()
+                  .fadeIn(duration: 400.ms, delay: 350.ms)
+                  .scale(begin: const Offset(0.9, 0.9)),
+              const SizedBox(height: 24.0),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSOSButton(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        boxShadow: [
+          BoxShadow(
+            color: Colors.redAccent.withOpacity(0.2),
+            blurRadius: 20,
+            spreadRadius: 2,
+          ),
+        ],
+      ),
+      child: NeonButton(
+        text: 'МЕНІ ВАЖКО НЕ ВИТРАТИТИ',
+        baseColor: Colors.redAccent,
+        glowColor: Colors.redAccent,
+        icon: const Icon(Icons.emergency_share, color: Colors.black, size: 20),
+        onPressed: () => _showSOSDialog(context),
+      ),
+    );
+  }
+
+  void _showSOSDialog(BuildContext context) {
+    HapticFeedback.heavyImpact();
+    showDialog(
+      context: context,
+      builder: (context) => Dialog(
+        backgroundColor: Colors.transparent,
+        child: GlassCard(
+          padding: const EdgeInsets.all(24),
+          borderColor: AppColors.cyanAccent,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Icon(Icons.favorite, color: Colors.redAccent, size: 48)
+                  .animate(onPlay: (c) => c.repeat(reverse: true))
+                  .scale(duration: 1.seconds, begin: const Offset(1, 1), end: const Offset(1.2, 1.2)),
+              const SizedBox(height: 24),
+              Text(
+                'ДИХАЙ. ТИ СИЛЬНІШИЙ ЗА ІМПУЛЬС.',
+                textAlign: TextAlign.center,
+                style: AppTextStyles.orbitronHeading(fontSize: 16, color: AppColors.cyanAccent),
+              ),
+              const SizedBox(height: 16),
+              const Text(
+                'Ця хвиля бажання пройде за 15 хвилин. Твоя ціль варта того, щоб почекати.',
+                textAlign: TextAlign.center,
+                style: TextStyle(color: Colors.white70, fontSize: 13, height: 1.5),
+              ),
+              const SizedBox(height: 32),
+              NeonButton(
+                text: 'Я ТРИМАЮСЬ',
+                onPressed: () => Navigator.pop(context),
+              ),
             ],
           ),
         ),
