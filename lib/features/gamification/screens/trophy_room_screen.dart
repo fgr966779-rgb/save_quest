@@ -11,7 +11,7 @@ import '../../../core/widgets/glass_card.dart';
 import '../models/achievement_model.dart';
 
 class TrophyRoomScreen extends ConsumerWidget {
-  const TrophyRoomScreen({Key? key}) : super(key: key);
+  const TrophyRoomScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -53,7 +53,7 @@ class TrophyRoomScreen extends ConsumerWidget {
                 },
                 child: GlassCard(
                   padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                  borderColor: AppColors.goldGlow.withOpacity(0.4),
+                  borderColor: AppColors.goldGlow.withValues(alpha: 0.4),
                   glowColor: AppColors.goldGlow,
                   child: Row(
                     children: [
@@ -61,8 +61,8 @@ class TrophyRoomScreen extends ConsumerWidget {
                         width: 36, height: 36,
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
-                          color: AppColors.goldGlow.withOpacity(0.15),
-                          border: Border.all(color: AppColors.goldGlow.withOpacity(0.5)),
+                          color: AppColors.goldGlow.withValues(alpha: 0.15),
+                          border: Border.all(color: AppColors.goldGlow.withValues(alpha: 0.5)),
                         ),
                         child: const Icon(Icons.account_tree_rounded, color: AppColors.goldGlow, size: 18),
                       ),
@@ -106,7 +106,7 @@ class TrophyRoomScreen extends ConsumerWidget {
                         // Progression summary badge
                         GlassCard(
                           padding: const EdgeInsets.all(16.0),
-                          borderColor: AppColors.cyanAccent.withOpacity(0.3),
+                          borderColor: AppColors.cyanAccent.withValues(alpha: 0.3),
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
@@ -197,7 +197,7 @@ class TrophyRoomScreen extends ConsumerWidget {
       },
       child: GlassCard(
         padding: const EdgeInsets.all(12.0),
-        borderColor: isUnlocked ? rarityColor.withOpacity(0.4) : AppColors.borderNeon.withOpacity(0.15),
+        borderColor: isUnlocked ? rarityColor.withValues(alpha: 0.4) : AppColors.borderNeon.withValues(alpha: 0.15),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -208,10 +208,10 @@ class TrophyRoomScreen extends ConsumerWidget {
                 width: 60.0,
                 height: 60.0,
                 decoration: BoxDecoration(
-                  color: isUnlocked ? rarityColor.withOpacity(0.1) : AppColors.cardBg,
+                  color: isUnlocked ? rarityColor.withValues(alpha: 0.1) : AppColors.cardBg,
                   shape: BoxShape.circle,
                   border: Border.all(
-                    color: isUnlocked ? rarityColor : AppColors.borderNeon.withOpacity(0.2),
+                    color: isUnlocked ? rarityColor : AppColors.borderNeon.withValues(alpha: 0.2),
                     width: 1.5,
                   ),
                 ),
@@ -243,7 +243,7 @@ class TrophyRoomScreen extends ConsumerWidget {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 2.0),
               decoration: BoxDecoration(
-                color: isUnlocked ? rarityColor.withOpacity(0.15) : AppColors.cardBg.withOpacity(0.4),
+                color: isUnlocked ? rarityColor.withValues(alpha: 0.15) : AppColors.cardBg.withValues(alpha: 0.4),
                 borderRadius: BorderRadius.circular(4.0),
               ),
               child: Text(
@@ -271,7 +271,7 @@ class TrophyRoomScreen extends ConsumerWidget {
           decoration: BoxDecoration(
             color: AppColors.background,
             borderRadius: const BorderRadius.vertical(top: Radius.circular(24.0)),
-            border: Border.all(color: AppColors.borderNeon.withOpacity(0.3), width: 1.5),
+            border: Border.all(color: AppColors.borderNeon.withValues(alpha: 0.3), width: 1.5),
           ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -282,7 +282,7 @@ class TrophyRoomScreen extends ConsumerWidget {
                   width: 50.0,
                   height: 4.0,
                   decoration: BoxDecoration(
-                    color: AppColors.textSecondary.withOpacity(0.3),
+                    color: AppColors.textSecondary.withValues(alpha: 0.3),
                     borderRadius: BorderRadius.circular(2.0),
                   ),
                 ),

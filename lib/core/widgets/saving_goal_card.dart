@@ -17,7 +17,7 @@ class SavingGoalCard extends StatefulWidget {
   final bool isCiphered;
 
   const SavingGoalCard({
-    Key? key,
+    super.key,
     required this.title,
     required this.currentAmount,
     required this.targetAmount,
@@ -27,7 +27,7 @@ class SavingGoalCard extends StatefulWidget {
     required this.onTap,
     required this.heroTag,
     this.isCiphered = false,
-  }) : super(key: key);
+  });
 
   @override
   State<SavingGoalCard> createState() => _SavingGoalCardState();
@@ -93,7 +93,7 @@ class _SavingGoalCardState extends State<SavingGoalCard>
                 boxShadow: [
                   BoxShadow(
                     color: widget.accentColor
-                        .withOpacity((isDark ? 0.10 : 0.06) + 0.10 * pulse),
+                        .withValues(alpha: (isDark ? 0.10 : 0.06) + 0.10 * pulse),
                     blurRadius: 28.0 + 14.0 * pulse,
                     spreadRadius: 1.5,
                     offset: const Offset(0, 12),
@@ -112,14 +112,14 @@ class _SavingGoalCardState extends State<SavingGoalCard>
                 decoration: BoxDecoration(
                   // Frosted glass effect
                   color: isDark
-                      ? AppColors.cardBg.withOpacity(0.65)
-                      : Colors.white.withOpacity(0.85),
+                      ? AppColors.cardBg.withValues(alpha: 0.65)
+                      : Colors.white.withValues(alpha: 0.85),
                   borderRadius: BorderRadius.circular(24.0),
                   // Micro-border
                   border: Border.all(
                     color: isDark
-                        ? Colors.white.withOpacity(0.08)
-                        : Colors.black.withOpacity(0.04),
+                        ? Colors.white.withValues(alpha: 0.08)
+                        : Colors.black.withValues(alpha: 0.04),
                     width: 1.5,
                   ),
                 ),
@@ -135,7 +135,7 @@ class _SavingGoalCardState extends State<SavingGoalCard>
                         borderRadius: BorderRadius.circular(2.0),
                         boxShadow: [
                           BoxShadow(
-                            color: widget.accentColor.withOpacity(0.6),
+                            color: widget.accentColor.withValues(alpha: 0.6),
                             blurRadius: 8.0,
                           ),
                         ],
@@ -161,12 +161,12 @@ class _SavingGoalCardState extends State<SavingGoalCard>
                                           padding: const EdgeInsets.all(8.0),
                                           decoration: BoxDecoration(
                                             color: widget.accentColor
-                                                .withOpacity(0.12 + 0.08 * pulse),
+                                                .withValues(alpha: 0.12 + 0.08 * pulse),
                                             shape: BoxShape.circle,
                                             boxShadow: [
                                               BoxShadow(
                                                 color: widget.accentColor
-                                                    .withOpacity(0.25 * pulse),
+                                                    .withValues(alpha: 0.25 * pulse),
                                                 blurRadius: 10.0 + 6.0 * pulse,
                                                 spreadRadius: 0.5,
                                               ),
@@ -276,8 +276,8 @@ class _SavingGoalCardState extends State<SavingGoalCard>
                                     width: double.infinity,
                                     decoration: BoxDecoration(
                                       color: isDark
-                                          ? Colors.white.withOpacity(0.06)
-                                          : Colors.black.withOpacity(0.04),
+                                          ? Colors.white.withValues(alpha: 0.06)
+                                          : Colors.black.withValues(alpha: 0.04),
                                       borderRadius: BorderRadius.circular(4.0),
                                     ),
                                   ),
@@ -290,13 +290,13 @@ class _SavingGoalCardState extends State<SavingGoalCard>
                                       gradient: LinearGradient(
                                         colors: [
                                           widget.accentColor,
-                                          widget.accentColor.withOpacity(0.8),
+                                          widget.accentColor.withValues(alpha: 0.8),
                                         ],
                                       ),
                                       borderRadius: BorderRadius.circular(4.0),
                                       boxShadow: [
                                         BoxShadow(
-                                          color: widget.accentColor.withOpacity(0.25),
+                                          color: widget.accentColor.withValues(alpha: 0.25),
                                           blurRadius: 6.0,
                                           offset: const Offset(0, 1),
                                         ),
@@ -327,7 +327,7 @@ class _SavingGoalCardState extends State<SavingGoalCard>
                                                     gradient: LinearGradient(
                                                       colors: [
                                                         Colors.transparent,
-                                                        Colors.white.withOpacity(0.55),
+                                                        Colors.white.withValues(alpha: 0.55),
                                                         Colors.transparent,
                                                       ],
                                                     ),
@@ -354,7 +354,7 @@ class _SavingGoalCardState extends State<SavingGoalCard>
                                             boxShadow: [
                                               BoxShadow(
                                                 color: widget.accentColor
-                                                    .withOpacity(0.6 + 0.4 * pulse),
+                                                    .withValues(alpha: 0.6 + 0.4 * pulse),
                                                 blurRadius: 6.0 + 6.0 * pulse,
                                                 spreadRadius: 1.5 + 1.0 * pulse,
                                               ),

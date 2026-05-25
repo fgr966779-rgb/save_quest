@@ -189,7 +189,7 @@ class JointGoalMembers extends Table {
 class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(openConnection());
 
-  AppDatabase.connect(QueryExecutor connection) : super(connection);
+  AppDatabase.connect(super.connection);
 
   @override
   int get schemaVersion => 7;

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_animate/flutter_animate.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_text_styles.dart';
 import '../models/leaderboard_model.dart';
@@ -8,7 +7,7 @@ class LeaderboardTile extends StatelessWidget {
   final LeaderboardEntry entry;
   final int position;
 
-  const LeaderboardTile({Key? key, required this.entry, required this.position}) : super(key: key);
+  const LeaderboardTile({super.key, required this.entry, required this.position});
 
   @override
   Widget build(BuildContext context) {
@@ -28,7 +27,7 @@ class LeaderboardTile extends StatelessWidget {
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: entry.isCurrentUser 
-            ? AppColors.cyanAccent.withOpacity(0.15) 
+            ? AppColors.cyanAccent.withValues(alpha: 0.15)
             : AppColors.cardBgLight,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
@@ -69,14 +68,14 @@ class LeaderboardTile extends StatelessWidget {
               children: [
                 Text(
                   entry.displayName,
-                  style: AppTextStyles.h3.copyWith(
+                  style: AppTextStyles.rajdhaniBold(
                     color: entry.isCurrentUser ? AppColors.cyanAccent : AppColors.textPrimary,
                     fontSize: 16,
                   ),
                 ),
                 Text(
                   'Рівень ${entry.level}',
-                  style: AppTextStyles.bodyText.copyWith(
+                  style: AppTextStyles.interBody(
                     color: AppColors.textSecondary,
                     fontSize: 12,
                   ),
@@ -90,7 +89,7 @@ class LeaderboardTile extends StatelessWidget {
             children: [
               Text(
                 '${entry.score}',
-                style: AppTextStyles.h2.copyWith(
+                style: AppTextStyles.orbitronHeading(
                   color: position <= 3 ? positionColor : AppColors.textPrimary,
                   fontSize: 18,
                 ),
@@ -115,7 +114,7 @@ class AllianceLeaderboardTile extends StatelessWidget {
   final AllianceEntry entry;
   final int position;
 
-  const AllianceLeaderboardTile({Key? key, required this.entry, required this.position}) : super(key: key);
+  const AllianceLeaderboardTile({super.key, required this.entry, required this.position});
 
   @override
   Widget build(BuildContext context) {
@@ -135,7 +134,7 @@ class AllianceLeaderboardTile extends StatelessWidget {
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: entry.isUserAlliance 
-            ? AppColors.magentaAccent.withOpacity(0.15) 
+            ? AppColors.magentaAccent.withValues(alpha: 0.15)
             : AppColors.cardBgLight,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
@@ -173,14 +172,14 @@ class AllianceLeaderboardTile extends StatelessWidget {
               children: [
                 Text(
                   entry.name,
-                  style: AppTextStyles.h3.copyWith(
+                  style: AppTextStyles.rajdhaniBold(
                     color: entry.isUserAlliance ? AppColors.magentaAccent : AppColors.textPrimary,
                     fontSize: 16,
                   ),
                 ),
                 Text(
                   '${entry.membersCount} учасників',
-                  style: AppTextStyles.bodyText.copyWith(
+                  style: AppTextStyles.interBody(
                     color: AppColors.textSecondary,
                     fontSize: 12,
                   ),
@@ -193,7 +192,7 @@ class AllianceLeaderboardTile extends StatelessWidget {
             children: [
               Text(
                 '${entry.totalScore}',
-                style: AppTextStyles.h2.copyWith(
+                style: AppTextStyles.orbitronHeading(
                   color: position <= 3 ? positionColor : AppColors.textPrimary,
                   fontSize: 18,
                 ),

@@ -15,11 +15,11 @@ class GoalCompleteScreen extends StatefulWidget {
   final String currency;
 
   const GoalCompleteScreen({
-    Key? key,
+    super.key,
     required this.goalName,
     required this.targetAmount,
     required this.currency,
-  }) : super(key: key);
+  });
 
   @override
   State<GoalCompleteScreen> createState() => _GoalCompleteScreenState();
@@ -112,7 +112,7 @@ class _GoalCompleteScreenState extends State<GoalCompleteScreen> with SingleTick
                         shape: BoxShape.circle,
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.amberAccent.withOpacity(0.3),
+                            color: Colors.amberAccent.withValues(alpha: 0.3),
                             blurRadius: 40.0,
                             spreadRadius: 5.0,
                           ),
@@ -177,10 +177,10 @@ class _GoalCompleteScreenState extends State<GoalCompleteScreen> with SingleTick
                   Container(
                     padding: const EdgeInsets.all(16.0),
                     decoration: BoxDecoration(
-                      color: Colors.amberAccent.withOpacity(0.08),
+                      color: Colors.amberAccent.withValues(alpha: 0.08),
                       borderRadius: BorderRadius.circular(12.0),
                       border: Border.all(
-                        color: Colors.amberAccent.withOpacity(0.3),
+                        color: Colors.amberAccent.withValues(alpha: 0.3),
                         width: 1.0,
                       ),
                     ),

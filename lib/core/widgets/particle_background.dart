@@ -44,10 +44,10 @@ class ParticleBackground extends StatefulWidget {
   final Widget? child;
 
   const ParticleBackground({
-    Key? key,
+    super.key,
     this.count = 32,
     this.child,
-  }) : super(key: key);
+  });
 
   @override
   _ParticleBackgroundState createState() => _ParticleBackgroundState();
@@ -159,7 +159,7 @@ class _ParticleBackgroundState extends State<ParticleBackground>
                       radius: 1.0,
                       colors: [
                         Colors.transparent,
-                        AppColors.background.withOpacity(0.55),
+                        AppColors.background.withValues(alpha: 0.55),
                       ],
                       stops: const [0.55, 1.0],
                     ),
@@ -201,7 +201,7 @@ class _AuroraPainter extends CustomPainter {
           h * (0.28 + 0.12 * math.cos(t * 2 * math.pi)),
         ),
         radius: math.max(w, h) * 0.62,
-        color: AppColors.cyanAccent.withOpacity(0.22),
+        color: AppColors.cyanAccent.withValues(alpha: 0.22),
       ),
       _Blob(
         center: Offset(
@@ -209,7 +209,7 @@ class _AuroraPainter extends CustomPainter {
           h * (0.30 + 0.18 * math.sin((t + 0.33) * 2 * math.pi)),
         ),
         radius: math.max(w, h) * 0.58,
-        color: AppColors.magentaAccent.withOpacity(0.18),
+        color: AppColors.magentaAccent.withValues(alpha: 0.18),
       ),
       _Blob(
         center: Offset(
@@ -217,14 +217,14 @@ class _AuroraPainter extends CustomPainter {
           h * (0.78 + 0.10 * math.cos((t + 0.66) * 2 * math.pi)),
         ),
         radius: math.max(w, h) * 0.70,
-        color: AppColors.purpleGlow.withOpacity(0.20),
+        color: AppColors.purpleGlow.withValues(alpha: 0.20),
       ),
     ];
 
     for (final b in blobs) {
       final paint = Paint()
         ..shader = RadialGradient(
-          colors: [b.color, b.color.withOpacity(0.0)],
+          colors: [b.color, b.color.withValues(alpha: 0.0)],
           stops: const [0.0, 1.0],
         ).createShader(Rect.fromCircle(center: b.center, radius: b.radius))
         ..blendMode = BlendMode.plus;
@@ -268,14 +268,14 @@ class _ParticlePainter extends CustomPainter {
       final haloPaint = Paint()
         ..shader = RadialGradient(
           colors: [
-            color.withOpacity(effectiveOpacity * 0.35),
-            color.withOpacity(0.0),
+            color.withValues(alpha: effectiveOpacity * 0.35),
+            color.withValues(alpha: 0.0),
           ],
         ).createShader(Rect.fromCircle(center: p.position, radius: haloRadius));
       canvas.drawCircle(p.position, haloRadius, haloPaint);
 
       // Bright core
-      final core = Paint()..color = color.withOpacity(effectiveOpacity);
+      final core = Paint()..color = color.withValues(alpha: effectiveOpacity);
       canvas.drawCircle(p.position, p.size, core);
     }
   }

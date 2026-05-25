@@ -6,14 +6,14 @@ import '../../../core/constants/app_text_styles.dart';
 class ShieldActivationDialog extends StatelessWidget {
   final int daysSaved;
 
-  const ShieldActivationDialog({Key? key, required this.daysSaved}) : super(key: key);
+  const ShieldActivationDialog({super.key, required this.daysSaved});
 
   static void show(BuildContext context, int daysSaved) {
     showGeneralDialog(
       context: context,
       barrierDismissible: true,
       barrierLabel: 'Dismiss',
-      barrierColor: Colors.black.withOpacity(0.8),
+      barrierColor: Colors.black.withValues(alpha: 0.8),
       transitionDuration: const Duration(milliseconds: 400),
       pageBuilder: (context, anim1, anim2) {
         return ShieldActivationDialog(daysSaved: daysSaved);
@@ -46,7 +46,7 @@ class ShieldActivationDialog extends StatelessWidget {
             border: Border.all(color: AppColors.blueAccent, width: 2),
             boxShadow: [
               BoxShadow(
-                color: AppColors.blueAccent.withOpacity(0.5),
+                color: AppColors.blueAccent.withValues(alpha: 0.5),
                 blurRadius: 20,
                 spreadRadius: -5,
               )

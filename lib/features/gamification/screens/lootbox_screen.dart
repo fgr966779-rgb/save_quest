@@ -12,7 +12,7 @@ import '../../../data/database.dart';
 import 'package:drift/drift.dart' as drift;
 
 class LootboxScreen extends ConsumerStatefulWidget {
-  const LootboxScreen({Key? key}) : super(key: key);
+  const LootboxScreen({super.key});
 
   @override
   ConsumerState<LootboxScreen> createState() => _LootboxScreenState();
@@ -158,7 +158,7 @@ class _LootboxScreenState extends ConsumerState<LootboxScreen> with TickerProvid
                   final color = isRare ? AppColors.goldGlow : Colors.blueAccent;
 
                   return GlassCard(
-                    borderColor: color.withOpacity(0.5),
+                    borderColor: color.withValues(alpha: 0.5),
                     padding: const EdgeInsets.all(12),
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -183,7 +183,7 @@ class _LootboxScreenState extends ConsumerState<LootboxScreen> with TickerProvid
               ),
               if (_isOpening)
                 Container(
-                  color: Colors.black.withOpacity(0.5),
+                  color: Colors.black.withValues(alpha: 0.5),
                   child: const Center(
                     child: Column(
                       mainAxisSize: MainAxisSize.min,

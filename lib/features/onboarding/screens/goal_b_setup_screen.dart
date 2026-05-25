@@ -10,7 +10,7 @@ import '../../../core/widgets/particle_background.dart';
 import '../../../core/widgets/glass_card.dart';
 
 class GoalBSetupScreen extends ConsumerStatefulWidget {
-  const GoalBSetupScreen({Key? key}) : super(key: key);
+  const GoalBSetupScreen({super.key});
 
   @override
   ConsumerState<GoalBSetupScreen> createState() => _GoalBSetupScreenState();
@@ -238,12 +238,12 @@ class _GoalBSetupScreenState extends ConsumerState<GoalBSetupScreen> {
       width: isActive ? 24.0 : 8.0,
       height: 8.0,
       decoration: BoxDecoration(
-        color: isActive ? AppColors.magentaAccent : AppColors.textMuted.withOpacity(0.5),
+        color: isActive ? AppColors.magentaAccent : AppColors.textMuted.withValues(alpha: 0.5),
         borderRadius: BorderRadius.circular(4.0),
         boxShadow: isActive
             ? [
                 BoxShadow(
-                  color: AppColors.magentaAccent.withOpacity(0.6),
+                  color: AppColors.magentaAccent.withValues(alpha: 0.6),
                   blurRadius: 4.0,
                   spreadRadius: 1.0,
                 ),

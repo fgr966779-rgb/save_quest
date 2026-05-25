@@ -6,13 +6,12 @@ import 'package:intl/intl.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_text_styles.dart';
 import '../../../core/providers/providers.dart';
-import '../../../core/providers/savings_notifier.dart';
 import '../../../core/utils/money_utils.dart';
 import '../../../core/widgets/glass_card.dart';
 import '../../../data/database.dart';
 
 class HistoryScreen extends ConsumerStatefulWidget {
-  const HistoryScreen({Key? key}) : super(key: key);
+  const HistoryScreen({super.key});
 
   @override
   ConsumerState<HistoryScreen> createState() => _HistoryScreenState();
@@ -119,7 +118,7 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
                                 ),
                               ),
                             ),
-                            ...group.items.map((dep) => _buildDepositItem(dep, goalsAsync.value ?? [])).toList(),
+                            ...group.items.map((dep) => _buildDepositItem(dep, goalsAsync.value ?? [])),
                             const SizedBox(height: 16.0),
                           ],
                         );
@@ -151,10 +150,10 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
             hintStyle: const TextStyle(color: AppColors.textSecondary),
             prefixIcon: const Icon(Icons.search, color: AppColors.textSecondary),
             filled: true,
-            fillColor: AppColors.cardBg.withOpacity(0.4),
+            fillColor: AppColors.cardBg.withValues(alpha: 0.4),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12.0),
-              borderSide: BorderSide(color: AppColors.borderNeon.withOpacity(0.3)),
+              borderSide: BorderSide(color: AppColors.borderNeon.withValues(alpha: 0.3)),
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12.0),
@@ -190,10 +189,10 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
         child: Container(
           padding: const EdgeInsets.symmetric(vertical: 8.0),
           decoration: BoxDecoration(
-            color: active ? AppColors.magentaAccent.withOpacity(0.15) : AppColors.cardBg.withOpacity(0.3),
+            color: active ? AppColors.magentaAccent.withValues(alpha: 0.15) : AppColors.cardBg.withValues(alpha: 0.3),
             borderRadius: BorderRadius.circular(8.0),
             border: Border.all(
-              color: active ? AppColors.magentaAccent : AppColors.borderNeon.withOpacity(0.3),
+              color: active ? AppColors.magentaAccent : AppColors.borderNeon.withValues(alpha: 0.3),
             ),
           ),
           child: Text(
@@ -230,7 +229,7 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
           alignment: Alignment.centerRight,
           padding: const EdgeInsets.symmetric(horizontal: 20.0),
           decoration: BoxDecoration(
-            color: AppColors.magentaAccent.withOpacity(0.2),
+            color: AppColors.magentaAccent.withValues(alpha: 0.2),
             borderRadius: BorderRadius.circular(12.0),
             border: Border.all(color: AppColors.magentaAccent),
           ),
@@ -254,7 +253,7 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
           onTap: () => _showDetailsModal(dep, goals),
           child: GlassCard(
             padding: EdgeInsets.zero,
-            borderColor: canDelete ? AppColors.cyanAccent.withOpacity(0.3) : AppColors.borderNeon.withOpacity(0.2),
+            borderColor: canDelete ? AppColors.cyanAccent.withValues(alpha: 0.3) : AppColors.borderNeon.withValues(alpha: 0.2),
             child: IntrinsicHeight(
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -293,7 +292,7 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
                               Container(
                                 padding: const EdgeInsets.all(8.0),
                                 decoration: BoxDecoration(
-                                  color: canDelete ? AppColors.cyanAccent.withOpacity(0.1) : AppColors.borderNeon.withOpacity(0.1),
+                                  color: canDelete ? AppColors.cyanAccent.withValues(alpha: 0.1) : AppColors.borderNeon.withValues(alpha: 0.1),
                                   shape: BoxShape.circle,
                                 ),
                                 child: Icon(
@@ -423,7 +422,7 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
           decoration: BoxDecoration(
             color: AppColors.background,
             borderRadius: const BorderRadius.vertical(top: Radius.circular(24.0)),
-            border: Border.all(color: AppColors.borderNeon.withOpacity(0.3), width: 1.5),
+            border: Border.all(color: AppColors.borderNeon.withValues(alpha: 0.3), width: 1.5),
           ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -434,7 +433,7 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
                   width: 50.0,
                   height: 4.0,
                   decoration: BoxDecoration(
-                    color: AppColors.textSecondary.withOpacity(0.3),
+                    color: AppColors.textSecondary.withValues(alpha: 0.3),
                     borderRadius: BorderRadius.circular(2.0),
                   ),
                 ),
@@ -455,7 +454,7 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
                   Container(
                     width: 1.5,
                     height: 40.0,
-                    color: AppColors.borderNeon.withOpacity(0.3),
+                    color: AppColors.borderNeon.withValues(alpha: 0.3),
                   ),
                   _buildModalGoalDetail(goalB.name, '${formatAmount(dep.goalBAmount)} ${goalB.currency}', AppColors.magentaAccent),
                 ],

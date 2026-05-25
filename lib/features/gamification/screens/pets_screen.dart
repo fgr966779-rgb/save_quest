@@ -17,7 +17,7 @@ final petsProvider = FutureProvider<List<Pet>>((ref) async {
 });
 
 class PetsScreen extends ConsumerWidget {
-  const PetsScreen({Key? key}) : super(key: key);
+  const PetsScreen({super.key});
 
   int _calculateHappiness(Pet pet) {
     final daysSinceFed = DateTime.now().difference(pet.lastFedAt).inDays;
@@ -108,7 +108,7 @@ class PetsScreen extends ConsumerWidget {
               children: [
                 GlassCard(
                   padding: const EdgeInsets.all(32.0),
-                  borderColor: statusColor.withOpacity(0.5),
+                  borderColor: statusColor.withValues(alpha: 0.5),
                   child: Column(
                     children: [
                       Icon(
@@ -178,7 +178,7 @@ class PetsScreen extends ConsumerWidget {
   Widget _buildAdoptionCard(BuildContext context, WidgetRef ref, String name, String type, IconData icon, Color color) {
     return GlassCard(
       padding: const EdgeInsets.all(16.0),
-      borderColor: color.withOpacity(0.5),
+      borderColor: color.withValues(alpha: 0.5),
       child: Column(
         children: [
           Icon(icon, size: 64.0, color: color),

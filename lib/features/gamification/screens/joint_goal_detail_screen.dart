@@ -6,14 +6,13 @@ import 'package:flutter_animate/flutter_animate.dart';
 
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_text_styles.dart';
-import '../../../core/widgets/neon_button.dart';
 import '../../../core/widgets/glass_card.dart';
 import '../providers/joint_goals_provider.dart';
 
 class JointGoalDetailScreen extends ConsumerWidget {
   final String goalId;
 
-  const JointGoalDetailScreen({Key? key, required this.goalId}) : super(key: key);
+  const JointGoalDetailScreen({super.key, required this.goalId});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -121,7 +120,7 @@ class JointGoalDetailScreen extends ConsumerWidget {
                                 title: '',
                                 radius: 25,
                               );
-                            }).toList(),
+                            }),
                           ],
                         ),
                       ).animate().scale(duration: 600.ms, curve: Curves.easeOutBack),
@@ -140,7 +139,7 @@ class JointGoalDetailScreen extends ConsumerWidget {
                               height: 110,
                               decoration: BoxDecoration(
                                 shape: BoxShape.circle,
-                                color: AppColors.magentaAccent.withOpacity(0.3),
+                                color: AppColors.magentaAccent.withValues(alpha: 0.3),
                               ),
                               child: const Icon(Icons.image_not_supported, color: Colors.white54, size: 40),
                             );
@@ -204,7 +203,7 @@ class JointGoalDetailScreen extends ConsumerWidget {
                     child: Row(
                       children: [
                         CircleAvatar(
-                          backgroundColor: color.withOpacity(0.2),
+                          backgroundColor: color.withValues(alpha: 0.2),
                           child: Icon(Icons.person, color: color),
                         ),
                         const SizedBox(width: 16),
@@ -233,7 +232,7 @@ class JointGoalDetailScreen extends ConsumerWidget {
                       ],
                     ),
                   ).animate().fadeIn(delay: (idx * 100).ms).slideX();
-                }).toList(),
+                }),
               ],
             ),
           );
@@ -245,7 +244,7 @@ class JointGoalDetailScreen extends ConsumerWidget {
   }
 
   void _showAddContributionDialog(BuildContext context, WidgetRef ref, String goalId, String memberId, String memberName) {
-    final _controller = TextEditingController();
+    final controller = TextEditingController();
     
     showDialog(
       context: context,
@@ -254,7 +253,7 @@ class JointGoalDetailScreen extends ConsumerWidget {
           backgroundColor: AppColors.cardBg,
           title: Text('Внесок від: $memberName', style: const TextStyle(color: Colors.white)),
           content: TextField(
-            controller: _controller,
+            controller: controller,
             keyboardType: const TextInputType.numberWithOptions(decimal: true),
             style: const TextStyle(color: Colors.white),
             decoration: InputDecoration(
@@ -272,7 +271,7 @@ class JointGoalDetailScreen extends ConsumerWidget {
             ElevatedButton(
               style: ElevatedButton.styleFrom(backgroundColor: AppColors.magentaAccent),
               onPressed: () async {
-                final amount = double.tryParse(_controller.text.trim()) ?? 0;
+                final amount = double.tryParse(controller.text.trim()) ?? 0;
                 if (amount > 0) {
                   final amountInKopecks = (amount * 100).toInt();
                   await ref.read(jointGoalsNotifierProvider.notifier).addContribution(goalId, memberId, amountInKopecks);

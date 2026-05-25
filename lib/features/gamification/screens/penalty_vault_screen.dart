@@ -6,16 +6,14 @@ import 'package:flutter_animate/flutter_animate.dart';
 
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_text_styles.dart';
-import '../../../core/providers/penalty_notifier.dart';
 import '../../../core/providers/providers.dart';
-import '../../../core/providers/savings_notifier.dart';
 import '../../../core/utils/money_utils.dart';
 import '../../../core/widgets/neon_avatar_painter.dart';
 import '../../../core/widgets/neon_button.dart';
 import '../../../core/widgets/glass_card.dart';
 
 class PenaltyVaultScreen extends ConsumerWidget {
-  const PenaltyVaultScreen({Key? key}) : super(key: key);
+  const PenaltyVaultScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -58,7 +56,7 @@ class PenaltyVaultScreen extends ConsumerWidget {
                     GlassCard(
                       padding: const EdgeInsets.all(24.0),
                       borderColor: isDamaged ? Colors.redAccent : AppColors.cyanAccent,
-                      glowColor: isDamaged ? Colors.redAccent.withOpacity(0.3) : AppColors.cyanAccent.withOpacity(0.3),
+                      glowColor: isDamaged ? Colors.redAccent.withValues(alpha: 0.3) : AppColors.cyanAccent.withValues(alpha: 0.3),
                       child: Center(
                         child: NeonAvatarWidget(config: config, size: 140.0),
                       ).animate(target: isDamaged ? 1 : 0).shake(hz: 8),
@@ -103,7 +101,7 @@ class PenaltyVaultScreen extends ConsumerWidget {
                   padding: const EdgeInsets.only(bottom: 12.0),
                   child: GlassCard(
                     padding: const EdgeInsets.all(16.0),
-                    borderColor: Colors.redAccent.withOpacity(0.5),
+                    borderColor: Colors.redAccent.withValues(alpha: 0.5),
                     child: Row(
                       children: [
                         const Icon(Icons.warning_amber_rounded, color: Colors.redAccent, size: 30),
@@ -153,7 +151,7 @@ class PenaltyVaultScreen extends ConsumerWidget {
                     ),
                   ).animate().fadeIn().slideX(),
                 );
-              }).toList(),
+              }),
             ] else ...[
               const Center(
                 child: Text(

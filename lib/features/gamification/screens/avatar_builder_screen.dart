@@ -10,10 +10,9 @@ import '../../../core/providers/providers.dart';
 import '../../../core/widgets/glass_card.dart';
 import '../../../core/widgets/neon_avatar_painter.dart';
 import '../../../core/widgets/neon_button.dart';
-import '../../../data/database.dart';
 
 class AvatarBuilderScreen extends ConsumerStatefulWidget {
-  const AvatarBuilderScreen({Key? key}) : super(key: key);
+  const AvatarBuilderScreen({super.key});
 
   @override
   ConsumerState<AvatarBuilderScreen> createState() => _AvatarBuilderScreenState();
@@ -103,8 +102,8 @@ class _AvatarBuilderScreenState extends ConsumerState<AvatarBuilderScreen> {
                 tag: 'avatar_preview',
                 child: GlassCard(
                   padding: const EdgeInsets.all(32.0),
-                  borderColor: _currentConfig.primaryColor.withOpacity(0.5),
-                  glowColor: _currentConfig.primaryColor.withOpacity(0.2),
+                  borderColor: _currentConfig.primaryColor.withValues(alpha: 0.5),
+                  glowColor: _currentConfig.primaryColor.withValues(alpha: 0.2),
                   child: NeonAvatarWidget(config: _currentConfig, size: 200.0),
                 ),
               ),
@@ -115,7 +114,7 @@ class _AvatarBuilderScreenState extends ConsumerState<AvatarBuilderScreen> {
           Container(
             height: 50,
             decoration: BoxDecoration(
-              border: Border(bottom: BorderSide(color: AppColors.borderNeon.withOpacity(0.3))),
+              border: Border(bottom: BorderSide(color: AppColors.borderNeon.withValues(alpha: 0.3))),
             ),
             child: Row(
               children: [
@@ -165,7 +164,7 @@ class _AvatarBuilderScreenState extends ConsumerState<AvatarBuilderScreen> {
                 width: 3.0,
               ),
             ),
-            color: isSelected ? AppColors.cyanAccent.withOpacity(0.1) : Colors.transparent,
+            color: isSelected ? AppColors.cyanAccent.withValues(alpha: 0.1) : Colors.transparent,
           ),
           alignment: Alignment.center,
           child: Text(
@@ -345,7 +344,7 @@ class _AvatarBuilderScreenState extends ConsumerState<AvatarBuilderScreen> {
       } : onTap,
       child: GlassCard(
         padding: const EdgeInsets.all(8.0),
-        borderColor: isSelected ? AppColors.cyanAccent : AppColors.borderNeon.withOpacity(0.3),
+        borderColor: isSelected ? AppColors.cyanAccent : AppColors.borderNeon.withValues(alpha: 0.3),
         child: Stack(
           alignment: Alignment.center,
           children: [
@@ -397,14 +396,14 @@ class _AvatarBuilderScreenState extends ConsumerState<AvatarBuilderScreen> {
       } : () => _updateConfig(colorHex: hex),
       child: Container(
         decoration: BoxDecoration(
-          color: color.withOpacity(isUnlocked ? 0.8 : 0.2),
+          color: color.withValues(alpha: isUnlocked ? 0.8 : 0.2),
           shape: BoxShape.circle,
           border: Border.all(
             color: isSelected ? Colors.white : Colors.transparent,
             width: 3.0,
           ),
           boxShadow: isSelected ? [
-            BoxShadow(color: color.withOpacity(0.5), blurRadius: 10.0, spreadRadius: 2.0)
+            BoxShadow(color: color.withValues(alpha: 0.5), blurRadius: 10.0, spreadRadius: 2.0)
           ] : null,
         ),
         child: !isUnlocked

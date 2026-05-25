@@ -12,14 +12,14 @@ class DualProgressRing extends StatelessWidget {
   final String centerLabel;
 
   const DualProgressRing({
-    Key? key,
+    super.key,
     required this.progressA,
     required this.progressB,
     this.size = 200.0,
     this.strokeWidth = 14.0,
     this.ringSpacing = 12.0,
     this.centerLabel = '',
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -141,7 +141,7 @@ class _ConcentricRingPainter extends CustomPainter {
 
     // Track
     final outerTrackPaint = Paint()
-      ..color = AppColors.cyanAccent.withOpacity(0.08)
+      ..color = AppColors.cyanAccent.withValues(alpha: 0.08)
       ..style = PaintingStyle.stroke
       ..strokeWidth = strokeWidth;
     canvas.drawCircle(center, outerRadius, outerTrackPaint);
@@ -149,7 +149,7 @@ class _ConcentricRingPainter extends CustomPainter {
     // Glowing Neon Arc Underlay
     if (progressA > 0.005) {
       final outerGlowPaint = Paint()
-        ..color = AppColors.cyanAccent.withOpacity(0.3)
+        ..color = AppColors.cyanAccent.withValues(alpha: 0.3)
         ..style = PaintingStyle.stroke
         ..strokeWidth = strokeWidth + 4.0
         ..strokeCap = StrokeCap.round
@@ -173,7 +173,7 @@ class _ConcentricRingPainter extends CustomPainter {
 
     // Track
     final innerTrackPaint = Paint()
-      ..color = AppColors.magentaAccent.withOpacity(0.08)
+      ..color = AppColors.magentaAccent.withValues(alpha: 0.08)
       ..style = PaintingStyle.stroke
       ..strokeWidth = strokeWidth;
     canvas.drawCircle(center, innerRadius, innerTrackPaint);
@@ -181,7 +181,7 @@ class _ConcentricRingPainter extends CustomPainter {
     // Glowing Neon Arc Underlay
     if (progressB > 0.005) {
       final innerGlowPaint = Paint()
-        ..color = AppColors.magentaAccent.withOpacity(0.3)
+        ..color = AppColors.magentaAccent.withValues(alpha: 0.3)
         ..style = PaintingStyle.stroke
         ..strokeWidth = strokeWidth + 4.0
         ..strokeCap = StrokeCap.round

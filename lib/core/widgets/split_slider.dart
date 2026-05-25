@@ -9,12 +9,12 @@ class SplitSlider extends StatelessWidget {
   final ValueChanged<double> onChanged;
 
   const SplitSlider({
-    Key? key,
+    super.key,
     required this.valueA,
     required this.onChanged,
     this.labelA = 'Goal A',
     this.labelB = 'Goal B',
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -113,7 +113,7 @@ class SplitSlider extends StatelessWidget {
                   elevation: 6.0,
                   pressedElevation: 10.0,
                 ),
-                overlayColor: AppColors.cyanAccent.withOpacity(0.2),
+                overlayColor: AppColors.cyanAccent.withValues(alpha: 0.2),
                 overlayShape: const RoundSliderOverlayShape(overlayRadius: 20.0),
               ),
               child: Slider(

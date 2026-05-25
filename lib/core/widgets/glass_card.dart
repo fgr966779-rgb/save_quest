@@ -23,7 +23,7 @@ class GlassCard extends StatefulWidget {
   final bool animated;
 
   const GlassCard({
-    Key? key,
+    super.key,
     required this.child,
     this.borderRadius = 16.0,
     this.blur = 15.0,
@@ -38,7 +38,7 @@ class GlassCard extends StatefulWidget {
     this.height,
     this.gradient,
     this.animated = true,
-  }) : super(key: key);
+  });
 
   @override
   State<GlassCard> createState() => _GlassCardState();
@@ -88,7 +88,7 @@ class _GlassCardState extends State<GlassCard> with TickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
-    final finalBgColor = widget.backgroundColor ?? AppColors.cardBg.withOpacity(0.65);
+    final finalBgColor = widget.backgroundColor ?? AppColors.cardBg.withValues(alpha: 0.65);
     final finalBorderColor = widget.borderColor ?? AppColors.borderNeon;
     final hasExternalGlow = widget.glowColor != null && widget.glowSigma > 0;
 
@@ -107,7 +107,7 @@ class _GlassCardState extends State<GlassCard> with TickerProviderStateMixin {
             boxShadow: hasExternalGlow
                 ? [
                     BoxShadow(
-                      color: widget.glowColor!.withOpacity(glowOpacity),
+                      color: widget.glowColor!.withValues(alpha: glowOpacity),
                       blurRadius: widget.glowSigma + 4.0 * breath,
                       spreadRadius: 1.0,
                     ),
@@ -146,7 +146,7 @@ class _GlassCardState extends State<GlassCard> with TickerProviderStateMixin {
                                       gradient: LinearGradient(
                                         colors: [
                                           Colors.transparent,
-                                          Colors.white.withOpacity(0.025),
+                                          Colors.white.withValues(alpha: 0.025),
                                           Colors.transparent,
                                         ],
                                         begin: Alignment.centerLeft,
@@ -174,7 +174,7 @@ class _GlassCardState extends State<GlassCard> with TickerProviderStateMixin {
                             ),
                             gradient: LinearGradient(
                               colors: [
-                                Colors.white.withOpacity(0.08 + 0.06 * breath),
+                                Colors.white.withValues(alpha: 0.08 + 0.06 * breath),
                                 Colors.transparent,
                               ],
                             ),

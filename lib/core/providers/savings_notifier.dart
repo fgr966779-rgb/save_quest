@@ -7,9 +7,7 @@ import '../providers/providers.dart';
 import '../utils/money_utils.dart';
 import '../../features/gamification/models/achievement_model.dart';
 import '../../features/gamification/models/badge_model.dart';
-import '../../features/gamification/screens/skill_tree_screen.dart' show allSkillNodes;
 import '../../core/widgets/neon_avatar_painter.dart';
-import '../providers/events_notifier.dart';
 import '../../features/gamification/providers/bounty_provider.dart';
 import '../../features/gamification/providers/quest_provider.dart';
 
@@ -109,7 +107,7 @@ class SavingsNotifier extends StateNotifier<AsyncValue<void>> {
 
       if (effectiveFreezes > 0) {
         final newStreak = currentStreak + 1;
-        bool consumeToken = true;
+        const bool consumeToken = true;
         
         final actualConsume = consumeToken && !hasShield;
         return {
@@ -217,8 +215,9 @@ class SavingsNotifier extends StateNotifier<AsyncValue<void>> {
 
         // 5. XP multiplier (streak-based)
         double multiplier = 1.0;
-        if (newStreak >= 30)      multiplier = 1.5;
-        else if (newStreak >= 14) multiplier = 1.3;
+        if (newStreak >= 30) {
+          multiplier = 1.5;
+        } else if (newStreak >= 14) multiplier = 1.3;
         else if (newStreak >= 7)  multiplier = 1.2;
         else if (newStreak >= 3)  multiplier = 1.1;
 
@@ -351,9 +350,9 @@ class SavingsNotifier extends StateNotifier<AsyncValue<void>> {
         await _db.insertUserProfile(updatedProfile);
 
         // 5b. Squads update
-        final squads = await _db.select(_db.squads).get();
-        if (squads.isNotEmpty) {
-          final squad = squads.first;
+        final squadsList = await _db.select(_db.squads).get();
+        if (squadsList.isNotEmpty) {
+          final squad = squadsList.first;
           await (_db.update(_db.squads)..where((t) => t.id.equals(squad.id))).write(
             SquadsCompanion(totalXp: drift.Value(squad.totalXp + xpGained + bonusXp)),
           );

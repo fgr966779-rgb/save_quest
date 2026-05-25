@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:flutter_animate/flutter_animate.dart';
 import 'package:drift/drift.dart' show Value;
 
 import '../../../core/constants/app_colors.dart';
@@ -11,10 +10,9 @@ import '../../../core/providers/providers.dart';
 import '../../../core/widgets/neon_button.dart';
 import '../../../core/widgets/glass_card.dart';
 import '../../../core/widgets/neon_avatar_painter.dart';
-import '../../../data/database.dart';
 
 class MarketScreen extends ConsumerStatefulWidget {
-  const MarketScreen({Key? key}) : super(key: key);
+  const MarketScreen({super.key});
 
   @override
   ConsumerState<MarketScreen> createState() => _MarketScreenState();
@@ -94,7 +92,7 @@ class _MarketScreenState extends ConsumerState<MarketScreen> {
                     Expanded(
                       child: GlassCard(
                         padding: const EdgeInsets.all(12.0),
-                        borderColor: AppColors.goldGlow.withOpacity(0.5),
+                        borderColor: AppColors.goldGlow.withValues(alpha: 0.5),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
@@ -114,7 +112,7 @@ class _MarketScreenState extends ConsumerState<MarketScreen> {
                     Expanded(
                       child: GlassCard(
                         padding: const EdgeInsets.all(12.0),
-                        borderColor: AppColors.cyanAccent.withOpacity(0.5),
+                        borderColor: AppColors.cyanAccent.withValues(alpha: 0.5),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
@@ -180,7 +178,7 @@ class _MarketScreenState extends ConsumerState<MarketScreen> {
                 width: 3.0,
               ),
             ),
-            color: isSelected ? AppColors.goldGlow.withOpacity(0.1) : Colors.transparent,
+            color: isSelected ? AppColors.goldGlow.withValues(alpha: 0.1) : Colors.transparent,
           ),
           alignment: Alignment.center,
           child: Text(
@@ -258,7 +256,7 @@ class _MarketScreenState extends ConsumerState<MarketScreen> {
       margin: const EdgeInsets.only(bottom: 12.0),
       child: GlassCard(
         padding: const EdgeInsets.all(12.0),
-        borderColor: isOwned ? color.withOpacity(0.5) : AppColors.borderNeon.withOpacity(0.2),
+        borderColor: isOwned ? color.withValues(alpha: 0.5) : AppColors.borderNeon.withValues(alpha: 0.2),
         child: Row(
           children: [
             NeonAvatarWidget(config: previewConfig, size: 40.0),
@@ -275,7 +273,7 @@ class _MarketScreenState extends ConsumerState<MarketScreen> {
             if (isOwned)
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                decoration: BoxDecoration(color: Colors.green.withOpacity(0.2), borderRadius: BorderRadius.circular(4)),
+                decoration: BoxDecoration(color: Colors.green.withValues(alpha: 0.2), borderRadius: BorderRadius.circular(4)),
                 child: const Text('ПРИДБАНО', style: TextStyle(color: Colors.green, fontSize: 10, fontWeight: FontWeight.bold)),
               )
             else

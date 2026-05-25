@@ -9,7 +9,7 @@ import '../../../core/providers/providers.dart';
 import '../../../core/widgets/neon_button.dart';
 
 class ClassSelectionScreen extends ConsumerWidget {
-  const ClassSelectionScreen({Key? key}) : super(key: key);
+  const ClassSelectionScreen({super.key});
 
   void _selectClass(BuildContext context, WidgetRef ref, String playerClass) async {
     final db = ref.read(databaseProvider);
@@ -109,14 +109,14 @@ class ClassSelectionScreen extends ConsumerWidget {
   }) {
     return Container(
       decoration: BoxDecoration(
-        color: AppColors.cardBgLight.withOpacity(isSelected ? 0.9 : 0.4),
+        color: AppColors.cardBgLight.withValues(alpha: isSelected ? 0.9 : 0.4),
         borderRadius: BorderRadius.circular(16.0),
         border: Border.all(
-          color: isSelected ? color : color.withOpacity(0.3),
+          color: isSelected ? color : color.withValues(alpha: 0.3),
           width: isSelected ? 2.0 : 1.0,
         ),
         boxShadow: isSelected
-            ? [BoxShadow(color: color.withOpacity(0.3), blurRadius: 15.0, spreadRadius: 2.0)]
+            ? [BoxShadow(color: color.withValues(alpha: 0.3), blurRadius: 15.0, spreadRadius: 2.0)]
             : [],
       ),
       padding: const EdgeInsets.all(20.0),
@@ -162,7 +162,7 @@ class ClassSelectionScreen extends ConsumerWidget {
               width: double.infinity,
               padding: const EdgeInsets.symmetric(vertical: 12.0),
               decoration: BoxDecoration(
-                color: color.withOpacity(0.2),
+                color: color.withValues(alpha: 0.2),
                 borderRadius: BorderRadius.circular(8.0),
               ),
               child: const Center(

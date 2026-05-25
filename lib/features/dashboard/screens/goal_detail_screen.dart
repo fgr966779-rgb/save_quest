@@ -14,20 +14,18 @@ class GoalDetailScreen extends ConsumerWidget {
   final int goalId; // We support parsing as string keys 'goal_a' or 'goal_b'
   final String goalStrId;
 
-  GoalDetailScreen({
-    Key? key,
+  const GoalDetailScreen({
+    super.key,
     required int goalId,
   })  : goalId = goalId,
-        goalStrId = goalId == 0 ? 'goal_a' : 'goal_a', // Backwards compatible fallback
-        super(key: key);
+        goalStrId = goalId == 0 ? 'goal_a' : 'goal_a';
 
   // String constructor variant
   const GoalDetailScreen.fromString({
-    Key? key,
+    super.key,
     required String id,
   })  : goalId = id == 'goal_a' ? 0 : 1,
-        goalStrId = id,
-        super(key: key);
+        goalStrId = id;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -150,7 +148,7 @@ class GoalDetailScreen extends ConsumerWidget {
 
     return GlassCard(
       padding: const EdgeInsets.all(20.0),
-      borderColor: accentColor.withOpacity(0.3),
+      borderColor: accentColor.withValues(alpha: 0.3),
       glowColor: accentColor,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -237,7 +235,7 @@ class GoalDetailScreen extends ConsumerWidget {
 
         return GlassCard(
           padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 14.0),
-          borderColor: AppColors.borderNeon.withOpacity(0.2),
+          borderColor: AppColors.borderNeon.withValues(alpha: 0.2),
           child: Row(
             children: [
               Icon(Icons.query_stats_rounded, color: accentColor, size: 24.0),
@@ -313,7 +311,7 @@ class GoalDetailScreen extends ConsumerWidget {
               decoration: BoxDecoration(
                 color: AppColors.cardBgLight,
                 borderRadius: BorderRadius.circular(12.0),
-                border: Border.all(color: AppColors.borderNeon.withOpacity(0.4), width: 1.0),
+                border: Border.all(color: AppColors.borderNeon.withValues(alpha: 0.4), width: 1.0),
               ),
               child: Row(
                 children: [
@@ -321,9 +319,9 @@ class GoalDetailScreen extends ConsumerWidget {
                     width: 40.0,
                     height: 40.0,
                     decoration: BoxDecoration(
-                      color: accentColor.withOpacity(0.08),
+                      color: accentColor.withValues(alpha: 0.08),
                       shape: BoxShape.circle,
-                      border: Border.all(color: accentColor.withOpacity(0.4), width: 1.0),
+                      border: Border.all(color: accentColor.withValues(alpha: 0.4), width: 1.0),
                     ),
                     child: Icon(Icons.arrow_downward_rounded, color: accentColor, size: 20.0),
                   ),
@@ -390,7 +388,7 @@ class GoalDetailScreen extends ConsumerWidget {
       child: GlassCard(
         padding:
             const EdgeInsets.symmetric(horizontal: 16.0, vertical: 14.0),
-        borderColor: accentColor.withOpacity(0.3),
+        borderColor: accentColor.withValues(alpha: 0.3),
         child: Row(
           children: [
             Icon(Icons.radar_rounded, color: accentColor, size: 24.0),

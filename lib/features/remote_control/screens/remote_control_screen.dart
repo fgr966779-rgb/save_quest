@@ -1,4 +1,3 @@
-import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -11,7 +10,7 @@ import '../../../core/widgets/neon_button.dart';
 import '../services/remote_control_service.dart';
 
 class RemoteControlScreen extends ConsumerStatefulWidget {
-  const RemoteControlScreen({Key? key}) : super(key: key);
+  const RemoteControlScreen({super.key});
 
   @override
   ConsumerState<RemoteControlScreen> createState() => _RemoteControlScreenState();
@@ -134,8 +133,8 @@ class _RemoteControlScreenState extends ConsumerState<RemoteControlScreen> {
               padding: const EdgeInsets.all(16.0),
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: AppColors.cyanAccent.withOpacity(0.08),
-                border: Border.all(color: AppColors.cyanAccent.withOpacity(0.3), width: 2.0),
+                color: AppColors.cyanAccent.withValues(alpha: 0.08),
+                border: Border.all(color: AppColors.cyanAccent.withValues(alpha: 0.3), width: 2.0),
               ),
               child: const Icon(Icons.terminal, color: AppColors.cyanAccent, size: 48.0),
             ),
@@ -161,9 +160,9 @@ class _RemoteControlScreenState extends ConsumerState<RemoteControlScreen> {
             Container(
               padding: const EdgeInsets.all(12.0),
               decoration: BoxDecoration(
-                color: Colors.redAccent.withOpacity(0.1),
+                color: Colors.redAccent.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(8.0),
-                border: Border.all(color: Colors.redAccent.withOpacity(0.4)),
+                border: Border.all(color: Colors.redAccent.withValues(alpha: 0.4)),
               ),
               child: Row(
                 children: [
@@ -183,7 +182,7 @@ class _RemoteControlScreenState extends ConsumerState<RemoteControlScreen> {
 
           GlassCard(
             padding: const EdgeInsets.all(20.0),
-            borderColor: AppColors.cyanAccent.withOpacity(0.3),
+            borderColor: AppColors.cyanAccent.withValues(alpha: 0.3),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -280,7 +279,7 @@ class _RemoteControlScreenState extends ConsumerState<RemoteControlScreen> {
                     items: [30, 45, 60, 75, 90].map((q) {
                       return DropdownMenuItem<int>(
                         value: q,
-                        child: Text('${q}%'),
+                        child: Text('$q%'),
                       );
                     }).toList(),
                     onChanged: (val) {
@@ -400,7 +399,7 @@ class _RemoteControlScreenState extends ConsumerState<RemoteControlScreen> {
       padding: const EdgeInsets.fromLTRB(12.0, 8.0, 12.0, 16.0),
       decoration: BoxDecoration(
         color: AppColors.cardBg,
-        border: Border(top: BorderSide(color: AppColors.borderNeon.withOpacity(0.5))),
+        border: Border(top: BorderSide(color: AppColors.borderNeon.withValues(alpha: 0.5))),
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -484,7 +483,7 @@ class _RemoteControlScreenState extends ConsumerState<RemoteControlScreen> {
               // Full Text Input keyboard dialog
               TextButton.icon(
                 style: TextButton.styleFrom(
-                  backgroundColor: AppColors.cyanAccent.withOpacity(0.1),
+                  backgroundColor: AppColors.cyanAccent.withValues(alpha: 0.1),
                   side: const BorderSide(color: AppColors.cyanAccent),
                 ),
                 icon: const Icon(Icons.keyboard, color: AppColors.cyanAccent, size: 18),
@@ -565,10 +564,10 @@ class _RemoteControlScreenState extends ConsumerState<RemoteControlScreen> {
           style: const TextStyle(color: Colors.white, fontSize: 13.0),
           decoration: InputDecoration(
             hintText: hint,
-            hintStyle: TextStyle(color: AppColors.textMuted.withOpacity(0.5)),
+            hintStyle: TextStyle(color: AppColors.textMuted.withValues(alpha: 0.5)),
             prefixIcon: Icon(icon, color: AppColors.cyanAccent, size: 18.0),
             filled: true,
-            fillColor: Colors.black.withOpacity(0.3),
+            fillColor: Colors.black.withValues(alpha: 0.3),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(8.0),
               borderSide: BorderSide.none,

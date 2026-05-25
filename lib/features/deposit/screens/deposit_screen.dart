@@ -7,7 +7,6 @@ import 'package:go_router/go_router.dart';
 
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_text_styles.dart';
-import '../../../core/providers/savings_notifier.dart';
 import '../../../core/providers/providers.dart';
 import '../../../core/utils/money_utils.dart';
 import '../../../core/widgets/amount_input_pad.dart';
@@ -21,7 +20,7 @@ import '../../../data/database.dart';
 enum DepositStep { input, split, confirm, undoWindow, success }
 
 class DepositScreen extends ConsumerStatefulWidget {
-  const DepositScreen({Key? key}) : super(key: key);
+  const DepositScreen({super.key});
 
   @override
   ConsumerState<DepositScreen> createState() => _DepositScreenState();
@@ -288,7 +287,7 @@ class _DepositScreenState extends ConsumerState<DepositScreen> with SingleTicker
                   boxShadow: _enteredAmount > 0
                       ? [
                           BoxShadow(
-                            color: AppColors.cyanAccent.withOpacity(0.4),
+                            color: AppColors.cyanAccent.withValues(alpha: 0.4),
                             blurRadius: 20.0,
                             spreadRadius: 2.0,
                           ),
@@ -368,7 +367,7 @@ class _DepositScreenState extends ConsumerState<DepositScreen> with SingleTicker
           // Goal A Card Allocation
           GlassCard(
             padding: const EdgeInsets.all(16.0),
-            borderColor: AppColors.cyanAccent.withOpacity(0.3),
+            borderColor: AppColors.cyanAccent.withValues(alpha: 0.3),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -412,7 +411,7 @@ class _DepositScreenState extends ConsumerState<DepositScreen> with SingleTicker
           // Goal B Card Allocation
           GlassCard(
             padding: const EdgeInsets.all(16.0),
-            borderColor: AppColors.magentaAccent.withOpacity(0.3),
+            borderColor: AppColors.magentaAccent.withValues(alpha: 0.3),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -513,8 +512,8 @@ class _DepositScreenState extends ConsumerState<DepositScreen> with SingleTicker
                 const SizedBox(height: 6.0),
                 NeonProgressBar(
                   progress: currentProgressA,
-                  activeColor: AppColors.cyanAccent.withOpacity(0.5),
-                  glowColor: AppColors.cyanAccent.withOpacity(0.2),
+                  activeColor: AppColors.cyanAccent.withValues(alpha: 0.5),
+                  glowColor: AppColors.cyanAccent.withValues(alpha: 0.2),
                 ),
                 const SizedBox(height: 12.0),
                 Text(
@@ -558,8 +557,8 @@ class _DepositScreenState extends ConsumerState<DepositScreen> with SingleTicker
                 const SizedBox(height: 6.0),
                 NeonProgressBar(
                   progress: currentProgressB,
-                  activeColor: AppColors.magentaAccent.withOpacity(0.5),
-                  glowColor: AppColors.magentaAccent.withOpacity(0.2),
+                  activeColor: AppColors.magentaAccent.withValues(alpha: 0.5),
+                  glowColor: AppColors.magentaAccent.withValues(alpha: 0.2),
                 ),
                 const SizedBox(height: 12.0),
                 Text(
@@ -696,7 +695,7 @@ class _DepositScreenState extends ConsumerState<DepositScreen> with SingleTicker
                 border: Border.all(color: Colors.greenAccent, width: 2.0),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.greenAccent.withOpacity(0.3),
+                    color: Colors.greenAccent.withValues(alpha: 0.3),
                     blurRadius: 30.0,
                     spreadRadius: 4.0,
                   ),
@@ -729,7 +728,7 @@ class _DepositScreenState extends ConsumerState<DepositScreen> with SingleTicker
           // Rewards summary card
           GlassCard(
             padding: const EdgeInsets.all(16.0),
-            borderColor: _depositResult?.isCritical == true ? Colors.redAccent.withOpacity(0.5) : Colors.transparent,
+            borderColor: _depositResult?.isCritical == true ? Colors.redAccent.withValues(alpha: 0.5) : Colors.transparent,
             child: Row(
               children: [
                 Icon(
