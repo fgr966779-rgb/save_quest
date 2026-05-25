@@ -1,15 +1,12 @@
-import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_text_styles.dart';
 import '../../../core/providers/providers.dart';
-import '../../../data/database.dart';
 import '../models/core_skill.dart';
 
 // ─────────────────────────────────────────────
@@ -218,10 +215,10 @@ class SkillTreeScreen extends ConsumerWidget {
       decoration: BoxDecoration(
         color: AppColors.cardBg,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: color.withOpacity(0.3)),
+        border: Border.all(color: color.withValues(alpha: 0.3)),
         boxShadow: [
           BoxShadow(
-            color: color.withOpacity(0.05),
+            color: color.withValues(alpha: 0.05),
             blurRadius: 20,
             spreadRadius: 2,
           ),
@@ -340,7 +337,7 @@ class _SkillNodeCard extends StatelessWidget {
     final borderColor = isUnlocked
         ? node.color
         : canUnlock
-            ? node.color.withOpacity(0.5)
+            ? node.color.withValues(alpha: 0.5)
             : Colors.white12;
             
     final iconColor = isUnlocked ? node.color : Colors.white38;
@@ -353,7 +350,7 @@ class _SkillNodeCard extends StatelessWidget {
         duration: const Duration(milliseconds: 300),
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
-          color: isUnlocked ? node.color.withOpacity(0.1) : Colors.transparent,
+          color: isUnlocked ? node.color.withValues(alpha: 0.1) : Colors.transparent,
           border: Border.all(color: borderColor),
           borderRadius: BorderRadius.circular(12),
         ),
@@ -362,7 +359,7 @@ class _SkillNodeCard extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
-                color: isUnlocked ? node.color.withOpacity(0.2) : Colors.white10,
+                color: isUnlocked ? node.color.withValues(alpha: 0.2) : Colors.white10,
                 shape: BoxShape.circle,
               ),
               child: Icon(
@@ -435,10 +432,10 @@ class _SpBadge extends StatelessWidget {
       decoration: BoxDecoration(
         color: AppColors.cardBg,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.goldGlow.withOpacity(0.5)),
+        border: Border.all(color: AppColors.goldGlow.withValues(alpha: 0.5)),
         boxShadow: [
           BoxShadow(
-            color: AppColors.goldGlow.withOpacity(0.2),
+            color: AppColors.goldGlow.withValues(alpha: 0.2),
             blurRadius: 8,
           ),
         ],

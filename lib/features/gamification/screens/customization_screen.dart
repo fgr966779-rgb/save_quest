@@ -5,10 +5,9 @@ import 'package:go_router/go_router.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_text_styles.dart';
 import '../../../core/providers/providers.dart';
-import '../../../data/database.dart';
 
 class CustomizationScreen extends ConsumerWidget {
-  const CustomizationScreen({Key? key}) : super(key: key);
+  const CustomizationScreen({super.key});
 
   void _selectTheme(BuildContext context, WidgetRef ref, String theme) async {
     final db = ref.read(databaseProvider);
@@ -105,14 +104,14 @@ class CustomizationScreen extends ConsumerWidget {
                   decoration: BoxDecoration(
                     color: AppColors.cardBgLight,
                     borderRadius: BorderRadius.circular(12.0),
-                    border: Border.all(color: AppColors.cyanAccent.withOpacity(0.5), width: 1.0),
+                    border: Border.all(color: AppColors.cyanAccent.withValues(alpha: 0.5), width: 1.0),
                   ),
                   child: Row(
                     children: [
                       Container(
                         padding: const EdgeInsets.all(8.0),
                         decoration: BoxDecoration(
-                          color: AppColors.cyanAccent.withOpacity(0.1),
+                          color: AppColors.cyanAccent.withValues(alpha: 0.1),
                           shape: BoxShape.circle,
                         ),
                         child: const Icon(Icons.face, color: AppColors.cyanAccent),
@@ -156,7 +155,7 @@ class CustomizationScreen extends ConsumerWidget {
         decoration: BoxDecoration(
           color: AppColors.cardBgLight,
           borderRadius: BorderRadius.circular(12.0),
-          border: Border.all(color: isSelected ? color : AppColors.borderNeon.withOpacity(0.3), width: isSelected ? 2.0 : 1.0),
+          border: Border.all(color: isSelected ? color : AppColors.borderNeon.withValues(alpha: 0.3), width: isSelected ? 2.0 : 1.0),
         ),
         child: Row(
           children: [

@@ -3,12 +3,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/constants/app_colors.dart';
-import '../../../core/constants/app_text_styles.dart';
 import '../../../core/providers/providers.dart';
-import '../../../core/providers/savings_notifier.dart';
 
 class TerminalScreen extends ConsumerStatefulWidget {
-  const TerminalScreen({Key? key}) : super(key: key);
+  const TerminalScreen({super.key});
 
   @override
   ConsumerState<TerminalScreen> createState() => _TerminalScreenState();

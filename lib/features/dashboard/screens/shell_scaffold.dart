@@ -13,9 +13,9 @@ class ShellScaffold extends ConsumerWidget {
   final Widget child;
 
   const ShellScaffold({
-    Key? key,
+    super.key,
     required this.child,
-  }) : super(key: key);
+  });
 
   int _getSelectedIndex(BuildContext context) {
     final location = GoRouterState.of(context).uri.toString();
@@ -77,7 +77,7 @@ class ShellScaffold extends ConsumerWidget {
                       if (hasVirus) {
                         return childWidget!.animate(onPlay: (c) => c.repeat())
                           .shake(hz: 3, duration: 1500.ms, curve: Curves.easeInOutCubic)
-                          .tint(color: Colors.redAccent.withOpacity(0.1), duration: 2000.ms)
+                          .tint(color: Colors.redAccent.withValues(alpha: 0.1), duration: 2000.ms)
                           .then()
                           .tint(color: Colors.transparent, duration: 500.ms);
                       }
@@ -114,18 +114,18 @@ class ShellScaffold extends ConsumerWidget {
           height: 76.0,
           decoration: BoxDecoration(
             color: isDark
-                ? AppColors.cardBg.withOpacity(0.7)
-                : Colors.white.withOpacity(0.8),
+                ? AppColors.cardBg.withValues(alpha: 0.7)
+                : Colors.white.withValues(alpha: 0.8),
             borderRadius: BorderRadius.circular(24.0),
             border: Border.all(
               color: isDark
-                  ? Colors.white.withOpacity(0.08)
-                  : Colors.black.withOpacity(0.04),
+                  ? Colors.white.withValues(alpha: 0.08)
+                  : Colors.black.withValues(alpha: 0.04),
               width: 1.5,
             ),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(isDark ? 0.4 : 0.05),
+                color: Colors.black.withValues(alpha: isDark ? 0.4 : 0.05),
                 blurRadius: 24.0,
                 offset: const Offset(0, 8),
               ),
@@ -172,8 +172,8 @@ class ShellScaffold extends ConsumerWidget {
                       shape: BoxShape.circle,
                       gradient: RadialGradient(
                         colors: [
-                          activeColor.withOpacity(0.32),
-                          activeColor.withOpacity(0.0),
+                          activeColor.withValues(alpha: 0.32),
+                          activeColor.withValues(alpha: 0.0),
                         ],
                       ),
                     ),
@@ -206,7 +206,7 @@ class ShellScaffold extends ConsumerWidget {
                       shadows: isActive
                           ? [
                               Shadow(
-                                color: activeColor.withOpacity(0.6),
+                                color: activeColor.withValues(alpha: 0.6),
                                 blurRadius: 10.0,
                               ),
                             ]
@@ -236,14 +236,14 @@ class ShellScaffold extends ConsumerWidget {
                       gradient: LinearGradient(
                         colors: [
                           activeColor,
-                          activeColor.withOpacity(0.6),
+                          activeColor.withValues(alpha: 0.6),
                         ],
                       ),
                       borderRadius: BorderRadius.circular(2.0),
                       boxShadow: isActive
                           ? [
                               BoxShadow(
-                                color: activeColor.withOpacity(0.6),
+                                color: activeColor.withValues(alpha: 0.6),
                                 blurRadius: 8.0,
                                 spreadRadius: 1.0,
                               ),

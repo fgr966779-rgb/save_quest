@@ -7,13 +7,13 @@ import '../../../core/constants/app_text_styles.dart';
 import '../providers/daily_bonus_provider.dart';
 
 class DailyBonusDialog extends ConsumerStatefulWidget {
-  const DailyBonusDialog({Key? key}) : super(key: key);
+  const DailyBonusDialog({super.key});
 
   static void show(BuildContext context) {
     showGeneralDialog(
       context: context,
       barrierDismissible: false,
-      barrierColor: Colors.black.withOpacity(0.8),
+      barrierColor: Colors.black.withValues(alpha: 0.8),
       transitionDuration: const Duration(milliseconds: 400),
       pageBuilder: (context, anim1, anim2) {
         return const DailyBonusDialog();
@@ -125,7 +125,7 @@ class _DailyBonusDialogState extends ConsumerState<DailyBonusDialog> {
                         decoration: BoxDecoration(
                           color: AppColors.cardBgLight,
                           borderRadius: BorderRadius.circular(16),
-                          border: Border.all(color: AppColors.goldAccent.withOpacity(0.5)),
+                          border: Border.all(color: AppColors.goldAccent.withValues(alpha: 0.5)),
                         ),
                         child: Row(
                           mainAxisSize: MainAxisSize.min,

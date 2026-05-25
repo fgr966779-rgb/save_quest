@@ -14,7 +14,7 @@ class NeonButton extends StatefulWidget {
   final double height;
 
   const NeonButton({
-    Key? key,
+    super.key,
     required this.text,
     required this.onPressed,
     this.baseColor = AppColors.cyanAccent,
@@ -23,7 +23,7 @@ class NeonButton extends StatefulWidget {
     this.icon,
     this.width = double.infinity,
     this.height = 56.0,
-  }) : super(key: key);
+  });
 
   @override
   State<NeonButton> createState() => _NeonButtonState();
@@ -122,9 +122,9 @@ class _NeonButtonState extends State<NeonButton> with TickerProviderStateMixin {
                       )
                     : LinearGradient(
                         colors: [
-                          Colors.white.withOpacity(0.15 + 0.10 * pulse),
+                          Colors.white.withValues(alpha: 0.15 + 0.10 * pulse),
                           widget.baseColor,
-                          widget.baseColor.withOpacity(0.7),
+                          widget.baseColor.withValues(alpha: 0.7),
                         ],
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
@@ -134,7 +134,7 @@ class _NeonButtonState extends State<NeonButton> with TickerProviderStateMixin {
                     ? []
                     : [
                         BoxShadow(
-                          color: widget.glowColor.withOpacity(0.25 + 0.35 * pulse),
+                          color: widget.glowColor.withValues(alpha: 0.25 + 0.35 * pulse),
                           blurRadius: 14.0 + 10.0 * pulse,
                           spreadRadius: 1.0,
                           offset: const Offset(0, 2),
@@ -142,8 +142,8 @@ class _NeonButtonState extends State<NeonButton> with TickerProviderStateMixin {
                       ],
                 border: Border.all(
                   color: isDisabled
-                      ? AppColors.borderNeon.withOpacity(0.3)
-                      : widget.glowColor.withOpacity(0.45 + 0.35 * pulse),
+                      ? AppColors.borderNeon.withValues(alpha: 0.3)
+                      : widget.glowColor.withValues(alpha: 0.45 + 0.35 * pulse),
                   width: 1.5,
                 ),
               ),
@@ -177,7 +177,7 @@ class _NeonButtonState extends State<NeonButton> with TickerProviderStateMixin {
                                     gradient: LinearGradient(
                                       colors: [
                                         Colors.transparent,
-                                        Colors.white.withOpacity(0.18),
+                                        Colors.white.withValues(alpha: 0.18),
                                         Colors.transparent,
                                       ],
                                       begin: Alignment.centerLeft,

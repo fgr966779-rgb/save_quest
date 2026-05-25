@@ -5,7 +5,7 @@ import '../../../core/constants/app_text_styles.dart';
 import '../providers/joint_goals_provider.dart';
 
 class CreateJointGoalDialog extends ConsumerStatefulWidget {
-  const CreateJointGoalDialog({Key? key}) : super(key: key);
+  const CreateJointGoalDialog({super.key});
 
   @override
   ConsumerState<CreateJointGoalDialog> createState() => _CreateJointGoalDialogState();

@@ -6,10 +6,9 @@ import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_text_styles.dart';
 import '../../../core/providers/providers.dart';
 import '../../../core/widgets/glass_card.dart';
-import '../../../core/widgets/neon_button.dart';
 
 class BlacklistScreen extends ConsumerStatefulWidget {
-  const BlacklistScreen({Key? key}) : super(key: key);
+  const BlacklistScreen({super.key});
 
   @override
   ConsumerState<BlacklistScreen> createState() => _BlacklistScreenState();
@@ -104,7 +103,7 @@ class _BlacklistScreenState extends ConsumerState<BlacklistScreen> {
             if (blacklist.isEmpty)
               GlassCard(
                 padding: const EdgeInsets.all(16.0),
-                borderColor: AppColors.borderNeon.withOpacity(0.5),
+                borderColor: AppColors.borderNeon.withValues(alpha: 0.5),
                 child: const Text(
                   'Жодної категорії не додано. Ви у безпеці... поки що.',
                   style: TextStyle(color: AppColors.textMuted, fontStyle: FontStyle.italic),
@@ -118,7 +117,7 @@ class _BlacklistScreenState extends ConsumerState<BlacklistScreen> {
                 children: blacklist.map((cat) {
                   return Chip(
                     label: Text(cat, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-                    backgroundColor: Colors.redAccent.withOpacity(0.2),
+                    backgroundColor: Colors.redAccent.withValues(alpha: 0.2),
                     side: const BorderSide(color: Colors.redAccent),
                     deleteIconColor: Colors.white,
                     onDeleted: () => _removeCategory(cat),

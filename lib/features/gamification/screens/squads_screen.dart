@@ -5,13 +5,12 @@ import 'package:flutter_animate/flutter_animate.dart';
 
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_text_styles.dart';
-import '../../../core/widgets/neon_button.dart';
 import '../../../core/widgets/glass_card.dart';
 import '../providers/joint_goals_provider.dart';
 import '../widgets/create_joint_goal_dialog.dart';
 
 class SquadsScreen extends ConsumerWidget {
-  const SquadsScreen({Key? key}) : super(key: key);
+  const SquadsScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -91,7 +90,7 @@ class SquadsScreen extends ConsumerWidget {
                 },
                 child: GlassCard(
                   padding: const EdgeInsets.all(16.0),
-                  borderColor: AppColors.magentaAccent.withOpacity(0.5),
+                  borderColor: AppColors.magentaAccent.withValues(alpha: 0.5),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [

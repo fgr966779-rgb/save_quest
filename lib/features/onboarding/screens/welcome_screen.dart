@@ -7,7 +7,7 @@ import '../../../core/widgets/particle_background.dart';
 import '../../../core/widgets/glass_card.dart';
 
 class WelcomeScreen extends StatefulWidget {
-  const WelcomeScreen({Key? key}) : super(key: key);
+  const WelcomeScreen({super.key});
 
   @override
   State<WelcomeScreen> createState() => _WelcomeScreenState();
@@ -84,7 +84,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> with TickerProviderStateM
                         border: Border.all(color: AppColors.cyanAccent, width: 2.0),
                         boxShadow: [
                           BoxShadow(
-                            color: AppColors.cyanAccent.withOpacity(0.3),
+                            color: AppColors.cyanAccent.withValues(alpha: 0.3),
                             blurRadius: 32.0,
                             spreadRadius: 4.0,
                           ),
@@ -172,7 +172,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> with TickerProviderStateM
               borderRadius: BorderRadius.circular(4.0),
               boxShadow: [
                 BoxShadow(
-                  color: AppColors.cyanAccent.withOpacity(0.3 * _pulseAnimation.value),
+                  color: AppColors.cyanAccent.withValues(alpha: 0.3 * _pulseAnimation.value),
                   blurRadius: 6.0 * _pulseAnimation.value,
                   spreadRadius: 1.0 * _pulseAnimation.value,
                 ),
@@ -189,7 +189,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> with TickerProviderStateM
       width: 8.0,
       height: 8.0,
       decoration: BoxDecoration(
-        color: AppColors.textMuted.withOpacity(0.5),
+        color: AppColors.textMuted.withValues(alpha: 0.5),
         borderRadius: BorderRadius.circular(4.0),
       ),
     );

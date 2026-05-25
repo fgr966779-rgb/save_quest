@@ -15,11 +15,11 @@ class PriceAnalysisScreen extends ConsumerStatefulWidget {
   final String? currency;
 
   const PriceAnalysisScreen({
-    Key? key,
+    super.key,
     this.initialQuery,
     this.targetAmountKopecks,
     this.currency,
-  }) : super(key: key);
+  });
 
   @override
   ConsumerState<PriceAnalysisScreen> createState() =>
@@ -161,7 +161,7 @@ class _PriceAnalysisScreenState extends ConsumerState<PriceAnalysisScreen> {
   Widget _buildSearchCard() {
     return GlassCard(
       padding: const EdgeInsets.all(16.0),
-      borderColor: AppColors.cyanAccent.withOpacity(0.3),
+      borderColor: AppColors.cyanAccent.withValues(alpha: 0.3),
       glowColor: AppColors.cyanAccent,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -188,13 +188,13 @@ class _PriceAnalysisScreenState extends ConsumerState<PriceAnalysisScreen> {
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12.0),
                 borderSide: BorderSide(
-                  color: AppColors.borderNeon.withOpacity(0.5),
+                  color: AppColors.borderNeon.withValues(alpha: 0.5),
                 ),
               ),
               enabledBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12.0),
                 borderSide: BorderSide(
-                  color: AppColors.borderNeon.withOpacity(0.5),
+                  color: AppColors.borderNeon.withValues(alpha: 0.5),
                 ),
               ),
               focusedBorder: OutlineInputBorder(
@@ -219,7 +219,7 @@ class _PriceAnalysisScreenState extends ConsumerState<PriceAnalysisScreen> {
   Widget _buildErrorCard(String message) {
     return GlassCard(
       padding: const EdgeInsets.all(14.0),
-      borderColor: AppColors.magentaAccent.withOpacity(0.5),
+      borderColor: AppColors.magentaAccent.withValues(alpha: 0.5),
       child: Row(
         children: [
           const Icon(Icons.error_outline_rounded,
@@ -242,7 +242,7 @@ class _PriceAnalysisScreenState extends ConsumerState<PriceAnalysisScreen> {
   Widget _buildSummaryCard(PriceAnalysis a, String currency) {
     return GlassCard(
       padding: const EdgeInsets.all(20.0),
-      borderColor: AppColors.cyanAccent.withOpacity(0.4),
+      borderColor: AppColors.cyanAccent.withValues(alpha: 0.4),
       glowColor: AppColors.cyanAccent,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -263,10 +263,10 @@ class _PriceAnalysisScreenState extends ConsumerState<PriceAnalysisScreen> {
                   padding: const EdgeInsets.symmetric(
                       horizontal: 8, vertical: 3),
                   decoration: BoxDecoration(
-                    color: AppColors.goldAccent.withOpacity(0.15),
+                    color: AppColors.goldAccent.withValues(alpha: 0.15),
                     borderRadius: BorderRadius.circular(6),
                     border: Border.all(
-                        color: AppColors.goldAccent.withOpacity(0.5)),
+                        color: AppColors.goldAccent.withValues(alpha: 0.5)),
                   ),
                   child: Text(
                     'ОЦІНКА',
@@ -344,7 +344,7 @@ class _PriceAnalysisScreenState extends ConsumerState<PriceAnalysisScreen> {
 
     return GlassCard(
       padding: const EdgeInsets.all(16.0),
-      borderColor: color.withOpacity(0.4),
+      borderColor: color.withValues(alpha: 0.4),
       child: Row(
         children: [
           Icon(
@@ -449,7 +449,7 @@ class _PriceAnalysisScreenState extends ConsumerState<PriceAnalysisScreen> {
   Widget _buildRecommendationCard(PriceAnalysis a) {
     return GlassCard(
       padding: const EdgeInsets.all(14.0),
-      borderColor: AppColors.purpleGlow.withOpacity(0.4),
+      borderColor: AppColors.purpleGlow.withValues(alpha: 0.4),
       child: Row(
         children: [
           const Icon(Icons.psychology_alt_rounded,

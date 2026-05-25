@@ -13,7 +13,7 @@ import '../../../core/utils/money_utils.dart';
 import '../../../core/widgets/glass_card.dart';
 
 class BankingInsightsCard extends ConsumerWidget {
-  const BankingInsightsCard({Key? key}) : super(key: key);
+  const BankingInsightsCard({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -23,7 +23,7 @@ class BankingInsightsCard extends ConsumerWidget {
       // --- Loading: VAULT-7 is "thinking" ---
       loading: () => GlassCard(
         padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
-        borderColor: AppColors.cyanAccent.withOpacity(0.4),
+        borderColor: AppColors.cyanAccent.withValues(alpha: 0.4),
         child: Row(
           children: [
             const SizedBox(
@@ -63,8 +63,8 @@ class BankingInsightsCard extends ConsumerWidget {
               padding: const EdgeInsets.only(bottom: 12.0),
               child: GlassCard(
                 padding: const EdgeInsets.all(16.0),
-                borderColor: accentColor.withOpacity(0.6),
-                glowColor: accentColor.withOpacity(0.15),
+                borderColor: accentColor.withValues(alpha: 0.6),
+                glowColor: accentColor.withValues(alpha: 0.15),
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -72,7 +72,7 @@ class BankingInsightsCard extends ConsumerWidget {
                     Container(
                       padding: const EdgeInsets.all(10.0),
                       decoration: BoxDecoration(
-                        color: accentColor.withOpacity(0.12),
+                        color: accentColor.withValues(alpha: 0.12),
                         shape: BoxShape.circle,
                       ),
                       child: Icon(
@@ -141,7 +141,7 @@ class BankingInsightsCard extends ConsumerWidget {
                                               '✅ Переказано ${centsToDisplay(insight.suggestedAmountKopecks)} у Сховище!',
                                             ),
                                             backgroundColor:
-                                                accentColor.withOpacity(0.85),
+                                                accentColor.withValues(alpha: 0.85),
                                           ),
                                         );
                                       }

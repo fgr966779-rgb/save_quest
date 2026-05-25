@@ -9,7 +9,6 @@ import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_text_styles.dart';
 import '../../../core/providers/providers.dart';
 import '../../../core/providers/l10n.dart';
-import '../../../core/providers/savings_notifier.dart';
 import '../../../core/utils/money_utils.dart';
 import '../../../core/widgets/dual_progress_ring.dart';
 import '../../../core/widgets/neon_button.dart';
@@ -17,12 +16,9 @@ import '../../../core/widgets/neon_progress_bar.dart';
 import '../../../core/widgets/glass_card.dart';
 import '../../../core/widgets/saving_goal_card.dart';
 import '../../gamification/providers/bounty_provider.dart';
-import '../../gamification/models/bounty_model.dart';
 import '../../../data/database.dart';
 import '../../gamification/widgets/daily_spin_dialog.dart';
 import '../../../core/widgets/neon_avatar_painter.dart';
-import '../../../core/providers/banking_provider.dart';
-import '../../../core/providers/events_notifier.dart';
 import '../widgets/banking_insights_card.dart';
 import '../../gamification/providers/quest_provider.dart';
 import '../../gamification/models/daily_quest.dart';
@@ -31,7 +27,7 @@ import '../../gamification/widgets/daily_bonus_dialog.dart';
 import '../../gamification/widgets/shield_activation_dialog.dart';
 
 class DashboardScreen extends ConsumerStatefulWidget {
-  const DashboardScreen({Key? key}) : super(key: key);
+  const DashboardScreen({super.key});
 
   @override
   ConsumerState<DashboardScreen> createState() => _DashboardScreenState();
@@ -179,12 +175,12 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                     margin: const EdgeInsets.only(bottom: 16.0),
                     padding: const EdgeInsets.all(12.0),
                     decoration: BoxDecoration(
-                      color: AppColors.magentaAccent.withOpacity(0.15),
+                      color: AppColors.magentaAccent.withValues(alpha: 0.15),
                       border: Border.all(color: AppColors.magentaAccent),
                       borderRadius: BorderRadius.circular(8.0),
                       boxShadow: [
                         BoxShadow(
-                          color: AppColors.magentaAccent.withOpacity(0.4),
+                          color: AppColors.magentaAccent.withValues(alpha: 0.4),
                           blurRadius: 10,
                           spreadRadius: 2,
                         ),
@@ -237,7 +233,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                         margin: const EdgeInsets.only(bottom: 16.0),
                         padding: const EdgeInsets.all(12.0),
                         decoration: BoxDecoration(
-                          color: Colors.redAccent.withOpacity(0.15),
+                          color: Colors.redAccent.withValues(alpha: 0.15),
                           border: Border.all(color: Colors.redAccent),
                           borderRadius: BorderRadius.circular(8.0),
                         ),
@@ -400,7 +396,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                             ).copyWith(
                               shadows: [
                                 Shadow(
-                                  color: AppColors.cyanAccent.withOpacity(0.6),
+                                  color: AppColors.cyanAccent.withValues(alpha: 0.6),
                                   blurRadius: 12.0,
                                 ),
                               ],
@@ -525,7 +521,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
           gradient: hasStreak
               ? LinearGradient(
                   colors: [
-                    AppColors.fireOrange.withOpacity(0.08),
+                    AppColors.fireOrange.withValues(alpha: 0.08),
                     Colors.transparent,
                   ],
                   begin: Alignment.centerLeft,
@@ -567,9 +563,9 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
                 decoration: BoxDecoration(
-                  color: AppColors.cyanAccent.withOpacity(0.08),
+                  color: AppColors.cyanAccent.withValues(alpha: 0.08),
                   borderRadius: BorderRadius.circular(6.0),
-                  border: Border.all(color: AppColors.cyanAccent.withOpacity(0.4), width: 1.0),
+                  border: Border.all(color: AppColors.cyanAccent.withValues(alpha: 0.4), width: 1.0),
                 ),
                 child: Row(
                   children: [
@@ -672,7 +668,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
                       content: Text('Швидкий внесок: 50.00 ${goalA.currency} до ${goalA.name}!'),
-                      backgroundColor: AppColors.cyanAccent.withOpacity(0.8),
+                      backgroundColor: AppColors.cyanAccent.withValues(alpha: 0.8),
                     ),
                   );
                   final activeEvent = ref.read(eventsProvider);
@@ -704,7 +700,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
                       content: Text('Швидкий внесок: 50.00 ${goalB.currency} до ${goalB.name}!'),
-                      backgroundColor: AppColors.magentaAccent.withOpacity(0.8),
+                      backgroundColor: AppColors.magentaAccent.withValues(alpha: 0.8),
                     ),
                   );
                   final activeEvent = ref.read(eventsProvider);
@@ -748,13 +744,13 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
           margin: const EdgeInsets.only(bottom: 16.0),
           decoration: BoxDecoration(
             color: bounty.isCompleted 
-                ? AppColors.goldGlow.withOpacity(0.1) 
-                : AppColors.cyanAccent.withOpacity(0.05),
+                ? AppColors.goldGlow.withValues(alpha: 0.1)
+                : AppColors.cyanAccent.withValues(alpha: 0.05),
             borderRadius: BorderRadius.circular(16.0),
             border: Border.all(
               color: bounty.isCompleted 
-                  ? AppColors.goldGlow.withOpacity(0.5) 
-                  : AppColors.cyanAccent.withOpacity(0.3),
+                  ? AppColors.goldGlow.withValues(alpha: 0.5)
+                  : AppColors.cyanAccent.withValues(alpha: 0.3),
             ),
           ),
           child: Material(
@@ -859,7 +855,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                     padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 3.0),
                     decoration: BoxDecoration(
                       color: completedCount == quests.length
-                          ? AppColors.cyanAccent.withOpacity(0.2)
+                          ? AppColors.cyanAccent.withValues(alpha: 0.2)
                           : AppColors.cardBg,
                       borderRadius: BorderRadius.circular(12.0),
                       border: Border.all(
@@ -905,7 +901,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
             width: 22.0,
             height: 22.0,
             decoration: BoxDecoration(
-              color: isCompleted ? AppColors.cyanAccent.withOpacity(0.2) : Colors.transparent,
+              color: isCompleted ? AppColors.cyanAccent.withValues(alpha: 0.2) : Colors.transparent,
               borderRadius: BorderRadius.circular(6.0),
               border: Border.all(
                 color: isCompleted ? AppColors.cyanAccent : AppColors.borderNeon,
@@ -940,7 +936,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                   style: TextStyle(
                     fontSize: 10.0,
                     color: isCompleted
-                        ? AppColors.textSecondary.withOpacity(0.5)
+                        ? AppColors.textSecondary.withValues(alpha: 0.5)
                         : AppColors.textSecondary,
                   ),
                 ),
@@ -953,8 +949,8 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
             padding: const EdgeInsets.symmetric(horizontal: 6.0, vertical: 2.0),
             decoration: BoxDecoration(
               color: isCompleted
-                  ? AppColors.cyanAccent.withOpacity(0.1)
-                  : AppColors.magentaAccent.withOpacity(0.1),
+                  ? AppColors.cyanAccent.withValues(alpha: 0.1)
+                  : AppColors.magentaAccent.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(8.0),
             ),
             child: Text(

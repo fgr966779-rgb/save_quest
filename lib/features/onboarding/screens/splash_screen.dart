@@ -8,7 +8,7 @@ import '../../../core/providers/providers.dart';
 import '../../../core/widgets/particle_background.dart';
 
 class SplashScreen extends ConsumerStatefulWidget {
-  const SplashScreen({Key? key}) : super(key: key);
+  const SplashScreen({super.key});
 
   @override
   ConsumerState<SplashScreen> createState() => _SplashScreenState();
@@ -95,7 +95,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen> with TickerProvider
                         border: Border.all(color: AppColors.cyanAccent, width: 2.0),
                         boxShadow: [
                           BoxShadow(
-                            color: AppColors.cyanAccent.withOpacity(0.4),
+                            color: AppColors.cyanAccent.withValues(alpha: 0.4),
                             blurRadius: 16.0,
                             spreadRadius: 2.0,
                           ),
@@ -142,7 +142,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen> with TickerProvider
                   decoration: BoxDecoration(
                     boxShadow: [
                       BoxShadow(
-                        color: AppColors.cyanAccent.withOpacity(1.0),
+                        color: AppColors.cyanAccent.withValues(alpha: 1.0),
                         blurRadius: 10.0,
                         spreadRadius: 3.0,
                       ),

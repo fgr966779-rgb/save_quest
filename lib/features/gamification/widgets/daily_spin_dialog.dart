@@ -9,7 +9,7 @@ import '../../../core/widgets/neon_button.dart';
 import '../providers/quest_provider.dart';
 
 class DailySpinDialog extends ConsumerStatefulWidget {
-  const DailySpinDialog({Key? key}) : super(key: key);
+  const DailySpinDialog({super.key});
 
   @override
   ConsumerState<DailySpinDialog> createState() => _DailySpinDialogState();
@@ -114,12 +114,12 @@ class _DailySpinDialogState extends ConsumerState<DailySpinDialog> with SingleTi
       child: Container(
         padding: const EdgeInsets.all(24.0),
         decoration: BoxDecoration(
-          color: AppColors.background.withOpacity(0.9),
+          color: AppColors.background.withValues(alpha: 0.9),
           borderRadius: BorderRadius.circular(20.0),
           border: Border.all(color: AppColors.magentaAccent, width: 2.0),
           boxShadow: [
             BoxShadow(
-              color: AppColors.magentaAccent.withOpacity(0.3),
+              color: AppColors.magentaAccent.withValues(alpha: 0.3),
               blurRadius: 20.0,
               spreadRadius: 5.0,
             ),
@@ -159,7 +159,7 @@ class _DailySpinDialogState extends ConsumerState<DailySpinDialog> with SingleTi
                       ),
                     ),
                     child: Center(
-                      child: Icon(Icons.star, color: AppColors.goldGlow.withOpacity(0.5), size: 100),
+                      child: Icon(Icons.star, color: AppColors.goldGlow.withValues(alpha: 0.5), size: 100),
                     ),
                   ),
                 );

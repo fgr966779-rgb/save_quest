@@ -13,11 +13,10 @@ import '../../../core/widgets/neon_avatar_painter.dart';
 import '../../../core/widgets/glass_card.dart';
 import '../../../core/widgets/neon_button.dart';
 import '../../../core/providers/banking_provider.dart';
-import '../../../core/providers/events_notifier.dart';
 import '../../../core/services/openrouter_service.dart';
 
 class SettingsScreen extends ConsumerStatefulWidget {
-  const SettingsScreen({Key? key}) : super(key: key);
+  const SettingsScreen({super.key});
 
   @override
   ConsumerState<SettingsScreen> createState() => _SettingsScreenState();
@@ -26,12 +25,12 @@ class SettingsScreen extends ConsumerStatefulWidget {
 class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   final GlobalKey _shareKey = GlobalKey();
   bool _isExporting = false;
-  String _selectedLanguage = 'UA';
+  final String _selectedLanguage = 'UA';
 
   // Local state for mock settings
   bool _dailyReminder = true;
   bool _achievementNotifications = true;
-  bool _privacyMode = false;
+  final bool _privacyMode = false;
   bool _biometricEnabled = false;
   bool _cloudBackup = true;
 
@@ -119,7 +118,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
               key: _shareKey,
               child: GlassCard(
                 padding: const EdgeInsets.all(20.0),
-                borderColor: AppColors.cyanAccent.withOpacity(0.4),
+                borderColor: AppColors.cyanAccent.withValues(alpha: 0.4),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
@@ -240,9 +239,9 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 12.0),
               decoration: BoxDecoration(
-                color: AppColors.cardBg.withOpacity(0.3),
+                color: AppColors.cardBg.withValues(alpha: 0.3),
                 borderRadius: BorderRadius.circular(8.0),
-                border: Border.all(color: AppColors.borderNeon.withOpacity(0.3)),
+                border: Border.all(color: AppColors.borderNeon.withValues(alpha: 0.3)),
               ),
               child: DropdownButtonHideUnderline(
                 child: DropdownButton<String>(
@@ -354,7 +353,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
             const SizedBox(height: 12.0),
             NeonButton(
               text: 'КЕРУВАННЯ BLACKLIST',
-              baseColor: Colors.redAccent.withOpacity(0.2),
+              baseColor: Colors.redAccent.withValues(alpha: 0.2),
               glowColor: Colors.redAccent,
               icon: const Icon(Icons.block, color: Colors.redAccent, size: 20),
               onPressed: () => context.push('/blacklist'),
@@ -437,7 +436,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
             // 6. Hard Reset
             NeonButton(
               text: t('settings_hard_reset'),
-              baseColor: Colors.redAccent.withOpacity(0.2),
+              baseColor: Colors.redAccent.withValues(alpha: 0.2),
               glowColor: Colors.redAccent,
               icon: const Icon(Icons.delete_forever, color: Colors.redAccent, size: 20),
               onPressed: () {
@@ -499,7 +498,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
             const SizedBox(height: 12.0),
             GlassCard(
               padding: const EdgeInsets.all(16.0),
-              borderColor: Colors.redAccent.withOpacity(0.5),
+              borderColor: Colors.redAccent.withValues(alpha: 0.5),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
@@ -514,9 +513,9 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                     style: const TextStyle(color: Colors.white, fontSize: 12.0),
                     decoration: InputDecoration(
                       hintText: 'sk-or-v1-...',
-                      hintStyle: TextStyle(color: AppColors.textMuted.withOpacity(0.5)),
+                      hintStyle: TextStyle(color: AppColors.textMuted.withValues(alpha: 0.5)),
                       filled: true,
-                      fillColor: Colors.black.withOpacity(0.3),
+                      fillColor: Colors.black.withValues(alpha: 0.3),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(8.0),
                         borderSide: BorderSide.none,
@@ -538,7 +537,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   const SizedBox(height: 8.0),
                   NeonButton(
                     text: 'Згенерувати транзакцію',
-                    baseColor: Colors.redAccent.withOpacity(0.2),
+                    baseColor: Colors.redAccent.withValues(alpha: 0.2),
                     glowColor: Colors.transparent,
                     icon: const Icon(Icons.monetization_on, color: Colors.redAccent, size: 16),
                     onPressed: () {
@@ -552,7 +551,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   const SizedBox(height: 8.0),
                   NeonButton(
                     text: 'Очистити історію банку',
-                    baseColor: Colors.redAccent.withOpacity(0.2),
+                    baseColor: Colors.redAccent.withValues(alpha: 0.2),
                     glowColor: Colors.transparent,
                     icon: const Icon(Icons.delete, color: Colors.redAccent, size: 16),
                     onPressed: () {
@@ -570,7 +569,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   const SizedBox(height: 8.0),
                   NeonButton(
                     text: 'Згенерувати Cyber-Event',
-                    baseColor: AppColors.magentaAccent.withOpacity(0.2),
+                    baseColor: AppColors.magentaAccent.withValues(alpha: 0.2),
                     glowColor: Colors.transparent,
                     icon: const Icon(Icons.public, color: AppColors.magentaAccent, size: 16),
                     onPressed: () {
@@ -584,7 +583,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   const SizedBox(height: 8.0),
                   NeonButton(
                     text: 'Зупинити активний Event',
-                    baseColor: AppColors.magentaAccent.withOpacity(0.2),
+                    baseColor: AppColors.magentaAccent.withValues(alpha: 0.2),
                     glowColor: Colors.transparent,
                     icon: const Icon(Icons.close, color: AppColors.magentaAccent, size: 16),
                     onPressed: () {
@@ -602,7 +601,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   const SizedBox(height: 8.0),
                   NeonButton(
                     text: 'УПРАВЛІННЯ ПК (REMOTE CONTROL)',
-                    baseColor: AppColors.cyanAccent.withOpacity(0.2),
+                    baseColor: AppColors.cyanAccent.withValues(alpha: 0.2),
                     glowColor: AppColors.cyanAccent,
                     icon: const Icon(Icons.settings_remote, color: AppColors.cyanAccent, size: 16),
                     onPressed: () {
@@ -648,7 +647,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 10.0,
-                  color: AppColors.textMuted.withOpacity(0.5),
+                  color: AppColors.textMuted.withValues(alpha: 0.5),
                   height: 1.5,
                 ),
               ),
@@ -692,8 +691,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           Switch(
             value: value,
             onChanged: onChanged,
-            activeColor: AppColors.cyanAccent,
-            activeTrackColor: AppColors.cyanAccent.withOpacity(0.3),
+            activeThumbColor: AppColors.cyanAccent,
+            activeTrackColor: AppColors.cyanAccent.withValues(alpha: 0.3),
             inactiveThumbColor: AppColors.textSecondary,
             inactiveTrackColor: AppColors.cardBg,
           ),
@@ -726,10 +725,10 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   margin: const EdgeInsets.symmetric(horizontal: 4.0),
                   padding: const EdgeInsets.symmetric(vertical: 10.0),
                   decoration: BoxDecoration(
-                    color: isSelected ? AppColors.cyanAccent.withOpacity(0.15) : AppColors.cardBg.withOpacity(0.3),
+                    color: isSelected ? AppColors.cyanAccent.withValues(alpha: 0.15) : AppColors.cardBg.withValues(alpha: 0.3),
                     borderRadius: BorderRadius.circular(8.0),
                     border: Border.all(
-                      color: isSelected ? AppColors.cyanAccent : AppColors.borderNeon.withOpacity(0.3),
+                      color: isSelected ? AppColors.cyanAccent : AppColors.borderNeon.withValues(alpha: 0.3),
                     ),
                   ),
                   child: Text(

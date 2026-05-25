@@ -10,14 +10,14 @@ class NeonProgressBar extends StatelessWidget {
   final String? trailingText;
 
   const NeonProgressBar({
-    Key? key,
+    super.key,
     required this.progress,
     required this.activeColor,
     required this.glowColor,
     this.height = 10.0,
     this.label,
     this.trailingText,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -81,7 +81,7 @@ class NeonProgressBar extends StatelessWidget {
                           color: activeColor,
                           boxShadow: [
                             BoxShadow(
-                              color: glowColor.withOpacity(0.5),
+                              color: glowColor.withValues(alpha: 0.5),
                               blurRadius: 8.0,
                               spreadRadius: 1.0,
                             ),

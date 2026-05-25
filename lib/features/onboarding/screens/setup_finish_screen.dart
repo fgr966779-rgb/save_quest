@@ -13,7 +13,7 @@ import '../../../core/widgets/split_slider.dart';
 import '../../../data/database.dart';
 
 class SetupFinishScreen extends ConsumerStatefulWidget {
-  const SetupFinishScreen({Key? key}) : super(key: key);
+  const SetupFinishScreen({super.key});
 
   @override
   ConsumerState<SetupFinishScreen> createState() => _SetupFinishScreenState();
@@ -211,8 +211,8 @@ class _SetupFinishScreenState extends ConsumerState<SetupFinishScreen> {
                                     gradient: isSelected
                                         ? LinearGradient(
                                             colors: [
-                                              AppColors.goldAccent.withOpacity(0.25),
-                                              AppColors.goldAccent.withOpacity(0.08),
+                                              AppColors.goldAccent.withValues(alpha: 0.25),
+                                              AppColors.goldAccent.withValues(alpha: 0.08),
                                             ],
                                             begin: Alignment.topLeft,
                                             end: Alignment.bottomRight,
@@ -227,7 +227,7 @@ class _SetupFinishScreenState extends ConsumerState<SetupFinishScreen> {
                                     boxShadow: isSelected
                                         ? [
                                             BoxShadow(
-                                              color: AppColors.goldAccent.withOpacity(0.3),
+                                              color: AppColors.goldAccent.withValues(alpha: 0.3),
                                               blurRadius: 8.0,
                                             ),
                                           ]
@@ -323,12 +323,12 @@ class _SetupFinishScreenState extends ConsumerState<SetupFinishScreen> {
       width: isActive ? 24.0 : 8.0,
       height: 8.0,
       decoration: BoxDecoration(
-        color: isActive ? AppColors.goldAccent : AppColors.textMuted.withOpacity(0.5),
+        color: isActive ? AppColors.goldAccent : AppColors.textMuted.withValues(alpha: 0.5),
         borderRadius: BorderRadius.circular(4.0),
         boxShadow: isActive
             ? [
                 BoxShadow(
-                  color: AppColors.goldAccent.withOpacity(0.6),
+                  color: AppColors.goldAccent.withValues(alpha: 0.6),
                   blurRadius: 4.0,
                   spreadRadius: 1.0,
                 ),

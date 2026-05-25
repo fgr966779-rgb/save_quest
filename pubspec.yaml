@@ -54,6 +54,7 @@ dependencies:
   web_socket_channel: ^3.0.1
   crypto: ^3.0.5
 
+  uuid: any
 dev_dependencies:
   flutter_test:
     sdk: flutter

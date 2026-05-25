@@ -7,9 +7,9 @@ class AmountInputPad extends StatelessWidget {
   final Function(String) onKeyPressed;
 
   const AmountInputPad({
-    Key? key,
+    super.key,
     required this.onKeyPressed,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -84,10 +84,9 @@ class _InputKey extends StatefulWidget {
   final VoidCallback onTap;
 
   const _InputKey({
-    Key? key,
     required this.label,
     required this.onTap,
-  }) : super(key: key);
+  });
 
   @override
   State<_InputKey> createState() => _InputKeyState();
@@ -136,10 +135,10 @@ class _InputKeyState extends State<_InputKey> with SingleTickerProviderStateMixi
         child: Container(
           height: 60.0,
           decoration: BoxDecoration(
-            color: isSpecial ? Colors.white.withOpacity(0.02) : AppColors.cardBgLight,
+            color: isSpecial ? Colors.white.withValues(alpha: 0.02) : AppColors.cardBgLight,
             borderRadius: BorderRadius.circular(12.0),
             border: Border.all(
-              color: isSpecial ? AppColors.borderNeon.withOpacity(0.2) : AppColors.borderNeon,
+              color: isSpecial ? AppColors.borderNeon.withValues(alpha: 0.2) : AppColors.borderNeon,
               width: 1.0,
             ),
           ),

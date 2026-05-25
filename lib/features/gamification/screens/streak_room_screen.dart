@@ -1,6 +1,5 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/constants/app_colors.dart';
@@ -8,10 +7,9 @@ import '../../../core/constants/app_text_styles.dart';
 import '../../../core/providers/providers.dart';
 import '../../../core/providers/l10n.dart';
 import '../../../core/widgets/glass_card.dart';
-import '../../../core/widgets/neon_button.dart';
 
 class StreakRoomScreen extends ConsumerStatefulWidget {
-  const StreakRoomScreen({Key? key}) : super(key: key);
+  const StreakRoomScreen({super.key});
 
   @override
   ConsumerState<StreakRoomScreen> createState() => _StreakRoomScreenState();
@@ -129,7 +127,7 @@ class _StreakRoomScreenState extends ConsumerState<StreakRoomScreen> with Single
                     // Cryogenic tokens freeze display
                     GlassCard(
                       padding: const EdgeInsets.all(16.0),
-                      borderColor: AppColors.cyanAccent.withOpacity(0.3),
+                      borderColor: AppColors.cyanAccent.withValues(alpha: 0.3),
                       child: Row(
                         children: [
                           const Icon(Icons.ac_unit_rounded, color: AppColors.cyanAccent, size: 28.0),
@@ -157,7 +155,7 @@ class _StreakRoomScreenState extends ConsumerState<StreakRoomScreen> with Single
                           Container(
                             padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 6.0),
                             decoration: BoxDecoration(
-                              color: AppColors.cyanAccent.withOpacity(0.1),
+                              color: AppColors.cyanAccent.withValues(alpha: 0.1),
                               borderRadius: BorderRadius.circular(20.0),
                               border: Border.all(color: AppColors.cyanAccent),
                             ),
@@ -220,10 +218,10 @@ class _StreakRoomScreenState extends ConsumerState<StreakRoomScreen> with Single
 
                           return Container(
                             decoration: BoxDecoration(
-                              color: hasSaved ? AppColors.magentaAccent.withOpacity(0.8) : AppColors.cardBg.withOpacity(0.4),
+                              color: hasSaved ? AppColors.magentaAccent.withValues(alpha: 0.8) : AppColors.cardBg.withValues(alpha: 0.4),
                               borderRadius: BorderRadius.circular(4.0),
                               border: Border.all(
-                                color: hasSaved ? AppColors.magentaAccent : AppColors.borderNeon.withOpacity(0.2),
+                                color: hasSaved ? AppColors.magentaAccent : AppColors.borderNeon.withValues(alpha: 0.2),
                               ),
                               boxShadow: hasSaved
                                   ? [
@@ -243,9 +241,9 @@ class _StreakRoomScreenState extends ConsumerState<StreakRoomScreen> with Single
                         children: [
                           Text(t('streak_heatmap_low'), style: const TextStyle(fontSize: 10.0, color: AppColors.textSecondary)),
                           const SizedBox(width: 4.0),
-                          Container(width: 10, height: 10, color: AppColors.cardBg.withOpacity(0.4)),
+                          Container(width: 10, height: 10, color: AppColors.cardBg.withValues(alpha: 0.4)),
                           const SizedBox(width: 4.0),
-                          Container(width: 10, height: 10, color: AppColors.magentaAccent.withOpacity(0.8)),
+                          Container(width: 10, height: 10, color: AppColors.magentaAccent.withValues(alpha: 0.8)),
                           const SizedBox(width: 4.0),
                           Text(t('streak_heatmap_high'), style: const TextStyle(fontSize: 10.0, color: AppColors.textSecondary)),
                         ],
@@ -285,7 +283,7 @@ class ReactiveFlamePainter extends CustomPainter {
       ..style = PaintingStyle.fill
       ..shader = RadialGradient(
         colors: [
-          streakCount > 0 ? AppColors.magentaAccent.withOpacity(0.8) : AppColors.borderNeon.withOpacity(0.6),
+          streakCount > 0 ? AppColors.magentaAccent.withValues(alpha: 0.8) : AppColors.borderNeon.withValues(alpha: 0.6),
           Colors.transparent
         ],
       ).createShader(Rect.fromCircle(center: center, radius: baseRadius));

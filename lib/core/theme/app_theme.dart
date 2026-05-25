@@ -13,12 +13,10 @@ class AppTheme {
       
       // Color Scheme
       colorScheme: const ColorScheme.dark(
-        background: AppColors.background,
         surface: AppColors.cardBg,
         primary: AppColors.cyanAccent,
         secondary: AppColors.magentaAccent,
         error: Colors.redAccent,
-        onBackground: AppColors.textPrimary,
         onSurface: AppColors.textPrimary,
         onPrimary: AppColors.background,
         onSecondary: AppColors.background,
@@ -43,17 +41,17 @@ class AppTheme {
       ),
 
       // Card Theme
-      cardTheme: CardTheme(
+      cardTheme: CardThemeData(
         color: AppColors.cardBg,
         elevation: 0,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(24.0),
-          side: BorderSide(color: Colors.white.withOpacity(0.06), width: 1.0),
+          side: BorderSide(color: Colors.white.withValues(alpha: 0.06), width: 1.0),
         ),
       ),
 
       // Dialog Theme
-      dialogTheme: DialogTheme(
+      dialogTheme: DialogThemeData(
         backgroundColor: AppColors.cardBg,
         elevation: 10,
         shape: RoundedRectangleBorder(
@@ -64,7 +62,7 @@ class AppTheme {
 
       // Divider Theme
       dividerTheme: DividerThemeData(
-        color: Colors.white.withOpacity(0.08),
+        color: Colors.white.withValues(alpha: 0.08),
         thickness: 1.0,
         space: 1.0,
       ),
@@ -76,11 +74,11 @@ class AppTheme {
         contentPadding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 16.0),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16.0),
-          borderSide: BorderSide(color: Colors.white.withOpacity(0.08), width: 1.0),
+          borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.08), width: 1.0),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16.0),
-          borderSide: BorderSide(color: Colors.white.withOpacity(0.08), width: 1.0),
+          borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.08), width: 1.0),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16.0),
@@ -100,12 +98,10 @@ class AppTheme {
       
       // Color Scheme
       colorScheme: const ColorScheme.light(
-        background: AppColors.lightBg,
         surface: AppColors.lightSurface,
         primary: AppColors.cyanAccent,
         secondary: AppColors.magentaAccent,
         error: Colors.redAccent,
-        onBackground: AppColors.textLightPrimary,
         onSurface: AppColors.textLightPrimary,
         onPrimary: Colors.white,
         onSecondary: Colors.white,
@@ -130,17 +126,17 @@ class AppTheme {
       ),
 
       // Card Theme
-      cardTheme: CardTheme(
+      cardTheme: CardThemeData(
         color: AppColors.lightSurface,
         elevation: 0,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(24.0),
-          side: BorderSide(color: Colors.black.withOpacity(0.04), width: 1.0),
+          side: BorderSide(color: Colors.black.withValues(alpha: 0.04), width: 1.0),
         ),
       ),
 
       // Dialog Theme
-      dialogTheme: DialogTheme(
+      dialogTheme: DialogThemeData(
         backgroundColor: AppColors.lightSurface,
         elevation: 10,
         shape: RoundedRectangleBorder(
@@ -151,7 +147,7 @@ class AppTheme {
 
       // Divider Theme
       dividerTheme: DividerThemeData(
-        color: Colors.black.withOpacity(0.05),
+        color: Colors.black.withValues(alpha: 0.05),
         thickness: 1.0,
         space: 1.0,
       ),
@@ -163,11 +159,11 @@ class AppTheme {
         contentPadding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 16.0),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16.0),
-          borderSide: BorderSide(color: Colors.black.withOpacity(0.05), width: 1.0),
+          borderSide: BorderSide(color: Colors.black.withValues(alpha: 0.05), width: 1.0),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16.0),
-          borderSide: BorderSide(color: Colors.black.withOpacity(0.05), width: 1.0),
+          borderSide: BorderSide(color: Colors.black.withValues(alpha: 0.05), width: 1.0),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16.0),

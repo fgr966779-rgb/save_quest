@@ -12,7 +12,7 @@ import '../../../data/database.dart';
 import '../../gamification/providers/quest_provider.dart';
 
 class AnalyticsScreen extends ConsumerStatefulWidget {
-  const AnalyticsScreen({Key? key}) : super(key: key);
+  const AnalyticsScreen({super.key});
 
   @override
   ConsumerState<AnalyticsScreen> createState() => _AnalyticsScreenState();
@@ -252,7 +252,7 @@ class _AnalyticsScreenState extends ConsumerState<AnalyticsScreen> {
                       show: true,
                       drawVerticalLine: false,
                       getDrawingHorizontalLine: (val) => FlLine(
-                        color: AppColors.borderNeon.withOpacity(0.15),
+                        color: AppColors.borderNeon.withValues(alpha: 0.15),
                         strokeWidth: 1.0,
                       ),
                     ),
@@ -268,7 +268,7 @@ class _AnalyticsScreenState extends ConsumerState<AnalyticsScreen> {
                         dotData: FlDotData(show: spotsA.length < 5),
                         belowBarData: BarAreaData(
                           show: true,
-                          color: AppColors.cyanAccent.withOpacity(0.06),
+                          color: AppColors.cyanAccent.withValues(alpha: 0.06),
                         ),
                       ),
                       // Goal B progress line
@@ -280,7 +280,7 @@ class _AnalyticsScreenState extends ConsumerState<AnalyticsScreen> {
                         dotData: FlDotData(show: spotsB.length < 5),
                         belowBarData: BarAreaData(
                           show: true,
-                          color: AppColors.magentaAccent.withOpacity(0.06),
+                          color: AppColors.magentaAccent.withValues(alpha: 0.06),
                         ),
                       ),
                     ],
