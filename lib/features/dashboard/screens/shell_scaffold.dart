@@ -24,7 +24,6 @@ class ShellScaffold extends ConsumerWidget {
     if (location.startsWith('/history')) return 2;
     if (location.startsWith('/streak')) return 3;
     if (location.startsWith('/trophies')) return 4;
-    if (location.startsWith('/settings')) return 5;
     return 0;
   }
 
@@ -44,9 +43,6 @@ class ShellScaffold extends ConsumerWidget {
         break;
       case 4:
         context.go('/trophies');
-        break;
-      case 5:
-        context.go('/settings');
         break;
     }
   }
@@ -139,7 +135,6 @@ class ShellScaffold extends ConsumerWidget {
               _buildNavItem(context, 2, Icons.history_edu_rounded, selectedIndex == 2, t('nav_history')),
               _buildNavItem(context, 3, Icons.local_fire_department_rounded, selectedIndex == 3, t('nav_streak')),
               _buildNavItem(context, 4, Icons.emoji_events_outlined, selectedIndex == 4, t('nav_trophies')),
-              _buildNavItem(context, 5, Icons.settings_suggest_outlined, selectedIndex == 5, t('nav_options')),
             ],
           ),
         ),
@@ -152,7 +147,11 @@ class ShellScaffold extends ConsumerWidget {
     final activeColor = index % 2 == 0 ? AppColors.cyanAccent : AppColors.magentaAccent;
 
     return Expanded(
-      child: GestureDetector(
+      child: Semantics(
+        label: label,
+        button: true,
+        selected: isActive,
+        child: GestureDetector(
         behavior: HitTestBehavior.opaque,
         onTap: () => _onItemTapped(context, index),
         child: AnimatedScale(
@@ -217,7 +216,7 @@ class ShellScaffold extends ConsumerWidget {
                   AnimatedDefaultTextStyle(
                     duration: const Duration(milliseconds: 220),
                     style: GoogleFonts.plusJakartaSans(
-                      fontSize: isActive ? 9.5 : 8.5,
+                      fontSize: isActive ? 11.5 : 10.5,
                       fontWeight: isActive ? FontWeight.w700 : FontWeight.w500,
                       color: isActive
                           ? activeColor
@@ -256,6 +255,7 @@ class ShellScaffold extends ConsumerWidget {
             ],
           ),
         ),
+      ),
       ),
     );
   }

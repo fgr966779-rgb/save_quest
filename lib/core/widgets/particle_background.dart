@@ -62,19 +62,38 @@ class _ParticleBackgroundState extends State<ParticleBackground>
   Size _lastSize = Size.zero;
   Duration _lastTick = Duration.zero;
 
+  bool _animationsStarted = false;
+
   @override
   void initState() {
     super.initState();
     _particleController = AnimationController(
       vsync: this,
       duration: const Duration(seconds: 10),
-    )..addListener(_onParticleTick)..repeat();
+    )..addListener(_onParticleTick);
 
     // Aurora moves much slower than particles
     _auroraController = AnimationController(
       vsync: this,
       duration: const Duration(seconds: 24),
-    )..repeat();
+    );
+  }
+
+  void _syncAnimationState(BuildContext context) {
+    final reduceMotion = MediaQuery.of(context).disableAnimations;
+    if (reduceMotion) {
+      if (_animationsStarted) {
+        _particleController.stop();
+        _auroraController.stop();
+        _animationsStarted = false;
+      }
+      return;
+    }
+    if (!_animationsStarted) {
+      _particleController.repeat();
+      _auroraController.repeat();
+      _animationsStarted = true;
+    }
   }
 
   void _onParticleTick() {
@@ -119,6 +138,10 @@ class _ParticleBackgroundState extends State<ParticleBackground>
 
   @override
   Widget build(BuildContext context) {
+    _syncAnimationState(context);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final baseColor = isDark ? AppColors.background : AppColors.lightBg;
+
     return LayoutBuilder(
       builder: (context, constraints) {
         final size = Size(constraints.maxWidth, constraints.maxHeight);
@@ -132,9 +155,9 @@ class _ParticleBackgroundState extends State<ParticleBackground>
 
         return Stack(
           children: [
-            // Base midnight canvas
+            // Base canvas (theme-aware)
             Positioned.fill(
-              child: Container(color: AppColors.background),
+              child: Container(color: baseColor),
             ),
             // Animated aurora gradient mesh
             Positioned.fill(
@@ -143,7 +166,7 @@ class _ParticleBackgroundState extends State<ParticleBackground>
                   animation: _auroraController,
                   builder: (context, _) {
                     return CustomPaint(
-                      painter: _AuroraPainter(_auroraController.value),
+                      painter: _AuroraPainter(_auroraController.value, isDark: isDark),
                     );
                   },
                 ),
@@ -159,7 +182,7 @@ class _ParticleBackgroundState extends State<ParticleBackground>
                       radius: 1.0,
                       colors: [
                         Colors.transparent,
-                        AppColors.background.withOpacity(0.55),
+                        baseColor.withOpacity(isDark ? 0.55 : 0.35),
                       ],
                       stops: const [0.55, 1.0],
                     ),
@@ -171,7 +194,7 @@ class _ParticleBackgroundState extends State<ParticleBackground>
             Positioned.fill(
               child: RepaintBoundary(
                 child: CustomPaint(
-                  painter: _ParticlePainter(_particles),
+                  painter: _ParticlePainter(_particles, isDark: isDark),
                 ),
               ),
             ),
@@ -185,13 +208,19 @@ class _ParticleBackgroundState extends State<ParticleBackground>
 
 class _AuroraPainter extends CustomPainter {
   final double t; // 0..1, repeating
+  final bool isDark;
 
-  _AuroraPainter(this.t);
+  _AuroraPainter(this.t, {required this.isDark});
 
   @override
   void paint(Canvas canvas, Size size) {
     final w = size.width;
     final h = size.height;
+
+    // Softer opacity in light mode so blobs become tinted hazes, not slabs.
+    final cyanOp = isDark ? 0.22 : 0.10;
+    final magentaOp = isDark ? 0.18 : 0.08;
+    final purpleOp = isDark ? 0.20 : 0.09;
 
     // Three drifting radial blobs with subtle parallax.
     final blobs = <_Blob>[
@@ -201,7 +230,7 @@ class _AuroraPainter extends CustomPainter {
           h * (0.28 + 0.12 * math.cos(t * 2 * math.pi)),
         ),
         radius: math.max(w, h) * 0.62,
-        color: AppColors.cyanAccent.withOpacity(0.22),
+        color: AppColors.cyanAccent.withOpacity(cyanOp),
       ),
       _Blob(
         center: Offset(
@@ -246,11 +275,18 @@ class _Blob {
 
 class _ParticlePainter extends CustomPainter {
   final List<Particle> particles;
+  final bool isDark;
 
-  _ParticlePainter(this.particles);
+  _ParticlePainter(this.particles, {required this.isDark});
 
   @override
   void paint(Canvas canvas, Size size) {
+    // In light mode, particles need to read against a near-white canvas:
+    // pull halo alpha down a bit and tighten the radius so they don't smear.
+    final haloAlphaScale = isDark ? 0.35 : 0.22;
+    final haloRadiusScale = isDark ? 5.0 : 4.0;
+    final coreAlphaScale = isDark ? 1.0 : 0.75;
+
     for (final p in particles) {
       if (!(p.position.dx.isFinite && p.position.dy.isFinite && p.size.isFinite && p.size > 0)) {
         continue;
@@ -264,18 +300,18 @@ class _ParticlePainter extends CustomPainter {
       };
 
       // Soft halo via radial gradient (Flutter Web-safe)
-      final haloRadius = p.size * 5.0;
+      final haloRadius = p.size * haloRadiusScale;
       final haloPaint = Paint()
         ..shader = RadialGradient(
           colors: [
-            color.withOpacity(effectiveOpacity * 0.35),
+            color.withOpacity(effectiveOpacity * haloAlphaScale),
             color.withOpacity(0.0),
           ],
         ).createShader(Rect.fromCircle(center: p.position, radius: haloRadius));
       canvas.drawCircle(p.position, haloRadius, haloPaint);
 
       // Bright core
-      final core = Paint()..color = color.withOpacity(effectiveOpacity);
+      final core = Paint()..color = color.withOpacity(effectiveOpacity * coreAlphaScale);
       canvas.drawCircle(p.position, p.size, core);
     }
   }

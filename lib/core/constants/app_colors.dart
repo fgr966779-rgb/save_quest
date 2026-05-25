@@ -32,15 +32,26 @@ class AppColors {
   static const Color fireOrange = Color(0xFFFF5722);
 
   // === ТЕКСТОВЫЕ ЦВЕТА ===
-  static const Color textPrimary = Color(0xFFF5F5FA);       // Почти белый для темной темы
-  static const Color textSecondary = Color(0xFF9E9EBA);     // Приглушенный лавандово-серый
-  static const Color textMuted = Color(0xFF5E5E7A);         // Темный сланец
+  // textPrimary softened from #F5F5FA — less eye-strain on OLED.
+  static const Color textPrimary = Color(0xFFE8E8F2);
+  static const Color textSecondary = Color(0xFFB0B0CC);     // was #9E9EBA — better contrast
+  static const Color textMuted = Color(0xFF8A8AA8);         // was #5E5E7A — now passes WCAG AA
 
-  static const Color textLightPrimary = Color(0xFF1E1E2C);  // Глубокий графит для светлой темы
-  static const Color textLightSecondary = Color(0xFF5E6278);// Серый Slate
-  static const Color textLightMuted = Color(0xFF98A2B3);    // Светло-серый
+  static const Color textLightPrimary = Color(0xFF1E1E2C);
+  static const Color textLightSecondary = Color(0xFF4E5566); // was #5E6278 — slightly darker
+  static const Color textLightMuted = Color(0xFF7A8294);     // was #98A2B3 — passes WCAG AA on light bg
 
   // === ГРАНИЦЫ ===
   static const Color borderNeon = Color(0xFF231E3D);
   static const Color borderNeonActive = Color(0xFF433C73);
+
+  // === СЕМАНТИЧЕСКИЕ ЦВЕТА (calmer, WCAG-friendly) ===
+  // Use these for success/warning/danger instead of #39FF14/#FFEA00/redAccent.
+  // Loud neons remain for confetti, level-up, and other celebration moments.
+  static const Color semanticSuccess = Color(0xFF2ED477);
+  static const Color semanticSuccessSoft = Color(0x332ED477);
+  static const Color semanticWarning = Color(0xFFFFB020);
+  static const Color semanticWarningSoft = Color(0x33FFB020);
+  static const Color semanticDanger = Color(0xFFFF4D6D);
+  static const Color semanticDangerSoft = Color(0x33FF4D6D);
 }

@@ -82,6 +82,10 @@ class AppLocalizations {
       'nav_streak': 'Стрік',
       'nav_trophies': 'Кубки',
       'nav_options': 'Опції',
+      'nav_pets': 'Улюбленці',
+      'nav_lootboxes': 'Скрині',
+      'nav_class': 'Клас та щит',
+      'nav_leaderboards': 'Лідерборди',
 
       // Achievements
       'ach_header': 'ДОСЯГНЕННЯ ТА РАНГ',
@@ -165,6 +169,10 @@ class AppLocalizations {
       'nav_streak': 'Streak',
       'nav_trophies': 'Trophies',
       'nav_options': 'Options',
+      'nav_pets': 'Pets',
+      'nav_lootboxes': 'Lootboxes',
+      'nav_class': 'Class & shield',
+      'nav_leaderboards': 'Leaderboards',
 
       // Achievements
       'ach_header': 'ACHIEVEMENTS & RANK',

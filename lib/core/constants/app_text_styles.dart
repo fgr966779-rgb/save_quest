@@ -15,11 +15,11 @@ class AppTextStyles {
       fontSize: fontSize,
       fontWeight: fontWeight,
       color: color,
-      letterSpacing: 1.5,
+      letterSpacing: 0.5,
     );
   }
 
-  // Rajdhani styles for stats and buttons
+  // Rajdhani for stats and stat-style labels. Calmer spacing.
   static TextStyle rajdhaniMedium({
     double fontSize = 18.0,
     FontWeight fontWeight = FontWeight.w600,
@@ -29,7 +29,7 @@ class AppTextStyles {
       fontSize: fontSize,
       fontWeight: fontWeight,
       color: color,
-      letterSpacing: 1.0,
+      letterSpacing: 0.3,
     );
   }
 
@@ -42,7 +42,7 @@ class AppTextStyles {
       fontSize: fontSize,
       fontWeight: fontWeight,
       color: color,
-      letterSpacing: 1.2,
+      letterSpacing: 0.4,
     );
   }
 

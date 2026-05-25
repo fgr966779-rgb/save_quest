@@ -16,6 +16,7 @@ import '../../../core/widgets/neon_button.dart';
 import '../../../core/widgets/neon_progress_bar.dart';
 import '../../../core/widgets/glass_card.dart';
 import '../../../core/widgets/saving_goal_card.dart';
+import '../../../core/widgets/skeleton_block.dart';
 import '../../gamification/providers/bounty_provider.dart';
 import '../../gamification/models/bounty_model.dart';
 import '../../../data/database.dart';
@@ -152,18 +153,6 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                     ),
                   ),
                 ],
-              ).animate().fadeIn(duration: 400.ms, delay: 150.ms).scaleXY(begin: 0.96, end: 1.0),
-              const SizedBox(height: 8.0),
-              SizedBox(
-                width: double.infinity,
-                child: NeonButton(
-                  text: '🏆 Лідерборди',
-                  baseColor: AppColors.goldAccent,
-                  glowColor: AppColors.goldAccent,
-                  icon: const Icon(Icons.emoji_events, color: Colors.black, size: 16),
-                  height: 46.0,
-                  onPressed: () => context.push('/leaderboards'),
-                ),
               ).animate().fadeIn(duration: 400.ms, delay: 150.ms).scaleXY(begin: 0.96, end: 1.0),
               const SizedBox(height: 16.0),
 
@@ -339,7 +328,30 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
     final isPrivacyMode = ref.watch(settingsServiceProvider).privacyMode;
 
     return profileAsync.when(
-      loading: () => const SizedBox(height: 70, child: Center(child: CircularProgressIndicator())),
+      loading: () => SizedBox(
+        height: 70,
+        child: Row(
+          children: [
+            SkeletonBlock(
+              width: 54,
+              height: 54,
+              borderRadius: BorderRadius.circular(27),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: const [
+                  SkeletonBlock(width: 140, height: 14),
+                  SizedBox(height: 8),
+                  SkeletonBlock(width: 90, height: 10),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
       error: (e, _) => Text('Error loading profile: $e', style: const TextStyle(color: Colors.red)),
       data: (profile) {
         if (profile == null) return const SizedBox.shrink();
@@ -607,16 +619,29 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
         ),
         actions: [
           IconButton(
+            tooltip: t('nav_leaderboards'),
+            icon: const Icon(Icons.emoji_events, color: AppColors.goldAccent),
+            onPressed: () => context.push('/leaderboards'),
+          ),
+          IconButton(
+            tooltip: t('nav_pets'),
             icon: const Icon(Icons.pets, color: AppColors.goldGlow),
             onPressed: () => context.push('/pets'),
           ),
           IconButton(
+            tooltip: t('nav_lootboxes'),
             icon: const Icon(Icons.card_giftcard, color: Colors.purpleAccent),
             onPressed: () => context.push('/lootboxes'),
           ),
           IconButton(
+            tooltip: t('nav_class'),
             icon: const Icon(Icons.shield, color: AppColors.magentaAccent),
             onPressed: () => context.push('/class-selection'),
+          ),
+          IconButton(
+            tooltip: t('nav_options'),
+            icon: Icon(Icons.settings_suggest_outlined, color: AppColors.textSecondary),
+            onPressed: () => context.push('/settings'),
           ),
         ],
       );
@@ -624,9 +649,15 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
 
   Widget _buildCenterpiece(AsyncValue<List<Goal>> goalsAsync) {
     return goalsAsync.when(
-      loading: () => const SizedBox(
+      loading: () => SizedBox(
         height: 200,
-        child: Center(child: CircularProgressIndicator()),
+        child: Center(
+          child: SkeletonBlock(
+            width: 200,
+            height: 200,
+            borderRadius: BorderRadius.circular(100),
+          ),
+        ),
       ),
       error: (_, __) => const SizedBox(height: 200),
       data: (goals) {
@@ -653,7 +684,19 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
 
   Widget _buildGoalCards(BuildContext context, WidgetRef ref, AsyncValue<List<Goal>> goalsAsync) {
     return goalsAsync.when(
-      loading: () => const SizedBox(height: 100),
+      loading: () => Column(
+        children: [
+          SkeletonBlock(
+            height: 120,
+            borderRadius: BorderRadius.circular(20),
+          ),
+          const SizedBox(height: 16),
+          SkeletonBlock(
+            height: 120,
+            borderRadius: BorderRadius.circular(20),
+          ),
+        ],
+      ),
       error: (_, __) => const SizedBox.shrink(),
       data: (goals) {
         if (goals.length < 2) return const SizedBox.shrink();
@@ -737,7 +780,13 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
     final bountyAsync = ref.watch(bountyProvider);
 
     return bountyAsync.when(
-      loading: () => const SizedBox(height: 60, child: Center(child: CircularProgressIndicator())),
+      loading: () => Padding(
+        padding: const EdgeInsets.only(bottom: 16.0),
+        child: SkeletonBlock(
+          height: 60,
+          borderRadius: BorderRadius.circular(16),
+        ),
+      ),
       error: (_, __) => const SizedBox.shrink(),
       data: (bounty) {
         if (bounty == null) return const SizedBox.shrink();
