@@ -66,7 +66,7 @@ class SavingsNotifier extends StateNotifier<AsyncValue<void>> {
   // ==========================================
   Future<DepositResult?> createDeposit({
     required double amount,
-    required double goalAPercent,
+    required Map<String, int> allocations, // goalId -> minor units
     String? note,
     CyberEvent? activeEvent,
     ActionContext context = ActionContext.standard,
@@ -74,22 +74,26 @@ class SavingsNotifier extends StateNotifier<AsyncValue<void>> {
     state = const AsyncValue.loading();
     try {
       // --- Convert to minor units (kopecks) ---
-      final int totalCents   = displayToCents(amount);
-      final int goalACents   = (totalCents * goalAPercent / 100.0).round();
-      final int goalBCents   = totalCents - goalACents; // exact, no rounding drift
-
+      final int totalCents = displayToCents(amount);
       final depositId = const Uuid().v4();
       final now = DateTime.now();
 
       final deposit = Deposit(
         id: depositId,
         amount: totalCents,
-        goalAAmount: goalACents,
-        goalBAmount: goalBCents,
         note: note,
         createdAt: now,
         isDeleted: false,
       );
+
+      final List<DepositAllocation> depositAllocations = allocations.entries.map((e) {
+        return DepositAllocation(
+          id: const Uuid().v4(),
+          depositId: depositId,
+          goalId: e.key,
+          amount: e.value,
+        );
+      }).toList();
 
       // ----------------------------------------
       // Single atomic transaction: savings + gamification
@@ -113,8 +117,7 @@ class SavingsNotifier extends StateNotifier<AsyncValue<void>> {
         // 1. Save deposit and update goal balances
         await _db.saveDepositAndUpdateGoals(
           deposit: deposit,
-          goalADelta: goalACents,
-          goalBDelta: goalBCents,
+          allocations: depositAllocations,
         );
 
         // 2. Load or create user profile
@@ -221,11 +224,8 @@ class SavingsNotifier extends StateNotifier<AsyncValue<void>> {
             : const AvatarConfig();
 
         // Calculate total saved for badge checks (loaded after save)
-        final goalANow = await _db.getGoalById('goal_a');
-        final goalBNow = await _db.getGoalById('goal_b');
-        int totalSavedCents = 0;
-        if (goalANow != null) totalSavedCents += goalANow.currentAmount;
-        if (goalBNow != null) totalSavedCents += goalBNow.currentAmount;
+        final allGoals = await _db.getAllGoals();
+        int totalSavedCents = allGoals.fold(0, (sum, g) => sum + g.currentAmount);
 
 
         // 5b. Squads update
@@ -271,7 +271,7 @@ class SavingsNotifier extends StateNotifier<AsyncValue<void>> {
           depositsToday: 1, // simplified
           currentLevel: finalLevel,
           freezeUsed: freezeUsed,
-          goalAPercent: goalAPercent,
+          allocations: allocations,
           now: now,
           unlockedIds: unlockedIds,
         );
@@ -354,8 +354,6 @@ class SavingsNotifier extends StateNotifier<AsyncValue<void>> {
     try {
       await _db.softDeleteDepositAndUpdateGoals(
         depositId: deposit.id,
-        goalAAmount: deposit.goalAAmount,
-        goalBAmount: deposit.goalBAmount,
       );
       state = const AsyncValue.data(null);
       return true;

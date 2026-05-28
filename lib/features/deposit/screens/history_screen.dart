@@ -71,56 +71,62 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
                         deposits.where((d) => !d.isDeleted).toList();
 
                     // Filter deposits by search query and target goal
-                    final filtered = activeDeposits.where((dep) {
-                      final matchesSearch =
-                          dep.amount.toString().contains(_searchQuery) ||
-                              _searchQuery.isEmpty;
+                    return FutureBuilder<List<Deposit>>(
+                      future: Future.microtask(() async {
+                        List<Deposit> result = [];
+                        for (var dep in activeDeposits) {
+                          final matchesSearch = dep.amount.toString().contains(_searchQuery) || _searchQuery.isEmpty;
+                          if (!matchesSearch) continue;
 
-                      if (!matchesSearch) return false;
+                          if (_selectedFilter != 'all') {
+                            final allocs = await ref.read(databaseProvider).getAllocationsForDeposit(dep.id);
+                            if (allocs.any((a) => a.goalId == _selectedFilter && a.amount > 0)) {
+                              result.add(dep);
+                            }
+                          } else {
+                            result.add(dep);
+                          }
+                        }
+                        return result;
+                      }),
+                      builder: (context, snapshot) {
+                        final filtered = snapshot.data ?? [];
 
-                      if (_selectedFilter == 'goal_a') {
-                        return dep.goalAAmount > 0;
-                      } else if (_selectedFilter == 'goal_b') {
-                        return dep.goalBAmount > 0;
-                      }
-                      return true;
-                    }).toList();
+                        if (filtered.isEmpty) {
+                          return EmptyState(
+                            icon: const Icon(Icons.receipt_long_outlined),
+                            title: AppLocalizations.get(locale, 'hist_empty_title'),
+                            description: AppLocalizations.get(locale, 'hist_empty_desc'),
+                          );
+                        }
 
-                    if (filtered.isEmpty) {
-                      return EmptyState(
-                        icon: const Icon(Icons.receipt_long_outlined),
-                        title: AppLocalizations.get(locale, 'hist_empty_title'),
-                        description: AppLocalizations.get(locale, 'hist_empty_desc'),
-                      );
-                    }
+                        // Group deposits by date
+                        final grouped = _groupDepositsByDate(filtered);
 
-                    // Group deposits by date
-                    final grouped = _groupDepositsByDate(filtered);
-
-                    return ListView.builder(
-                      itemCount: grouped.length,
-                      physics: const BouncingScrollPhysics(),
-                      itemBuilder: (context, index) {
-                        final group = grouped[index];
-                        return Column(
-                          crossAxisAlignment: CrossAxisAlignment.stretch,
-                          children: [
-                            Padding(
-                              padding: const EdgeInsets.only(
-                                  left: 4, bottom: 8.0, top: 12.0),
-                              child: Text(
-                                group.dateString,
-                                style: AppTypography.overline(context),
-                              ),
-                            ),
-                            ...group.items
-                                .map((dep) => _buildDepositItem(
+                        return ListView.builder(
+                          itemCount: grouped.length,
+                          physics: const BouncingScrollPhysics(),
+                          itemBuilder: (context, index) {
+                            final group = grouped[index];
+                            return Column(
+                              crossAxisAlignment: CrossAxisAlignment.stretch,
+                              children: [
+                                Padding(
+                                  padding: const EdgeInsets.only(
+                                      left: 4, bottom: 8.0, top: 12.0),
+                                  child: Text(
+                                    group.dateString,
+                                    style: AppTypography.overline(context),
+                                  ),
+                                ),
+                                ...group.items.map((dep) => _buildDepositItem(
                                       dep,
                                       goalsAsync.value ?? [],
                                       locale,
-                                    ))
-                                ,
-                          ],
+                                    )),
+                              ],
+                            );
+                          },
                         );
                       },
                     );
@@ -209,174 +215,162 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
     final now = DateTime.now();
     final bool canDelete = now.difference(dep.createdAt).inHours < 24;
 
-    // Determine stripe color
-    final Color stripeColor;
-    if (dep.goalAAmount > 0 && dep.goalBAmount > 0) {
-      // Both goals — use a gradient stripe
-      stripeColor = AppColors.goalA;
-    } else if (dep.goalAAmount > 0) {
-      stripeColor = AppColors.goalA;
-    } else {
-      stripeColor = AppColors.goalB;
-    }
+    return FutureBuilder<List<DepositAllocation>>(
+      future: ref.read(databaseProvider).getAllocationsForDeposit(dep.id),
+      builder: (context, snapshot) {
+        final allocs = snapshot.data ?? [];
+        final bool hasA = allocs.any((a) => a.goalId == 'goal_a' && a.amount > 0);
+        final bool hasB = allocs.any((a) => a.goalId == 'goal_b' && a.amount > 0);
 
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 8.0),
-      child: Dismissible(
-        key: Key(dep.id.toString()),
-        direction: canDelete ? DismissDirection.endToStart : DismissDirection.none,
-        confirmDismiss: (direction) async {
-          return await _showDeleteConfirmation(dep, currency);
-        },
-        onDismissed: (direction) async {
-          await ref.read(savingsNotifierProvider.notifier).deleteDeposit(dep);
-        },
-        background: Container(
-          alignment: Alignment.centerRight,
-          padding: const EdgeInsets.symmetric(horizontal: 24.0),
-          margin: const EdgeInsets.only(bottom: 8.0),
-          decoration: BoxDecoration(
-            color: AppColors.error,
-            borderRadius: BorderRadius.circular(16.0),
-          ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: [
-              Text(
-                AppLocalizations.get(locale, 'hist_swipe_delete'),
-                style: TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.w600,
-                  fontSize: 13.0,
-                ),
+        final Color stripeColor = hasA ? AppColors.goalA : AppColors.goalB;
+
+        return Padding(
+          padding: const EdgeInsets.only(bottom: 8.0),
+          child: Dismissible(
+            key: Key(dep.id.toString()),
+            direction: canDelete ? DismissDirection.endToStart : DismissDirection.none,
+            confirmDismiss: (direction) async {
+              return await _showDeleteConfirmation(dep, currency);
+            },
+            onDismissed: (direction) async {
+              await ref.read(savingsNotifierProvider.notifier).deleteDeposit(dep);
+            },
+            background: Container(
+              alignment: Alignment.centerRight,
+              padding: const EdgeInsets.symmetric(horizontal: 24.0),
+              margin: const EdgeInsets.only(bottom: 8.0),
+              decoration: BoxDecoration(
+                color: AppColors.error,
+                borderRadius: BorderRadius.circular(16.0),
               ),
-              SizedBox(width: 8.0),
-              Icon(Icons.delete_outline, color: Colors.white),
-            ],
-          ),
-        ),
-        child: GestureDetector(
-          onTap: () => _showDetailsModal(dep, goals),
-          child: Container(
-            clipBehavior: Clip.antiAlias,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(16.0),
-              border: Border.all(
-                color: AppColors.border(brightness),
-              ),
-              color: AppColors.surface(brightness),
-            ),
-            child: IntrinsicHeight(
               child: Row(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
+                mainAxisAlignment: MainAxisAlignment.end,
                 children: [
-                  // Colored left stripe (3px)
-                  Container(
-                    width: 3.0,
-                    decoration: BoxDecoration(
-                      gradient: dep.goalAAmount > 0 && dep.goalBAmount > 0
-                          ? const LinearGradient(
-                              colors: [AppColors.goalA, AppColors.goalB],
-                              begin: Alignment.topCenter,
-                              end: Alignment.bottomCenter,
-                            )
-                          : null,
-                      color: dep.goalAAmount > 0 && dep.goalBAmount > 0
-                          ? null
-                          : stripeColor,
+                  Text(
+                    AppLocalizations.get(locale, 'hist_swipe_delete'),
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.w600,
+                      fontSize: 13.0,
                     ),
                   ),
-                  // Content
-                  Expanded(
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 14.0, vertical: 12.0),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Expanded(
-                            child: Row(
-                              children: [
-                                Container(
-                                  padding: const EdgeInsets.all(8.0),
-                                  decoration: BoxDecoration(
-                                    color: AppColors.surfaceMuted(brightness),
-                                    shape: BoxShape.circle,
-                                  ),
-                                  child: Icon(
-                                    Icons.add,
-                                    color: AppColors.textSecondary(brightness),
-                                    size: 18.0,
-                                  ),
-                                ),
-                                const SizedBox(width: 12.0),
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        '${AppLocalizations.get(locale, 'hist_entry_label')}${dep.id.length > 8 ? dep.id.substring(0, 8) : dep.id}',
-                                        style: AppTypography.bodySmall(context),
-                                        maxLines: 1,
-                                        overflow: TextOverflow.ellipsis,
-                                      ),
-                                      const SizedBox(height: 2.0),
-                                      Text(
-                                        DateFormat('HH:mm')
-                                            .format(dep.createdAt),
-                                        style: AppTypography.caption(context),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.end,
+                  SizedBox(width: 8.0),
+                  Icon(Icons.delete_outline, color: Colors.white),
+                ],
+              ),
+            ),
+            child: GestureDetector(
+              onTap: () => _showDetailsModal(dep, goals),
+              child: Container(
+                clipBehavior: Clip.antiAlias,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(16.0),
+                  border: Border.all(
+                    color: AppColors.border(brightness),
+                  ),
+                  color: AppColors.surface(brightness),
+                ),
+                child: IntrinsicHeight(
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      // Colored left stripe (3px)
+                      Container(
+                        width: 3.0,
+                        decoration: BoxDecoration(
+                          gradient: hasA && hasB
+                              ? const LinearGradient(
+                                  colors: [AppColors.goalA, AppColors.goalB],
+                                  begin: Alignment.topCenter,
+                                  end: Alignment.bottomCenter,
+                                )
+                              : null,
+                          color: hasA && hasB ? null : stripeColor,
+                        ),
+                      ),
+                      // Content
+                      Expanded(
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 14.0, vertical: 12.0),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Text(
-                                '+${formatAmount(dep.amount)} $currency',
-                                style: AppTypography.amount(context),
+                              Expanded(
+                                child: Row(
+                                  children: [
+                                    Container(
+                                      padding: const EdgeInsets.all(8.0),
+                                      decoration: BoxDecoration(
+                                        color: AppColors.surfaceMuted(brightness),
+                                        shape: BoxShape.circle,
+                                      ),
+                                      child: Icon(
+                                        Icons.add,
+                                        color: AppColors.textSecondary(brightness),
+                                        size: 18.0,
+                                      ),
+                                    ),
+                                    const SizedBox(width: 12.0),
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            '${AppLocalizations.get(locale, 'hist_entry_label')}${dep.id.length > 8 ? dep.id.substring(0, 8) : dep.id}',
+                                            style: AppTypography.bodySmall(context),
+                                            maxLines: 1,
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
+                                          const SizedBox(height: 2.0),
+                                          Text(
+                                            DateFormat('HH:mm')
+                                                .format(dep.createdAt),
+                                            style: AppTypography.caption(context),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ],
+                                ),
                               ),
-                              const SizedBox(height: 4.0),
-                              Row(
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.end,
                                 children: [
-                                  if (dep.goalAAmount > 0)
-                                    Container(
-                                      width: 6,
-                                      height: 6,
-                                      margin:
-                                          const EdgeInsets.only(right: 4.0),
-                                      decoration: const BoxDecoration(
-                                        color: AppColors.goalA,
-                                        shape: BoxShape.circle,
-                                      ),
-                                    ),
-                                  if (dep.goalBAmount > 0)
-                                    Container(
-                                      width: 6,
-                                      height: 6,
-                                      decoration: const BoxDecoration(
-                                        color: AppColors.goalB,
-                                        shape: BoxShape.circle,
-                                      ),
-                                    ),
+                                  Text(
+                                    '+${formatAmount(dep.amount)} $currency',
+                                    style: AppTypography.amount(context),
+                                  ),
+                                  const SizedBox(height: 4.0),
+                                  Row(
+                                    children: allocs.map((a) {
+                                      final gColor = a.goalId == 'goal_a' ? AppColors.goalA : (a.goalId == 'goal_b' ? AppColors.goalB : AppColors.accent);
+                                      return Container(
+                                        width: 6,
+                                        height: 6,
+                                        margin: const EdgeInsets.only(right: 4.0),
+                                        decoration: BoxDecoration(
+                                          color: gColor,
+                                          shape: BoxShape.circle,
+                                        ),
+                                      );
+                                    }).toList(),
+                                  ),
                                 ],
                               ),
                             ],
                           ),
-                        ],
+                        ),
                       ),
-                    ),
+                    ],
                   ),
-                ],
+                ),
               ),
             ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 
@@ -416,12 +410,13 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
     return result ?? false;
   }
 
-  void _showDetailsModal(Deposit dep, List<Goal> goals) {
+  void _showDetailsModal(Deposit dep, List<Goal> goals) async {
     HapticFeedback.heavyImpact();
     final locale = ref.read(localeProvider);
-    final goalA = goals.firstWhere((g) => g.id == 'goal_a');
-    final goalB = goals.firstWhere((g) => g.id == 'goal_b');
     final brightness = Theme.of(context).brightness;
+    final allocs = await ref.read(databaseProvider).getAllocationsForDeposit(dep.id);
+
+    if (!mounted) return;
 
     showModalBottomSheet(
       context: context,
@@ -453,25 +448,22 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
               const SizedBox(height: 24.0),
 
               // Allocation split visual
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  _buildModalGoalDetail(
-                    goalA.name,
-                    '${formatAmount(dep.goalAAmount)} ${goalA.currency}',
-                    AppColors.goalA,
-                  ),
-                  Container(
-                    width: 1,
-                    height: 40.0,
-                    color: AppColors.border(brightness),
-                  ),
-                  _buildModalGoalDetail(
-                    goalB.name,
-                    '${formatAmount(dep.goalBAmount)} ${goalB.currency}',
-                    AppColors.goalB,
-                  ),
-                ],
+              Wrap(
+                alignment: WrapAlignment.center,
+                spacing: 16,
+                runSpacing: 16,
+                children: allocs.map((a) {
+                  final goal = goals.firstWhere((g) => g.id == a.goalId, orElse: () => goals.first);
+                  final gColor = a.goalId == 'goal_a' ? AppColors.goalA : (a.goalId == 'goal_b' ? AppColors.goalB : AppColors.accent);
+                  return SizedBox(
+                    width: 120,
+                    child: _buildModalGoalDetail(
+                      goal.name,
+                      '${formatAmount(a.amount)} ${goal.currency}',
+                      gColor,
+                    ),
+                  );
+                }).toList(),
               ),
               const SizedBox(height: 32.0),
 

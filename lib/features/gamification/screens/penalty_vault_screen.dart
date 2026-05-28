@@ -122,10 +122,27 @@ class PenaltyVaultScreen extends ConsumerWidget {
                           fullWidth: false,
                           onPressed: () async {
                             HapticFeedback.heavyImpact();
+
+                            final db = ref.read(databaseProvider);
+                            final goals = await db.getAllGoals();
+                            final Map<String, int> allocations = {};
+
+                            if (goals.isNotEmpty) {
+                              if (goals.length == 1) {
+                                allocations[goals.first.id] = fine.amountKopecks;
+                              } else {
+                                final share = fine.amountKopecks ~/ goals.length;
+                                for (var i = 0; i < goals.length - 1; i++) {
+                                  allocations[goals[i].id] = share;
+                                }
+                                allocations[goals.last.id] = fine.amountKopecks - (share * (goals.length - 1));
+                              }
+                            }
+
                             // Pay fine -> deposit into savings
                             await ref.read(savingsNotifierProvider.notifier).createDeposit(
                               amount: fine.amountKopecks / 100.0,
-                              goalAPercent: 50.0,
+                              allocations: allocations,
                             );
                             await ref.read(penaltyProvider.notifier).payFine(fine.id);
 

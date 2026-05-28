@@ -11,13 +11,11 @@ class AchievementService {
     required int depositsToday,
     required int currentLevel,
     required bool freezeUsed,
-    required double goalAPercent,
+    required Map<String, int> allocations,
     required DateTime now,
     required Set<String> unlockedIds,
   }) async {
     final List<Reward> newlyUnlocked = [];
-    final goalA = await db.getGoalById('goal_a');
-    final goalB = await db.getGoalById('goal_b');
 
     for (final reward in allRewards) {
       if (unlockedIds.contains(reward.id)) continue;
@@ -41,27 +39,35 @@ class AchievementService {
           meetsCriteria = newStreak >= 30;
           break;
         case 'halfway_ps5':
-          if (goalA != null) {
-            meetsCriteria = goalA.currentAmount >= (goalA.targetAmount ~/ 2);
+          final g = await db.getGoalById('goal_a');
+          if (g != null) {
+            meetsCriteria = g.currentAmount >= (g.targetAmount ~/ 2);
           }
           break;
         case 'halfway_monitor':
-          if (goalB != null) {
-            meetsCriteria = goalB.currentAmount >= (goalB.targetAmount ~/ 2);
+          final g = await db.getGoalById('goal_b');
+          if (g != null) {
+            meetsCriteria = g.currentAmount >= (g.targetAmount ~/ 2);
           }
           break;
         case 'ps5_acquired':
-          if (goalA != null) {
-            meetsCriteria = goalA.currentAmount >= goalA.targetAmount;
+          final g = await db.getGoalById('goal_a');
+          if (g != null) {
+            meetsCriteria = g.currentAmount >= g.targetAmount;
           }
           break;
         case 'monitor_acquired':
-          if (goalB != null) {
-            meetsCriteria = goalB.currentAmount >= goalB.targetAmount;
+          final g = await db.getGoalById('goal_b');
+          if (g != null) {
+            meetsCriteria = g.currentAmount >= g.targetAmount;
           }
           break;
         case 'split_master':
-          meetsCriteria = goalAPercent == 50.0;
+          // If total is split exactly between multiple goals
+          if (allocations.length > 1) {
+            final values = allocations.values.toSet();
+            meetsCriteria = values.length == 1;
+          }
           break;
         case 'freeze_shield':
           meetsCriteria = freezeUsed;

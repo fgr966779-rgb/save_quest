@@ -473,7 +473,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
           final activeEvent = ref.read(eventsProvider);
           await ref.read(savingsNotifierProvider.notifier).createDeposit(
                 amount: 50.0,
-                goalAPercent: goal.id == 'goal_a' ? 100.0 : 0.0,
+                allocations: {goal.id: displayToCents(50.0)},
                 activeEvent: activeEvent,
               );
         }

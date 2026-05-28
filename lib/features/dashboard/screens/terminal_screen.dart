@@ -141,9 +141,22 @@ class _TerminalScreenState extends ConsumerState<TerminalScreen> {
           break;
         }
 
+        final int amountCents = (amount * 100).round();
+        final Map<String, int> allocations = {};
+        if (goals.length == 1) {
+          allocations[goals.first.id] = amountCents;
+        } else {
+          // Split evenly
+          final share = amountCents ~/ goals.length;
+          for (var i = 0; i < goals.length - 1; i++) {
+            allocations[goals[i].id] = share;
+          }
+          allocations[goals.last.id] = amountCents - (share * (goals.length - 1));
+        }
+
         final result = await ref.read(savingsNotifierProvider.notifier).createDeposit(
           amount: amount,
-          goalAPercent: 50.0,
+          allocations: allocations,
           note: 'CLI Deposit',
           context: ActionContext.cli,
         );

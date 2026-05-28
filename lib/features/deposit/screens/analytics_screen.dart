@@ -89,12 +89,29 @@ class _AnalyticsScreenState extends ConsumerState<AnalyticsScreen> {
       data: (goals) {
         if (goals.isEmpty) return const SizedBox.shrink();
 
-        final int totalA = goals.firstWhere((g) => g.id == 'goal_a').currentAmount;
-        final int totalB = goals.firstWhere((g) => g.id == 'goal_b').currentAmount;
-        final int total = totalA + totalB;
+        final total = goals.fold(0, (sum, g) => sum + g.currentAmount);
+        final brightnessValue = Theme.of(context).brightness;
 
-        final double percentA = total > 0 ? (totalA / total * 100) : 50;
-        final double percentB = total > 0 ? (totalB / total * 100) : 50;
+        List<PieChartSectionData> sections = [];
+        for (int i = 0; i < goals.length; i++) {
+          final g = goals[i];
+          final double percent = total > 0 ? (g.currentAmount / total * 100) : (100.0 / goals.length);
+          final color = g.accentColor.startsWith('#')
+              ? Color(int.parse(g.accentColor.replaceFirst('#', '0xFF')))
+              : (i == 0 ? AppColors.goalA : AppColors.goalB);
+
+          sections.add(PieChartSectionData(
+            color: color,
+            value: percent,
+            title: '${percent.toInt()}%',
+            radius: 20,
+            titleStyle: TextStyle(
+              fontSize: 10,
+              fontWeight: FontWeight.w600,
+              color: AppColors.textPrimary(brightnessValue),
+            ),
+          ));
+        }
 
         final brightness = Theme.of(context).brightness;
 
@@ -118,30 +135,7 @@ class _AnalyticsScreenState extends ConsumerState<AnalyticsScreen> {
                       PieChartData(
                         sectionsSpace: 4,
                         centerSpaceRadius: 28,
-                        sections: [
-                          PieChartSectionData(
-                            color: AppColors.goalA,
-                            value: percentA,
-                            title: '${percentA.toInt()}%',
-                            radius: 20,
-                            titleStyle: TextStyle(
-                              fontSize: 10,
-                              fontWeight: FontWeight.w600,
-                              color: AppColors.textPrimary(brightness),
-                            ),
-                          ),
-                          PieChartSectionData(
-                            color: AppColors.goalB,
-                            value: percentB,
-                            title: '${percentB.toInt()}%',
-                            radius: 20,
-                            titleStyle: TextStyle(
-                              fontSize: 10,
-                              fontWeight: FontWeight.w600,
-                              color: AppColors.textPrimary(brightness),
-                            ),
-                          ),
-                        ],
+                        sections: sections,
                       ),
                     ),
                   ),
@@ -150,19 +144,21 @@ class _AnalyticsScreenState extends ConsumerState<AnalyticsScreen> {
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        _buildLegendItem(
-                          goals.firstWhere((g) => g.id == 'goal_a').name,
-                          '${formatAmount(totalA)} ${goals.first.currency}',
-                          AppColors.goalA,
-                        ),
-                        const SizedBox(height: 12.0),
-                        _buildLegendItem(
-                          goals.firstWhere((g) => g.id == 'goal_b').name,
-                          '${formatAmount(totalB)} ${goals.first.currency}',
-                          AppColors.goalB,
-                        ),
-                      ],
+                      children: goals.asMap().entries.map((e) {
+                        final i = e.key;
+                        final g = e.value;
+                        final color = g.accentColor.startsWith('#')
+                            ? Color(int.parse(g.accentColor.replaceFirst('#', '0xFF')))
+                            : (i == 0 ? AppColors.goalA : AppColors.goalB);
+                        return Padding(
+                          padding: const EdgeInsets.only(bottom: 8.0),
+                          child: _buildLegendItem(
+                            g.name,
+                            '${formatAmount(g.currentAmount)} ${g.currency}',
+                            color,
+                          ),
+                        );
+                      }).toList(),
                     ),
                   ),
                 ],
@@ -205,34 +201,33 @@ class _AnalyticsScreenState extends ConsumerState<AnalyticsScreen> {
   }
 
   Widget _buildTimelineChartCard(AsyncValue<List<Deposit>> depositsAsync, String locale) {
+    final goalsAsync = ref.watch(goalsProvider);
+
     return depositsAsync.when(
       loading: () => const SkeletonList(itemCount: 2),
       error: (_, __) => const SizedBox.shrink(),
       data: (deposits) {
+        return goalsAsync.when(
+          loading: () => const SizedBox.shrink(),
+          error: (_, __) => const SizedBox.shrink(),
+          data: (goals) {
         // Reverse list to show chronological progression
         final timeline = deposits.reversed.toList();
 
-        // Calculate cumulative running values for A and B
-        List<FlSpot> spotsA = [];
-        List<FlSpot> spotsB = [];
-
-        double cumA = 0;
-        double cumB = 0;
-
-        spotsA.add(const FlSpot(0, 0));
-        spotsB.add(const FlSpot(0, 0));
+        // For dynamic N-goals, timeline chart is complex without pre-computed data.
+        // Let's show total savings progression for now, or just goal A/B if they exist.
+        List<FlSpot> totalSpots = [];
+        double cumTotal = 0;
+        totalSpots.add(const FlSpot(0, 0));
 
         for (int i = 0; i < timeline.length; i++) {
-          cumA += centsToDisplay(timeline[i].goalAAmount);
-          cumB += centsToDisplay(timeline[i].goalBAmount);
-          spotsA.add(FlSpot((i + 1).toDouble(), cumA));
-          spotsB.add(FlSpot((i + 1).toDouble(), cumB));
+          cumTotal += centsToDisplay(timeline[i].amount);
+          totalSpots.add(FlSpot((i + 1).toDouble(), cumTotal));
         }
 
         // Limit spot lengths for chart readability
-        if (spotsA.length > 8) {
-          spotsA = spotsA.sublist(spotsA.length - 8);
-          spotsB = spotsB.sublist(spotsB.length - 8);
+        if (totalSpots.length > 8) {
+          totalSpots = totalSpots.sublist(totalSpots.length - 8);
         }
 
         final brightness = Theme.of(context).brightness;
@@ -263,28 +258,15 @@ class _AnalyticsScreenState extends ConsumerState<AnalyticsScreen> {
                     titlesData: FlTitlesData(show: false),
                     borderData: FlBorderData(show: false),
                     lineBarsData: [
-                      // Goal A progress line
                       LineChartBarData(
-                        spots: spotsA,
+                        spots: totalSpots,
                         isCurved: true,
-                        color: AppColors.goalA,
+                        color: AppColors.accent,
                         barWidth: 2.5,
-                        dotData: FlDotData(show: spotsA.length < 5),
+                        dotData: FlDotData(show: totalSpots.length < 5),
                         belowBarData: BarAreaData(
                           show: true,
-                          color: AppColors.goalA.withValues(alpha: 0.06),
-                        ),
-                      ),
-                      // Goal B progress line
-                      LineChartBarData(
-                        spots: spotsB,
-                        isCurved: true,
-                        color: AppColors.goalB,
-                        barWidth: 2.5,
-                        dotData: FlDotData(show: spotsB.length < 5),
-                        belowBarData: BarAreaData(
-                          show: true,
-                          color: AppColors.goalB.withValues(alpha: 0.06),
+                          color: AppColors.accent.withValues(alpha: 0.06),
                         ),
                       ),
                     ],
@@ -293,6 +275,8 @@ class _AnalyticsScreenState extends ConsumerState<AnalyticsScreen> {
               ),
             ],
           ),
+        );
+          }
         );
       },
     );
@@ -307,42 +291,30 @@ class _AnalyticsScreenState extends ConsumerState<AnalyticsScreen> {
       loading: () => const SizedBox.shrink(),
       error: (_, __) => const SizedBox.shrink(),
       data: (goals) {
-        if (goals.length < 2) return const SizedBox.shrink();
-
-        final goalA = goals.firstWhere((g) => g.id == 'goal_a');
-        final goalB = goals.firstWhere((g) => g.id == 'goal_b');
+        if (goals.isEmpty) return const SizedBox.shrink();
 
         return depositsAsync.when(
           loading: () => const SizedBox.shrink(),
           error: (_, __) => const SizedBox.shrink(),
           data: (deposits) {
-            double totalAWeekly = 0;
-            double totalBWeekly = 0;
+            return FutureBuilder<Map<String, double>>(
+              future: Future.microtask(() async {
+                Map<String, double> weeklyMap = {};
+                final now = DateTime.now();
+                final oneWeekAgo = now.subtract(const Duration(days: 7));
 
-            final now = DateTime.now();
-            final oneWeekAgo = now.subtract(const Duration(days: 7));
-
-            for (var dep in deposits) {
-              if (dep.createdAt.isAfter(oneWeekAgo)) {
-                totalAWeekly += centsToDisplay(dep.goalAAmount);
-                totalBWeekly += centsToDisplay(dep.goalBAmount);
-              }
-            }
-
-            final double remainingA =
-                (centsToDisplay(goalA.targetAmount) - centsToDisplay(goalA.currentAmount))
-                    .clamp(0, double.infinity);
-            final double remainingB =
-                (centsToDisplay(goalB.targetAmount) - centsToDisplay(goalB.currentAmount))
-                    .clamp(0, double.infinity);
-
-            final double rateA = totalAWeekly / 7.0;
-            final double rateB = totalBWeekly / 7.0;
-
-            final String daysRemainingA =
-                rateA > 0 ? '${(remainingA / rateA).ceil()}${AppLocalizations.get(locale, 'daily_bonus_days')}' : '∞';
-            final String daysRemainingB =
-                rateB > 0 ? '${(remainingB / rateB).ceil()}${AppLocalizations.get(locale, 'daily_bonus_days')}' : '∞';
+                for (var dep in deposits) {
+                  if (dep.createdAt.isAfter(oneWeekAgo)) {
+                    final allocs = await ref.read(databaseProvider).getAllocationsForDeposit(dep.id);
+                    for (var a in allocs) {
+                      weeklyMap[a.goalId] = (weeklyMap[a.goalId] ?? 0) + centsToDisplay(a.amount);
+                    }
+                  }
+                }
+                return weeklyMap;
+              }),
+              builder: (context, snapshot) {
+                final weeklyMap = snapshot.data ?? {};
 
             return SurfaceCard(
               padding: const EdgeInsets.all(18.0),
@@ -354,26 +326,38 @@ class _AnalyticsScreenState extends ConsumerState<AnalyticsScreen> {
                     style: AppTypography.h3(context),
                   ),
                   const SizedBox(height: 16.0),
-                  _buildProjectionSummaryRow(
-                    goalA.name,
-                    '${totalAWeekly.toStringAsFixed(2)} ${goalA.currency}',
-                    daysRemainingA,
-                    AppColors.goalA,
-                    locale,
-                  ),
-                  Divider(
-                    color: AppColors.border(Theme.of(context).brightness),
-                    height: 24.0,
-                  ),
-                  _buildProjectionSummaryRow(
-                    goalB.name,
-                    '${totalBWeekly.toStringAsFixed(2)} ${goalB.currency}',
-                    daysRemainingB,
-                    AppColors.goalB,
-                    locale,
-                  ),
+                  ...goals.asMap().entries.map((e) {
+                    final i = e.key;
+                    final g = e.value;
+                    final weeklySum = weeklyMap[g.id] ?? 0.0;
+                    final rate = weeklySum / 7.0;
+                    final remaining = (centsToDisplay(g.targetAmount) - centsToDisplay(g.currentAmount)).clamp(0, double.infinity);
+                    final expectedDays = rate > 0 ? '${(remaining / rate).ceil()}${AppLocalizations.get(locale, 'daily_bonus_days')}' : '∞';
+
+                    final color = g.accentColor.startsWith('#')
+                        ? Color(int.parse(g.accentColor.replaceFirst('#', '0xFF')))
+                        : (i == 0 ? AppColors.goalA : AppColors.goalB);
+
+                    return Column(
+                      children: [
+                        if (i > 0) Divider(
+                          color: AppColors.border(Theme.of(context).brightness),
+                          height: 24.0,
+                        ),
+                        _buildProjectionSummaryRow(
+                          g.name,
+                          '${weeklySum.toStringAsFixed(2)} ${g.currency}',
+                          expectedDays,
+                          color,
+                          locale,
+                        ),
+                      ],
+                    );
+                  }).toList(),
                 ],
               ),
+            );
+              }
             );
           },
         );

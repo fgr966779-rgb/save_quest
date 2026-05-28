@@ -40,7 +40,7 @@ class _DepositScreenState extends ConsumerState<DepositScreen>
   // ── State ──────────────────────────────────────────────────────────────
   DepositStep _currentStep = DepositStep.input;
   String _amountText = '';
-  double _splitRatio = 50.0; // Goal A allocation %
+  Map<String, double> _allocationsPercent = {}; // goalId -> percentage
 
   DepositResult? _depositResult;
   Map<String, int> _progressBeforeDeposit = {};
@@ -195,11 +195,28 @@ class _DepositScreenState extends ConsumerState<DepositScreen>
       );
     }
 
+    final int totalCents = displayToCents(_enteredAmount);
+    final Map<String, int> allocations = {};
+
+    // Convert percentages to cents
+    int remainingCents = totalCents;
+    final goalIds = _allocationsPercent.keys.toList();
+    for (int i = 0; i < goalIds.length; i++) {
+      final gid = goalIds[i];
+      if (i == goalIds.length - 1) {
+        allocations[gid] = remainingCents;
+      } else {
+        final cents = (totalCents * (_allocationsPercent[gid] ?? 0) / 100).round();
+        allocations[gid] = cents;
+        remainingCents -= cents;
+      }
+    }
+
     final result = await ref
         .read(savingsNotifierProvider.notifier)
         .createDeposit(
           amount: _enteredAmount,
-          goalAPercent: _splitRatio,
+          allocations: allocations,
           note: AppLocalizations.get(ref.read(localeProvider), 'dep_note_manual'),
           activeEvent: activeEvent,
         );
@@ -349,23 +366,38 @@ class _DepositScreenState extends ConsumerState<DepositScreen>
                       ),
                     ),
                     data: (goals) {
-                      if (goals.length < 2) return const SizedBox.shrink();
-                      final goalA =
-                          goals.firstWhere((g) => g.id == 'goal_a');
-                      final goalB =
-                          goals.firstWhere((g) => g.id == 'goal_b');
+                      if (goals.isEmpty) return const SizedBox.shrink();
+                      final defaultCurrency = goals.first.currency;
+
+                      // Initialize allocations if empty
+                      if (_allocationsPercent.isEmpty) {
+                        if (goals.length == 1) {
+                          _allocationsPercent[goals.first.id] = 100.0;
+                        } else if (goals.length >= 2) {
+                          // Try to find goal_a and goal_b for backward compatibility or just pick first two
+                          final hasA = goals.any((g) => g.id == 'goal_a');
+                          final hasB = goals.any((g) => g.id == 'goal_b');
+                          if (hasA && hasB) {
+                            _allocationsPercent['goal_a'] = 50.0;
+                            _allocationsPercent['goal_b'] = 50.0;
+                          } else {
+                            _allocationsPercent[goals[0].id] = 50.0;
+                            _allocationsPercent[goals[1].id] = 50.0;
+                          }
+                        }
+                      }
 
                       return switch (_currentStep) {
                         DepositStep.input =>
-                          _buildInputStep(context, locale, goalA.currency),
+                          _buildInputStep(context, locale, defaultCurrency),
                         DepositStep.split =>
-                          _buildSplitStep(context, locale, goalA, goalB),
+                          _buildSplitStep(context, locale, goals),
                         DepositStep.confirm =>
-                          _buildConfirmStep(context, locale, goalA, goalB),
+                          _buildConfirmStep(context, locale, goals),
                         DepositStep.undoWindow =>
                           _buildUndoWindowStep(context, locale),
                         DepositStep.success =>
-                          _buildSuccessStep(context, locale, goalA, goalB),
+                          _buildSuccessStep(context, locale, goals),
                       };
                     },
                   ),
@@ -481,20 +513,15 @@ class _DepositScreenState extends ConsumerState<DepositScreen>
   // =========================================================================
   // STEP: SPLIT
   // =========================================================================
-  Widget _buildSplitStep(BuildContext context, String locale, Goal goalA, Goal goalB) {
-    final double amountA = _enteredAmount * (_splitRatio / 100.0);
-    final double amountB = _enteredAmount * ((100.0 - _splitRatio) / 100.0);
-    final int amountACents = displayToCents(amountA);
-    final int amountBCents = displayToCents(amountB);
+  Widget _buildSplitStep(BuildContext context, String locale, List<Goal> allGoals) {
     final totalCents = displayToCents(_enteredAmount);
+    final activeGoalIds = _allocationsPercent.keys.toList();
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(24, 8, 24, 16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          const Spacer(),
-
           // ── Title ──
           Text(
             AppLocalizations.get(locale, 'dep_split_title'),
@@ -504,114 +531,101 @@ class _DepositScreenState extends ConsumerState<DepositScreen>
           const SizedBox(height: 8),
           Text(
             '${AppLocalizations.get(locale, 'dep_split_instruction')}'
-            '${formatAmount(totalCents)} ${goalA.currency}',
+            '${formatAmount(totalCents)} ${allGoals.first.currency}',
             textAlign: TextAlign.center,
             style: AppTypography.bodySmall(context),
           ),
-          const SizedBox(height: 32),
-
-          // ── Goal A allocation card ──
-          SurfaceCard(
-            padding: const EdgeInsets.all(16),
-            child: Row(
-              children: [
-                Container(
-                  width: 4,
-                  height: 36,
-                  decoration: BoxDecoration(
-                    color: AppColors.goalA,
-                    borderRadius: BorderRadius.circular(2),
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        goalA.name,
-                        style: AppTypography.h3(context),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      const SizedBox(height: 2),
-                      Text(
-                        '${AppLocalizations.get(locale, 'dep_goal_label')}${formatAmount(goalA.targetAmount)} '
-                        '${goalA.currency}',
-                        style: AppTypography.bodySmall(context),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(width: 8),
-                Text(
-                  '+${formatAmount(amountACents)} ${goalA.currency}',
-                  style: AppTypography.amount(
-                    context,
-                    color: AppColors.goalA,
-                  ),
-                ),
-              ],
-            ),
-          ),
           const SizedBox(height: 24),
 
-          // ── Split slider ──
-          SplitSlider(
-            valueA: _splitRatio / 100.0,
-            labelA: goalA.name,
-            labelB: goalB.name,
-            onChanged: (val) =>
-                setState(() => _splitRatio = val * 100.0),
-          ),
-          const SizedBox(height: 24),
+          // ── Goals List with Allocation ──
+          Expanded(
+            child: ListView.builder(
+              itemCount: allGoals.length,
+              itemBuilder: (context, index) {
+                final goal = allGoals[index];
+                final isSelected = _allocationsPercent.containsKey(goal.id);
+                final percent = _allocationsPercent[goal.id] ?? 0.0;
+                final amountCents = (totalCents * percent / 100).round();
+                final goalColor = goal.accentColor.startsWith('#')
+                    ? Color(int.parse(goal.accentColor.replaceFirst('#', '0xFF')))
+                    : (goal.id == 'goal_a' ? AppColors.goalA : AppColors.goalB);
 
-          // ── Goal B allocation card ──
-          SurfaceCard(
-            padding: const EdgeInsets.all(16),
-            child: Row(
-              children: [
-                Container(
-                  width: 4,
-                  height: 36,
-                  decoration: BoxDecoration(
-                    color: AppColors.goalB,
-                    borderRadius: BorderRadius.circular(2),
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        goalB.name,
-                        style: AppTypography.h3(context),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: 12),
+                  child: GestureDetector(
+                    onTap: () {
+                      setState(() {
+                        if (isSelected && _allocationsPercent.length > 1) {
+                          _allocationsPercent.remove(goal.id);
+                        } else if (!isSelected) {
+                          _allocationsPercent[goal.id] = 0.0;
+                        }
+                        _rebalanceAllocations();
+                      });
+                    },
+                    child: SurfaceCard(
+                      padding: const EdgeInsets.all(12),
+                      borderColor: isSelected ? goalColor : Colors.transparent,
+                      borderWidth: 2,
+                      child: Column(
+                        children: [
+                          Row(
+                            children: [
+                              Container(
+                                width: 4,
+                                height: 32,
+                                decoration: BoxDecoration(
+                                  color: goalColor,
+                                  borderRadius: BorderRadius.circular(2),
+                                ),
+                              ),
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      goal.name,
+                                      style: AppTypography.body(context).copyWith(fontWeight: FontWeight.bold),
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                    Text(
+                                      '${(percent).toStringAsFixed(0)}%',
+                                      style: AppTypography.caption(context, color: goalColor),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              Text(
+                                '+${formatAmount(amountCents)} ${goal.currency}',
+                                style: AppTypography.amount(context, color: isSelected ? goalColor : AppColors.textTertiary(Theme.of(context).brightness)),
+                              ),
+                            ],
+                          ),
+                          if (isSelected && activeGoalIds.length > 1) ...[
+                            Slider(
+                              value: percent,
+                              min: 0,
+                              max: 100,
+                              activeColor: goalColor,
+                              onChanged: (val) {
+                                setState(() {
+                                  _updateAllocation(goal.id, val);
+                                });
+                              },
+                            ),
+                          ],
+                        ],
                       ),
-                      const SizedBox(height: 2),
-                      Text(
-                        '${AppLocalizations.get(locale, 'dep_goal_label')}${formatAmount(goalB.targetAmount)} '
-                        '${goalB.currency}',
-                        style: AppTypography.bodySmall(context),
-                      ),
-                    ],
+                    ),
                   ),
-                ),
-                const SizedBox(width: 8),
-                Text(
-                  '+${formatAmount(amountBCents)} ${goalB.currency}',
-                  style: AppTypography.amount(
-                    context,
-                    color: AppColors.goalB,
-                  ),
-                ),
-              ],
+                );
+              },
             ),
           ),
 
-          const Spacer(),
+          const SizedBox(height: 16),
 
           // ── Confirm split ──
           AppButton(
@@ -627,31 +641,63 @@ class _DepositScreenState extends ConsumerState<DepositScreen>
     );
   }
 
+  void _updateAllocation(String goalId, double newVal) {
+    if (_allocationsPercent.length < 2) return;
+
+    final oldVal = _allocationsPercent[goalId] ?? 0.0;
+    final delta = newVal - oldVal;
+
+    _allocationsPercent[goalId] = newVal;
+
+    // Distribute delta among others
+    final otherIds = _allocationsPercent.keys.where((id) => id != goalId).toList();
+    double totalOther = 0;
+    for (var id in otherIds) {
+      totalOther += _allocationsPercent[id]!;
+    }
+
+    if (totalOther > 0) {
+      for (var id in otherIds) {
+        final share = _allocationsPercent[id]! / totalOther;
+        _allocationsPercent[id] = (_allocationsPercent[id]! - delta * share).clamp(0.0, 100.0);
+      }
+    } else {
+      // If all others were 0, just pick one and give it the remaining
+      _allocationsPercent[otherIds.first] = (100.0 - newVal).clamp(0.0, 100.0);
+    }
+
+    _normalizeAllocations();
+  }
+
+  void _rebalanceAllocations() {
+    if (_allocationsPercent.isEmpty) return;
+    final share = 100.0 / _allocationsPercent.length;
+    for (var key in _allocationsPercent.keys) {
+      _allocationsPercent[key] = share;
+    }
+  }
+
+  void _normalizeAllocations() {
+    double total = 0;
+    for (var val in _allocationsPercent.values) {
+      total += val;
+    }
+    if (total == 0) {
+       _rebalanceAllocations();
+       return;
+    }
+    for (var key in _allocationsPercent.keys) {
+      _allocationsPercent[key] = (_allocationsPercent[key]! / total) * 100.0;
+    }
+  }
+
   // =========================================================================
   // STEP: CONFIRM
   // =========================================================================
-  Widget _buildConfirmStep(BuildContext context, String locale, Goal goalA, Goal goalB) {
-    final double amountA = _enteredAmount * (_splitRatio / 100.0);
-    final double amountB = _enteredAmount * ((100.0 - _splitRatio) / 100.0);
-    final int amountACents = displayToCents(amountA);
-    final int amountBCents = displayToCents(amountB);
-
-    // Progress ratios (all in kopecks)
-    final currentProgressA = goalA.targetAmount > 0
-        ? goalA.currentAmount / goalA.targetAmount
-        : 0.0;
-    final projectedProgressA = goalA.targetAmount > 0
-        ? ((goalA.currentAmount + amountACents) / goalA.targetAmount)
-            .clamp(0.0, 1.0)
-        : 0.0;
-
-    final currentProgressB = goalB.targetAmount > 0
-        ? goalB.currentAmount / goalB.targetAmount
-        : 0.0;
-    final projectedProgressB = goalB.targetAmount > 0
-        ? ((goalB.currentAmount + amountBCents) / goalB.targetAmount)
-            .clamp(0.0, 1.0)
-        : 0.0;
+  Widget _buildConfirmStep(BuildContext context, String locale, List<Goal> allGoals) {
+    final totalCents = displayToCents(_enteredAmount);
+    final activeGoalIds = _allocationsPercent.keys.toList();
+    final activeGoals = allGoals.where((g) => activeGoalIds.contains(g.id)).toList();
 
     return SingleChildScrollView(
       padding: const EdgeInsets.fromLTRB(24, 12, 24, 16),
@@ -672,96 +718,64 @@ class _DepositScreenState extends ConsumerState<DepositScreen>
           ),
           const SizedBox(height: 24),
 
-          // ── Goal A card ──
-          SurfaceCard(
-            padding: const EdgeInsets.all(20),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Expanded(
-                      child: Text(
-                        goalA.name,
-                        style: AppTypography.h3(context),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Text(
-                      '+${formatAmount(amountACents)} ${goalA.currency}',
-                      style: AppTypography.amount(
-                        context,
-                        color: AppColors.goalA,
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 16),
-                ProgressBar(
-                  progress: currentProgressA,
-                  color: AppColors.goalA.withValues(alpha: 0.4),
-                  label: AppLocalizations.get(locale, 'dep_progress_current'),
-                  trailingText: '${(currentProgressA * 100).toInt()}%',
-                ),
-                const SizedBox(height: 12),
-                ProgressBar(
-                  progress: projectedProgressA,
-                  color: AppColors.goalA,
-                  label: AppLocalizations.get(locale, 'dep_progress_after'),
-                  trailingText: '${(projectedProgressA * 100).toInt()}%',
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 16),
+          ...activeGoals.map((goal) {
+            final percent = _allocationsPercent[goal.id] ?? 0.0;
+            final amountCents = (totalCents * percent / 100).round();
+            final goalColor = goal.accentColor.startsWith('#')
+                ? Color(int.parse(goal.accentColor.replaceFirst('#', '0xFF')))
+                : (goal.id == 'goal_a' ? AppColors.goalA : AppColors.goalB);
 
-          // ── Goal B card ──
-          SurfaceCard(
-            padding: const EdgeInsets.all(20),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            final currentProgress = goal.targetAmount > 0
+                ? goal.currentAmount / goal.targetAmount
+                : 0.0;
+            final projectedProgress = goal.targetAmount > 0
+                ? ((goal.currentAmount + amountCents) / goal.targetAmount).clamp(0.0, 1.0)
+                : 0.0;
+
+            return Padding(
+              padding: const EdgeInsets.only(bottom: 16),
+              child: SurfaceCard(
+                padding: const EdgeInsets.all(20),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Expanded(
-                      child: Text(
-                        goalB.name,
-                        style: AppTypography.h3(context),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Expanded(
+                          child: Text(
+                            goal.name,
+                            style: AppTypography.h3(context),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Text(
+                          '+${formatAmount(amountCents)} ${goal.currency}',
+                          style: AppTypography.amount(context, color: goalColor),
+                        ),
+                      ],
                     ),
-                    const SizedBox(width: 12),
-                    Text(
-                      '+${formatAmount(amountBCents)} ${goalB.currency}',
-                      style: AppTypography.amount(
-                        context,
-                        color: AppColors.goalB,
-                      ),
+                    const SizedBox(height: 16),
+                    ProgressBar(
+                      progress: currentProgress,
+                      color: goalColor.withValues(alpha: 0.4),
+                      label: AppLocalizations.get(locale, 'dep_progress_current'),
+                      trailingText: '${(currentProgress * 100).toInt()}%',
+                    ),
+                    const SizedBox(height: 12),
+                    ProgressBar(
+                      progress: projectedProgress,
+                      color: goalColor,
+                      label: AppLocalizations.get(locale, 'dep_progress_after'),
+                      trailingText: '${(projectedProgress * 100).toInt()}%',
                     ),
                   ],
                 ),
-                const SizedBox(height: 16),
-                ProgressBar(
-                  progress: currentProgressB,
-                  color: AppColors.goalB.withValues(alpha: 0.4),
-                  label: AppLocalizations.get(locale, 'dep_progress_current'),
-                  trailingText: '${(currentProgressB * 100).toInt()}%',
-                ),
-                const SizedBox(height: 12),
-                ProgressBar(
-                  progress: projectedProgressB,
-                  color: AppColors.goalB,
-                  label: AppLocalizations.get(locale, 'dep_progress_after'),
-                  trailingText: '${(projectedProgressB * 100).toInt()}%',
-                ),
-              ],
-            ),
-          ),
+              ),
+            );
+          }),
 
           const SizedBox(height: 32),
 
@@ -854,21 +868,18 @@ class _DepositScreenState extends ConsumerState<DepositScreen>
   // =========================================================================
   // STEP: SUCCESS
   // =========================================================================
-  Widget _buildSuccessStep(BuildContext context, String locale, Goal goalA, Goal goalB) {
+  Widget _buildSuccessStep(BuildContext context, String locale, List<Goal> allGoals) {
     final totalCents = displayToCents(_enteredAmount);
     final result = _depositResult;
+    final currency = allGoals.first.currency;
 
     return Consumer(
       builder: (context, ref, _) {
         final goalsAsync = ref.watch(goalsProvider);
         final goals = goalsAsync.value ?? [];
-        final finishedA = goals.any(
-          (g) => g.id == 'goal_a' && g.currentAmount >= g.targetAmount,
-        );
-        final finishedB = goals.any(
-          (g) => g.id == 'goal_b' && g.currentAmount >= g.targetAmount,
-        );
-        final anyFinished = finishedA || finishedB;
+
+        final finishedGoals = goals.where((g) => g.currentAmount >= g.targetAmount).toList();
+        final anyFinished = finishedGoals.isNotEmpty;
 
         return Padding(
           padding: const EdgeInsets.fromLTRB(24, 0, 24, 16),
@@ -916,7 +927,7 @@ class _DepositScreenState extends ConsumerState<DepositScreen>
 
               // ── Amount ──
               Text(
-                '${formatAmount(totalCents)} ${goalA.currency} '
+                '${formatAmount(totalCents)} $currency '
                 '${AppLocalizations.get(locale, 'dep_success_desc')}',
                 textAlign: TextAlign.center,
                 style: AppTypography.body(context),
@@ -1000,25 +1011,12 @@ class _DepositScreenState extends ConsumerState<DepositScreen>
                     : AppLocalizations.get(locale, 'dep_return_btn'),
                 onPressed: () {
                   HapticFeedback.mediumImpact();
-                  if (finishedA) {
+                  if (anyFinished) {
+                    final target = finishedGoals.first;
                     context.go('/goal-complete', extra: {
-                      'goalName': goals
-                          .firstWhere((g) => g.id == 'goal_a')
-                          .name,
-                      'targetAmount': goals
-                          .firstWhere((g) => g.id == 'goal_a')
-                          .targetAmount,
-                      'currency': goalA.currency,
-                    });
-                  } else if (finishedB) {
-                    context.go('/goal-complete', extra: {
-                      'goalName': goals
-                          .firstWhere((g) => g.id == 'goal_b')
-                          .name,
-                      'targetAmount': goals
-                          .firstWhere((g) => g.id == 'goal_b')
-                          .targetAmount,
-                      'currency': goalB.currency,
+                      'goalName': target.name,
+                      'targetAmount': target.targetAmount,
+                      'currency': target.currency,
                     });
                   } else {
                     context.go('/dashboard');

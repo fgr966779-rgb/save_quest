@@ -82,7 +82,7 @@ class GoalDetailScreen extends ConsumerWidget {
                         const SizedBox(height: 20.0),
 
                         // Future Projections Panel
-                        _buildProjections(context, locale, goal, depositsAsync, accentColor),
+                        _buildProjections(context, ref, locale, goal, depositsAsync, accentColor),
                         const SizedBox(height: 16.0),
 
                         // Price Analysis entry point
@@ -214,7 +214,7 @@ class GoalDetailScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildProjections(BuildContext context, String locale, Goal goal, AsyncValue<List<Deposit>> depositsAsync, Color accentColor) {
+  Widget _buildProjections(BuildContext context, WidgetRef ref, String locale, Goal goal, AsyncValue<List<Deposit>> depositsAsync, Color accentColor) {
     final brightness = Theme.of(context).brightness;
 
     return depositsAsync.when(
@@ -222,16 +222,35 @@ class GoalDetailScreen extends ConsumerWidget {
       error: (_, __) => const SizedBox.shrink(),
       data: (deposits) {
         final id = goal.id;
-        final filtered = deposits.where((d) => id == 'goal_a' ? d.goalAAmount > 0 : d.goalBAmount > 0).toList();
+
+        return FutureBuilder<List<DepositAllocation>>(
+          future: Future.microtask(() async {
+            final db = ref.read(databaseProvider);
+            List<DepositAllocation> goalAllocs = [];
+            for (var d in deposits) {
+              final allocs = await db.getAllocationsForDeposit(d.id);
+              final myAlloc = allocs.where((a) => a.goalId == id).firstOrNull;
+              if (myAlloc != null && myAlloc.amount > 0) {
+                goalAllocs.add(myAlloc);
+              }
+            }
+            return goalAllocs;
+          }),
+          builder: (context, snapshot) {
+            final filteredAllocs = snapshot.data ?? [];
 
         String forecastText = AppLocalizations.get(locale, 'goal_forecast_need_more');
-        if (filtered.isNotEmpty) {
+        if (filteredAllocs.isNotEmpty) {
           // Calculate average deposit per day (in kopecks)
           int totalGoalDeposits = 0;
-          for (var dep in filtered) {
-            totalGoalDeposits += id == 'goal_a' ? dep.goalAAmount : dep.goalBAmount;
+          for (var alloc in filteredAllocs) {
+            totalGoalDeposits += alloc.amount;
           }
-          final firstDate = filtered.last.createdAt;
+          // We need the date of the first deposit for this goal
+          // This is a bit inefficient in a loop, but works for now.
+          // Better would be a Join in Drift.
+          final firstDate = deposits.firstWhere((d) => filteredAllocs.any((a) => a.depositId == d.id)).createdAt;
+
           final daysRange = DateTime.now().difference(firstDate).inDays.clamp(1, 99999);
           final double avgPerDay = totalGoalDeposits / daysRange;
 
@@ -272,6 +291,8 @@ class GoalDetailScreen extends ConsumerWidget {
             ],
           ),
         );
+          }
+        );
       },
     );
   }
@@ -291,7 +312,15 @@ class GoalDetailScreen extends ConsumerWidget {
       loading: () => const SizedBox(height: 100, child: Center(child: CircularProgressIndicator())),
       error: (e, _) => Text('${AppLocalizations.get(locale, 'common_error')}: $e'),
       data: (deposits) {
-        final filtered = deposits.where((d) => id == 'goal_a' ? d.goalAAmount > 0 : d.goalBAmount > 0).toList();
+        return FutureBuilder<List<MapEntry<Deposit, int>>>(
+          future: Future.wait(deposits.map((d) async {
+            final db = ref.read(databaseProvider);
+            final allocs = await db.getAllocationsForDeposit(d.id);
+            final myAlloc = allocs.where((a) => a.goalId == id).firstOrNull;
+            return MapEntry(d, myAlloc?.amount ?? 0);
+          })).then((list) => list.where((e) => e.value > 0).toList()),
+          builder: (context, snapshot) {
+            final filtered = snapshot.data ?? [];
 
         if (filtered.isEmpty) {
           return SurfaceCard(
@@ -314,8 +343,9 @@ class GoalDetailScreen extends ConsumerWidget {
           physics: const NeverScrollableScrollPhysics(),
           itemCount: filtered.length,
           itemBuilder: (context, index) {
-            final dep = filtered[index];
-            final int amount = id == 'goal_a' ? dep.goalAAmount : dep.goalBAmount;
+            final entry = filtered[index];
+            final dep = entry.key;
+            final int amount = entry.value;
 
             // Check if deletable (editable within 24 hours of creation)
             final isDeletable = DateTime.now().difference(dep.createdAt).inHours < 24;
@@ -368,13 +398,15 @@ class GoalDetailScreen extends ConsumerWidget {
                     const SizedBox(width: 8.0),
                     IconButton(
                       icon: Icon(Icons.delete_sweep_rounded, color: AppColors.error, size: 20.0),
-                      onPressed: () => _confirmDelete(context, ref, dep, amount, id),
+                      onPressed: () => _confirmDelete(context, ref, dep),
                     ),
                   ],
                 ],
               ),
             );
           },
+        );
+          }
         );
       },
     );
@@ -434,8 +466,6 @@ class GoalDetailScreen extends ConsumerWidget {
     BuildContext context,
     WidgetRef ref,
     Deposit deposit,
-    int targetAmount,
-    String targetGoalId,
   ) async {
     final brightness = Theme.of(context).brightness;
     final locale = ref.watch(localeProvider);
@@ -466,13 +496,9 @@ class GoalDetailScreen extends ConsumerWidget {
               child: Text(AppLocalizations.get(locale, 'common_delete'), style: AppTypography.body(context, color: AppColors.error).copyWith(fontWeight: FontWeight.bold)),
               onPressed: () async {
                 Navigator.pop(context);
-                final db = ref.read(databaseProvider);
-                final isA = targetGoalId == 'goal_a';
-                await db.softDeleteDepositAndUpdateGoals(
-                  depositId: deposit.id,
-                  goalAAmount: isA ? targetAmount : 0,
-                  goalBAmount: isA ? 0 : targetAmount,
-                );
+                final notifier = ref.read(savingsNotifierProvider.notifier);
+                await notifier.deleteDeposit(deposit);
+
                 if (context.mounted) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(

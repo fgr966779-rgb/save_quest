@@ -10,6 +10,7 @@ class SurfaceCard extends StatelessWidget {
   final double borderRadius;
   final Color? color;
   final Color? borderColor;
+  final double borderWidth;
 
   const SurfaceCard({
     super.key,
@@ -19,6 +20,7 @@ class SurfaceCard extends StatelessWidget {
     this.borderRadius = 16,
     this.color,
     this.borderColor,
+    this.borderWidth = 1.0,
   });
 
   @override
@@ -34,7 +36,7 @@ class SurfaceCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(borderRadius),
         border: Border.all(
           color: effectiveBorderColor,
-          width: 1,
+          width: borderWidth,
         ),
       ),
       child: Padding(

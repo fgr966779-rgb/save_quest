@@ -8,6 +8,7 @@ import '../../../core/providers/l10n.dart';
 import '../../../core/providers/banking_provider.dart';
 import '../../../core/providers/events_notifier.dart';
 import '../../../core/providers/savings_notifier.dart';
+import '../../../core/providers/providers.dart';
 import '../../../core/providers/penalty_notifier.dart';
 import '../../../core/utils/money_utils.dart';
 import '../../../core/widgets/surface_card.dart';
@@ -123,11 +124,28 @@ class BankingInsightsCard extends ConsumerWidget {
 
                                       final activeEvent = ref.read(eventsProvider);
 
+                                      final db = ref.read(databaseProvider);
+                                      final goals = await db.getAllGoals();
+                                      final Map<String, int> allocations = {};
+                                      final totalCents = insight.suggestedAmountKopecks.toInt();
+
+                                      if (goals.isNotEmpty) {
+                                        if (goals.length == 1) {
+                                          allocations[goals.first.id] = totalCents;
+                                        } else {
+                                          final share = totalCents ~/ goals.length;
+                                          for (var i = 0; i < goals.length - 1; i++) {
+                                            allocations[goals[i].id] = share;
+                                          }
+                                          allocations[goals.last.id] = totalCents - (share * (goals.length - 1));
+                                        }
+                                      }
+
                                       await ref
                                           .read(savingsNotifierProvider.notifier)
                                           .createDeposit(
                                             amount: amount,
-                                            goalAPercent: 50.0,
+                                            allocations: allocations,
                                             activeEvent: activeEvent,
                                           );
 
