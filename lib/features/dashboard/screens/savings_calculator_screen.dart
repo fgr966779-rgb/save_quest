@@ -217,7 +217,7 @@ class _SavingsCalculatorScreenState
                       ),
                       decoration: BoxDecoration(
                         color: isSelected
-                            ? AppColors.accent.withOpacity(0.12)
+                            ? AppColors.accent.withValues(alpha: 0.12)
                             : Colors.transparent,
                         borderRadius: BorderRadius.circular(8.0),
                         border: Border.all(
@@ -394,7 +394,7 @@ class _ResultCard extends StatelessWidget {
             width: 42,
             height: 42,
             decoration: BoxDecoration(
-              color: accentColor.withOpacity(0.1),
+              color: accentColor.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(12),
             ),
             child: Icon(icon, color: accentColor, size: 22),

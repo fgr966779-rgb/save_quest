@@ -78,8 +78,9 @@ class _WeeklyChallengesScreenState
         },
         child: _challenges.isEmpty
             ? EmptyState(
-                icon: Icons.emoji_events_rounded,
+                icon: const Icon(Icons.emoji_events_rounded),
                 title: t('challenge_empty'),
+                description: '',
               )
             : ListView(
                 padding: const EdgeInsets.symmetric(
@@ -270,7 +271,7 @@ class _CreateChallengeSheetState extends ConsumerState<_CreateChallengeSheet> {
     _titleCtrl = TextEditingController(text: widget.initialTitle ?? '');
     _targetCtrl = TextEditingController(
         text: widget.initialTarget != null
-            ? MoneyUtils.formatKopecks(widget.initialTarget!)
+            ? formatAmount(widget.initialTarget!)
             : '');
     _deadline = widget.initialDeadline ??
         DateTime.now().add(const Duration(days: 7));
@@ -495,7 +496,7 @@ class _ChallengeCard extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                '${MoneyUtils.formatKopecks(challenge.currentAmount)} / ${MoneyUtils.formatKopecks(challenge.targetAmount)} $currency',
+                '${formatAmount(challenge.currentAmount)} / ${formatAmount(challenge.targetAmount)} $currency',
                 style: AppTypography.caption(context),
               ),
               Text(

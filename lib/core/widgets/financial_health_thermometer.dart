@@ -129,7 +129,7 @@ class _ThermometerPainter extends CustomPainter {
       begin: Alignment.topCenter,
       end: Alignment.bottomCenter,
       colors: [
-        fillColor.withOpacity(0.6),
+        fillColor.withValues(alpha: 0.6),
         fillColor,
       ],
     );
@@ -148,7 +148,7 @@ class _ThermometerPainter extends CustomPainter {
         Offset(tickRight, y),
         Paint()
           ..strokeWidth = 1.5
-          ..color = AppColors.textTertiary(brightness).withOpacity(0.5),
+          ..color = AppColors.textTertiary(brightness).withValues(alpha: 0.5),
       );
 
       // Labels

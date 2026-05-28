@@ -72,7 +72,7 @@ class _SkeletonLineState extends State<SkeletonLine>
                       widthFactor: 0.4,
                       child: Container(
                         decoration: BoxDecoration(
-                          color: AppColors.border(brightness).withOpacity(0.5),
+                          color: AppColors.border(brightness).withValues(alpha: 0.5),
                         ),
                       ),
                     ),

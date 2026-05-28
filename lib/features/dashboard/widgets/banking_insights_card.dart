@@ -71,7 +71,7 @@ class BankingInsightsCard extends ConsumerWidget {
                     Container(
                       padding: const EdgeInsets.all(10.0),
                       decoration: BoxDecoration(
-                        color: accentColor.withOpacity(0.12),
+                        color: accentColor.withValues(alpha: 0.12),
                         shape: BoxShape.circle,
                       ),
                       child: Icon(
@@ -138,7 +138,7 @@ class BankingInsightsCard extends ConsumerWidget {
                                               AppLocalizations.get(locale, 'bank_transferred'),
                                             ),
                                             backgroundColor:
-                                                accentColor.withOpacity(0.85),
+                                                accentColor.withValues(alpha: 0.85),
                                           ),
                                         );
                                       }

@@ -270,7 +270,7 @@ class ReactiveFlamePainter extends CustomPainter {
       ..style = PaintingStyle.fill
       ..shader = RadialGradient(
         colors: [
-          streakCount > 0 ? AppColors.accent.withOpacity(0.8) : AppColors.border(brightness).withOpacity(0.6),
+          streakCount > 0 ? AppColors.accent.withValues(alpha: 0.8) : AppColors.border(brightness).withValues(alpha: 0.6),
           Colors.transparent
         ],
       ).createShader(Rect.fromCircle(center: center, radius: baseRadius));

@@ -114,7 +114,7 @@ class SplitSlider extends StatelessWidget {
                   elevation: 2,
                   pressedElevation: 4,
                 ),
-                overlayColor: AppColors.accent.withOpacity(0.1),
+                overlayColor: AppColors.accent.withValues(alpha: 0.1),
                 overlayShape: const RoundSliderOverlayShape(overlayRadius: 20),
               ),
               child: Slider(

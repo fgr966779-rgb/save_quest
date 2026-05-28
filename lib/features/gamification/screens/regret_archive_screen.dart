@@ -10,6 +10,7 @@ import '../../../core/providers/l10n.dart';
 import '../../../core/providers/providers.dart';
 import '../../../core/utils/money_utils.dart';
 import '../../../core/widgets/surface_card.dart';
+import 'package:drift/drift.dart' hide Column;
 import '../../../core/widgets/app_button.dart';
 import '../../../data/database.dart';
 
@@ -82,8 +83,9 @@ class RegretArchiveScreen extends ConsumerWidget {
 
   Widget _buildEmptyState(BuildContext context, WidgetRef ref, Brightness brightness, String Function(String) t) {
     return Center(
-      padding: const EdgeInsets.all(32),
-      child: Column(
+      child: Padding(
+        padding: const EdgeInsets.all(32),
+        child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Icon(Icons.auto_delete_outlined, size: 80, color: AppColors.textTertiary(brightness)),
@@ -117,7 +119,7 @@ class RegretArchiveScreen extends ConsumerWidget {
       decoration: BoxDecoration(
         color: AppColors.accentMutedBg(brightness),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: AppColors.accent.withOpacity(0.3)),
+        border: Border.all(color: AppColors.accent.withValues(alpha: 0.3)),
       ),
       child: Column(
         children: [
@@ -213,7 +215,7 @@ class _AvoidedPurchaseCard extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
       child: SurfaceCard(
-        padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.all(16),
         child: Row(
           children: [
             Container(

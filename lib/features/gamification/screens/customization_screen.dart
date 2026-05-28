@@ -9,7 +9,7 @@ import '../../../core/providers/providers.dart';
 import '../../../data/database.dart';
 
 class CustomizationScreen extends ConsumerWidget {
-  const CustomizationScreen({Key? key}) : super(key: key);
+  const CustomizationScreen({super.key});
 
   void _selectTheme(BuildContext context, WidgetRef ref, String theme) async {
     final db = ref.read(databaseProvider);
@@ -150,7 +150,9 @@ class CustomizationScreen extends ConsumerWidget {
     required bool isUnlocked,
     String? unlockCondition,
   }) {
-    final brightness = Theme.of(context).brightness);
+    final brightness = Theme.of(context).brightness;
+    final currentLocale = Localizations.localeOf(context).languageCode;
+    String t(String key) => AppLocalizations.get(currentLocale, key);
 
     return Opacity(
       opacity: isUnlocked ? 1.0 : 0.5,

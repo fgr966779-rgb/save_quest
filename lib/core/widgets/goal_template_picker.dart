@@ -139,7 +139,7 @@ class _TemplateCard extends StatelessWidget {
                 width: 44,
                 height: 44,
                 decoration: BoxDecoration(
-                  color: AppColors.accent.withOpacity(0.08),
+                  color: AppColors.accent.withValues(alpha: 0.08),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 alignment: Alignment.center,
@@ -183,7 +183,7 @@ class _TemplateCard extends StatelessWidget {
                 padding: const EdgeInsets.symmetric(
                     horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
-                  color: AppColors.border(brightness).withOpacity(0.3),
+                  color: AppColors.border(brightness).withValues(alpha: 0.3),
                   borderRadius: BorderRadius.circular(6),
                 ),
                 child: Text(

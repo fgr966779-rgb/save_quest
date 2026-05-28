@@ -256,10 +256,10 @@ class _PriceAnalysisScreenState extends ConsumerState<PriceAnalysisScreen> {
                   padding: const EdgeInsets.symmetric(
                       horizontal: 8, vertical: 3),
                   decoration: BoxDecoration(
-                    color: AppColors.warning.withOpacity(0.15),
+                    color: AppColors.warning.withValues(alpha: 0.15),
                     borderRadius: BorderRadius.circular(6),
                     border: Border.all(
-                        color: AppColors.warning.withOpacity(0.5)),
+                        color: AppColors.warning.withValues(alpha: 0.5)),
                   ),
                   child: Text(
                     AppLocalizations.get(locale, 'price_estimate'),

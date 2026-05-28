@@ -139,8 +139,8 @@ class _RemoteControlScreenState extends ConsumerState<RemoteControlScreen> {
               padding: const EdgeInsets.all(16.0),
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: AppColors.accent.withOpacity(0.08),
-                border: Border.all(color: AppColors.accent.withOpacity(0.3), width: 2.0),
+                color: AppColors.accent.withValues(alpha: 0.08),
+                border: Border.all(color: AppColors.accent.withValues(alpha: 0.3), width: 2.0),
               ),
               child: Icon(Icons.terminal, color: AppColors.accent, size: 48.0),
             ),
@@ -169,9 +169,9 @@ class _RemoteControlScreenState extends ConsumerState<RemoteControlScreen> {
             Container(
               padding: const EdgeInsets.all(12.0),
               decoration: BoxDecoration(
-                color: AppColors.error.withOpacity(0.1),
+                color: AppColors.error.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(8.0),
-                border: Border.all(color: AppColors.error.withOpacity(0.4)),
+                border: Border.all(color: AppColors.error.withValues(alpha: 0.4)),
               ),
               child: Row(
                 children: [
@@ -496,7 +496,7 @@ class _RemoteControlScreenState extends ConsumerState<RemoteControlScreen> {
               // Full Text Input keyboard dialog
               TextButton.icon(
                 style: TextButton.styleFrom(
-                  backgroundColor: AppColors.accent.withOpacity(0.1),
+                  backgroundColor: AppColors.accent.withValues(alpha: 0.1),
                   side: BorderSide(color: AppColors.accent),
                 ),
                 icon: Icon(Icons.keyboard, color: AppColors.accent, size: 18),
@@ -579,7 +579,7 @@ class _RemoteControlScreenState extends ConsumerState<RemoteControlScreen> {
           style: TextStyle(color: AppColors.textPrimary(brightness), fontSize: 13.0),
           decoration: InputDecoration(
             hintText: hint,
-            hintStyle: TextStyle(color: AppColors.textTertiary(brightness).withOpacity(0.5)),
+            hintStyle: TextStyle(color: AppColors.textTertiary(brightness).withValues(alpha: 0.5)),
             prefixIcon: Icon(icon, color: AppColors.accent, size: 18.0),
             filled: true,
             fillColor: AppColors.surfaceMuted(brightness),

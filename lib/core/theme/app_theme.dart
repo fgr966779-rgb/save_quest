@@ -287,7 +287,7 @@ class AppTheme {
       // --- Text Selection ---
       textSelectionTheme: TextSelectionThemeData(
         cursorColor: AppColors.accent,
-        selectionColor: AppColors.accent.withOpacity(0.3),
+        selectionColor: AppColors.accent.withValues(alpha: 0.3),
         selectionHandleColor: AppColors.accent,
       ),
 

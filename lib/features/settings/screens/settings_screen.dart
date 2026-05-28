@@ -131,7 +131,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
             RepaintBoundary(
               key: _shareKey,
               child: SurfaceCard(
-                borderColor: AppColors.accent.withOpacity(0.3),
+                borderColor: AppColors.accent.withValues(alpha: 0.3),
                 padding: const EdgeInsets.all(20.0),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -415,7 +415,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   ? t('settings_biometric_sub')
                   : t('biometric_unavailable'),
               value: _biometricEnabled,
-              onChanged: _biometricAvailable ? _handleBiometricToggle : null,
+              onChanged: _biometricAvailable ? (val) => _handleBiometricToggle(val) : null,
             ),
             const SizedBox(height: 32.0),
 
@@ -557,7 +557,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
             const SizedBox(height: 8.0),
             SurfaceCard(
               padding: const EdgeInsets.all(16.0),
-              borderColor: AppColors.error.withOpacity(0.3),
+              borderColor: AppColors.error.withValues(alpha: 0.3),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
@@ -909,7 +909,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     setState(() => _isBackupBusy = true);
     try {
       final db = ref.read(databaseProvider);
-      final backupService = BackupService(db);
+      final settings = ref.read(settingsServiceProvider);
+      final backupService = BackupService(db, settings);
       final count = await backupService.importCsv();
 
       if (mounted) {
@@ -1182,7 +1183,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     required String title,
     required String subtitle,
     required bool value,
-    required ValueChanged<bool> onChanged,
+    required ValueChanged<bool>? onChanged,
   }) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 10.0),
@@ -1231,7 +1232,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
         padding: const EdgeInsets.symmetric(vertical: 10.0),
         decoration: BoxDecoration(
           color: isSelected
-              ? AppColors.accent.withOpacity(0.12)
+              ? AppColors.accent.withValues(alpha: 0.12)
               : Colors.transparent,
           borderRadius: BorderRadius.circular(8.0),
           border: Border.all(
@@ -1277,7 +1278,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   padding: const EdgeInsets.symmetric(vertical: 10.0),
                   decoration: BoxDecoration(
                     color: isSelected
-                        ? AppColors.accent.withOpacity(0.12)
+                        ? AppColors.accent.withValues(alpha: 0.12)
                         : Colors.transparent,
                     borderRadius: BorderRadius.circular(8.0),
                     border: Border.all(
