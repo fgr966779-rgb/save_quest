@@ -169,7 +169,7 @@ class _DailySpinDialogState extends ConsumerState<DailySpinDialog>
                     child: Center(
                       child: Icon(
                         Icons.star,
-                        color: AppColors.accent.withOpacity(0.3),
+                        color: AppColors.accent.withValues(alpha: 0.3),
                         size: 100,
                       ),
                     ),

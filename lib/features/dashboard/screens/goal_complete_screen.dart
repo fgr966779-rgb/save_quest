@@ -109,7 +109,7 @@ class _GoalCompleteScreenState extends ConsumerState<GoalCompleteScreen> with Si
                       height: 140,
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
-                        color: AppColors.warning.withOpacity(0.08),
+                        color: AppColors.warning.withValues(alpha: 0.08),
                         border: Border.all(
                           color: AppColors.warning,
                           width: 3.0,
@@ -155,10 +155,10 @@ class _GoalCompleteScreenState extends ConsumerState<GoalCompleteScreen> with Si
                   Container(
                     padding: const EdgeInsets.all(16.0),
                     decoration: BoxDecoration(
-                      color: AppColors.warning.withOpacity(0.08),
+                      color: AppColors.warning.withValues(alpha: 0.08),
                       borderRadius: BorderRadius.circular(12.0),
                       border: Border.all(
-                        color: AppColors.warning.withOpacity(0.3),
+                        color: AppColors.warning.withValues(alpha: 0.3),
                         width: 1.0,
                       ),
                     ),

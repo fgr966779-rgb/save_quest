@@ -34,7 +34,7 @@ class JointGoalDetailScreen extends ConsumerWidget {
         ),
         leading: IconButton(
           icon: Icon(Icons.arrow_back_ios, color: AppColors.textPrimary(brightness), size: 20),
-          onPressed: () => context.pop(),
+          onPressed: () => Navigator.of(context).pop(),
         ),
       ),
       body: jointGoalsAsync.when(
@@ -144,7 +144,7 @@ class JointGoalDetailScreen extends ConsumerWidget {
                               height: 110,
                               decoration: BoxDecoration(
                                 shape: BoxShape.circle,
-                                color: AppColors.goalB.withOpacity(0.3),
+                                color: AppColors.goalB.withValues(alpha: 0.3),
                               ),
                               child: Icon(Icons.image_not_supported, color: AppColors.textSecondary(brightness), size: 40),
                             );
@@ -208,7 +208,7 @@ class JointGoalDetailScreen extends ConsumerWidget {
                     child: Row(
                       children: [
                         CircleAvatar(
-                          backgroundColor: color.withOpacity(0.2),
+                          backgroundColor: color.withValues(alpha: 0.2),
                           child: Icon(Icons.person, color: color),
                         ),
                         const SizedBox(width: 16),

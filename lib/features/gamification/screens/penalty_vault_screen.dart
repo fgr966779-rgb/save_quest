@@ -111,7 +111,7 @@ class PenaltyVaultScreen extends ConsumerWidget {
                               ),
                               const SizedBox(height: 4.0),
                               Text(
-                                AppLocalizations.format(currentLocale, 'penalty_debt', {'amount': centsToDisplay(fine.amountKopecks)}),
+                                AppLocalizations.format(currentLocale, 'penalty_debt', {'amount': centsToDisplay(fine.amountKopecks).toString()}),
                                 style: AppTypography.caption(context, color: AppColors.error),
                               ),
                             ],

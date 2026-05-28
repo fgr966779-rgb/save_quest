@@ -28,7 +28,7 @@ class NeonAvatarPainter extends CustomPainter {
     }
 
     final bgPaint = Paint()
-      ..color = pColor.withOpacity(0.15 * (1.0 - dmg * 0.5))
+      ..color = pColor.withValues(alpha: 0.15 * (1.0 - dmg * 0.5))
       ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 12);
 
     final linePaint = Paint()
@@ -74,7 +74,7 @@ class NeonAvatarPainter extends CustomPainter {
 
     // Draw Decals
     final decalPaint = Paint()
-      ..color = pColor.withOpacity(0.5)
+      ..color = pColor.withValues(alpha: 0.5)
       ..style = PaintingStyle.stroke
       ..strokeWidth = 2.0;
 
@@ -103,7 +103,7 @@ class NeonAvatarPainter extends CustomPainter {
 
     // Outer glow for visor
     final eyeGlow = Paint()
-      ..color = pColor.withOpacity(0.6)
+      ..color = pColor.withValues(alpha: 0.6)
       ..maskFilter = const MaskFilter.blur(BlurStyle.outer, 8)
       ..style = PaintingStyle.fill;
 
@@ -112,7 +112,7 @@ class NeonAvatarPainter extends CustomPainter {
       canvas.drawRRect(RRect.fromRectAndRadius(Rect.fromLTRB(w * 0.55, h * 0.4, w * 0.7, h * 0.5), const Radius.circular(4)), eyeGlow);
     } else if (config.visor == 'scope') {
       canvas.drawCircle(Offset(w * 0.4, h * 0.45), w * 0.12, eyeGlow);
-      canvas.drawLine(Offset(w * 0.55, h * 0.45), Offset(w * 0.75, h * 0.45), Paint()..color = pColor.withOpacity(0.6)..strokeWidth = 3.0..maskFilter = const MaskFilter.blur(BlurStyle.outer, 6));
+      canvas.drawLine(Offset(w * 0.55, h * 0.45), Offset(w * 0.75, h * 0.45), Paint()..color = pColor.withValues(alpha: 0.6)..strokeWidth = 3.0..maskFilter = const MaskFilter.blur(BlurStyle.outer, 6));
     } else { // cyclops
       canvas.drawRRect(RRect.fromRectAndRadius(Rect.fromLTRB(w * 0.25, h * 0.4, w * 0.75, h * 0.5), const Radius.circular(6)), eyeGlow);
     }
@@ -121,7 +121,7 @@ class NeonAvatarPainter extends CustomPainter {
     if (dmg > 0.1) {
       final rng = math.Random(config.xp); // Deterministic noise based on XP
       final noisePaint = Paint()
-        ..color = Colors.redAccent.withOpacity(dmg * 0.6)
+        ..color = Colors.redAccent.withValues(alpha: dmg * 0.6)
         ..style = PaintingStyle.stroke
         ..strokeWidth = 1.5;
 
@@ -137,7 +137,7 @@ class NeonAvatarPainter extends CustomPainter {
         if (rng.nextDouble() < 0.3 * dmg) {
           canvas.drawRect(
             Rect.fromLTWH(startX, dy, w * 0.1, 2),
-            Paint()..color = Colors.redAccent.withOpacity(dmg * 0.8)
+            Paint()..color = Colors.redAccent.withValues(alpha: dmg * 0.8)
           );
         }
       }
@@ -145,7 +145,7 @@ class NeonAvatarPainter extends CustomPainter {
       // Digital "Rust" / Corrosion points
       if (dmg > 0.5) {
         final rustPaint = Paint()
-          ..color = const Color(0xFF4A2C2C).withOpacity(dmg * 0.7)
+          ..color = const Color(0xFF4A2C2C).withValues(alpha: dmg * 0.7)
           ..style = PaintingStyle.fill;
         for (int i = 0; i < (dmg * 20).toInt(); i++) {
           canvas.drawCircle(
@@ -178,7 +178,7 @@ class NeonAvatarPainter extends CustomPainter {
         canvas.drawCircle(
           Offset(bx, by),
           w * 0.1,
-          Paint()..color = pColor.withOpacity(0.4)..maskFilter = const MaskFilter.blur(BlurStyle.normal, 4)
+          Paint()..color = pColor.withValues(alpha: 0.4)..maskFilter = const MaskFilter.blur(BlurStyle.normal, 4)
         );
 
         final TextSpan span = TextSpan(

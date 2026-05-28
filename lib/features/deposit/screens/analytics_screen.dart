@@ -236,7 +236,7 @@ class _AnalyticsScreenState extends ConsumerState<AnalyticsScreen> {
         }
 
         final brightness = Theme.of(context).brightness;
-        final gridColor = AppColors.border(brightness).withOpacity(0.15);
+        final gridColor = AppColors.border(brightness).withValues(alpha: 0.15);
 
         return SurfaceCard(
           padding: const EdgeInsets.all(20.0),
@@ -272,7 +272,7 @@ class _AnalyticsScreenState extends ConsumerState<AnalyticsScreen> {
                         dotData: FlDotData(show: spotsA.length < 5),
                         belowBarData: BarAreaData(
                           show: true,
-                          color: AppColors.goalA.withOpacity(0.06),
+                          color: AppColors.goalA.withValues(alpha: 0.06),
                         ),
                       ),
                       // Goal B progress line
@@ -284,7 +284,7 @@ class _AnalyticsScreenState extends ConsumerState<AnalyticsScreen> {
                         dotData: FlDotData(show: spotsB.length < 5),
                         belowBarData: BarAreaData(
                           show: true,
-                          color: AppColors.goalB.withOpacity(0.06),
+                          color: AppColors.goalB.withValues(alpha: 0.06),
                         ),
                       ),
                     ],

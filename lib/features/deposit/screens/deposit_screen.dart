@@ -701,7 +701,7 @@ class _DepositScreenState extends ConsumerState<DepositScreen>
                 const SizedBox(height: 16),
                 ProgressBar(
                   progress: currentProgressA,
-                  color: AppColors.goalA.withOpacity(0.4),
+                  color: AppColors.goalA.withValues(alpha: 0.4),
                   label: AppLocalizations.get(locale, 'dep_progress_current'),
                   trailingText: '${(currentProgressA * 100).toInt()}%',
                 ),
@@ -747,7 +747,7 @@ class _DepositScreenState extends ConsumerState<DepositScreen>
                 const SizedBox(height: 16),
                 ProgressBar(
                   progress: currentProgressB,
-                  color: AppColors.goalB.withOpacity(0.4),
+                  color: AppColors.goalB.withValues(alpha: 0.4),
                   label: AppLocalizations.get(locale, 'dep_progress_current'),
                   trailingText: '${(currentProgressB * 100).toInt()}%',
                 ),
@@ -890,7 +890,7 @@ class _DepositScreenState extends ConsumerState<DepositScreen>
                     height: 88,
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      color: AppColors.success.withOpacity(0.1),
+                      color: AppColors.success.withValues(alpha: 0.1),
                     ),
                     child: const Icon(
                       Icons.check_circle_rounded,
@@ -1100,7 +1100,7 @@ class ConfettiPainter extends CustomPainter {
     for (final p in particles) {
       if (p.y > 1.2 || p.y < -0.2) continue;
 
-      paint.color = p.color.withOpacity(0.85);
+      paint.color = p.color.withValues(alpha: 0.85);
       final px = p.x * size.width;
       final py = p.y * size.height;
 

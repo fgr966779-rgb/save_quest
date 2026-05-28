@@ -114,7 +114,7 @@ class _BlacklistScreenState extends ConsumerState<BlacklistScreen> {
                 children: blacklist.map((cat) {
                   return Chip(
                     label: Text(cat, style: TextStyle(color: AppColors.textPrimary(brightness), fontWeight: FontWeight.bold)),
-                    backgroundColor: AppColors.error.withOpacity(0.2),
+                    backgroundColor: AppColors.error.withValues(alpha: 0.2),
                     side: const BorderSide(color: AppColors.error),
                     deleteIconColor: AppColors.textPrimary(brightness),
                     onDeleted: () => _removeCategory(cat),

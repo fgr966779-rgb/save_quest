@@ -174,7 +174,7 @@ class _AppButtonState extends State<AppButton>
               : null,
           padding: const EdgeInsets.symmetric(horizontal: 20),
           decoration: BoxDecoration(
-            color: bgColor.withOpacity(effectiveOpacity),
+            color: bgColor.withValues(alpha: effectiveOpacity),
             borderRadius: BorderRadius.circular(12),
             border: borderColor != null
                 ? Border.all(color: borderColor!, width: 1)

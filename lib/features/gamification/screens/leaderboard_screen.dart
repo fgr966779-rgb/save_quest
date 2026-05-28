@@ -122,7 +122,7 @@ class _WeeklyTab extends ConsumerWidget {
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       child: SurfaceCard(
         padding: const EdgeInsets.all(16),
-        borderColor: AppColors.accent.withOpacity(0.3),
+        borderColor: AppColors.accent.withValues(alpha: 0.3),
         child: Row(
           children: [
             Expanded(
@@ -208,7 +208,7 @@ class _AllianceTab extends ConsumerWidget {
             padding: const EdgeInsets.all(16),
             child: SurfaceCard(
               padding: const EdgeInsets.all(12),
-              borderColor: AppColors.warning.withOpacity(0.3),
+              borderColor: AppColors.warning.withValues(alpha: 0.3),
               child: Row(
                 children: [
                   Icon(Icons.lock, size: 18, color: AppColors.warning),

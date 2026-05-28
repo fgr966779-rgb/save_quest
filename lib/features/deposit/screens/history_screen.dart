@@ -183,7 +183,7 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
           padding: const EdgeInsets.symmetric(vertical: 8.0),
           decoration: BoxDecoration(
             color: active
-                ? AppColors.accent.withOpacity(0.1)
+                ? AppColors.accent.withValues(alpha: 0.1)
                 : Colors.transparent,
             borderRadius: BorderRadius.circular(8.0),
             border: Border.all(

@@ -189,55 +189,53 @@ class _GoalASetupScreenState extends ConsumerState<GoalASetupScreen> {
                           return null;
                         },
                       ),
-                ),
-                const SizedBox(height: 20),
-                // Currency selector
-                Text(
-                  AppLocalizations.get(locale, 'onb_currency_label'),
-                  style: AppTypography.caption(
-                    context,
-                    color: AppColors.textSecondary(brightness),
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Row(
-                  children: ['₴', '\$', '€'].map((cur) {
-                    final isSelected = _selectedCurrency == cur;
-                    return Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 4.0),
-                      child: GestureDetector(
-                        onTap: () => setState(() => _selectedCurrency = cur),
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 20, vertical: 10),
-                          decoration: BoxDecoration(
-                            color: isSelected
-                                ? AppColors.accent.withOpacity(0.12)
-                                : Colors.transparent,
-                            borderRadius: BorderRadius.circular(8),
-                            border: Border.all(
-                              color: isSelected
-                                  ? AppColors.accent
-                                  : AppColors.border(brightness),
-                            ),
-                          ),
-                          child: Text(
-                            cur,
-                            style: AppTypography.body(
-                              context,
-                              color: isSelected ? AppColors.accent : null,
-                            ),
-                          ),
+                      const SizedBox(height: 20),
+                      // Currency selector
+                      Text(
+                        AppLocalizations.get(locale, 'onb_currency_label'),
+                        style: AppTypography.caption(
+                          context,
+                          color: AppColors.textSecondary(brightness),
                         ),
                       ),
-                    );
-                  }).toList(),
+                      const SizedBox(height: 8),
+                      Row(
+                        children: ['₴', '\$', '€'].map((cur) {
+                          final isSelected = _selectedCurrency == cur;
+                          return Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 4.0),
+                            child: GestureDetector(
+                              onTap: () => setState(() => _selectedCurrency = cur),
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 20, vertical: 10),
+                                decoration: BoxDecoration(
+                                  color: isSelected
+                                      ? AppColors.accent.withValues(alpha: 0.12)
+                                      : Colors.transparent,
+                                  borderRadius: BorderRadius.circular(8),
+                                  border: Border.all(
+                                    color: isSelected
+                                        ? AppColors.accent
+                                        : AppColors.border(brightness),
+                                  ),
+                                ),
+                                child: Text(
+                                  cur,
+                                  style: AppTypography.body(
+                                    context,
+                                    color: isSelected ? AppColors.accent : null,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          );
+                        }).toList(),
+                      ),
+                    ],
+                  ),
                 ),
-              ],
-            ),
-          ),
-        ),
-        const SizedBox(height: 40),
+                const SizedBox(height: 40),
                 // Template picker button
                 AppButton(
                   label: AppLocalizations.get(locale, 'template_btn'),
@@ -278,9 +276,9 @@ class _GoalASetupScreenState extends ConsumerState<GoalASetupScreen> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        _buildDot(isActive: false, brightness: brightness),
-        const SizedBox(width: 8),
         _buildDot(isActive: true, brightness: brightness),
+        const SizedBox(width: 8),
+        _buildDot(isActive: false, brightness: brightness),
         const SizedBox(width: 8),
         _buildDot(isActive: false, brightness: brightness),
         const SizedBox(width: 8),

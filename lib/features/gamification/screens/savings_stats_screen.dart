@@ -80,7 +80,7 @@ class SavingsStatsScreen extends ConsumerWidget {
                         Expanded(
                           child: _MetricCard(
                             title: t('stats_penalties'),
-                            value: MoneyUtils.formatKopecks(totalPenalties),
+                            value: formatAmount(totalPenalties),
                             unit: currency,
                             icon: Icons.gavel_rounded,
                             color: AppColors.error,
@@ -91,7 +91,7 @@ class SavingsStatsScreen extends ConsumerWidget {
                         Expanded(
                           child: _MetricCard(
                             title: t('stats_avoided'),
-                            value: MoneyUtils.formatKopecks(totalAvoided),
+                            value: formatAmount(totalAvoided),
                             unit: currency,
                             icon: Icons.block_rounded,
                             color: AppColors.success,
@@ -133,7 +133,7 @@ class SavingsStatsScreen extends ConsumerWidget {
                           child: _HabitBar(
                             name: p.habitName,
                             amount:
-                                MoneyUtils.formatKopecks(p.penaltyAmount),
+                                formatAmount(p.penaltyAmount),
                             fraction: maxAmount > 0
                                 ? p.penaltyAmount / maxAmount
                                 : 0,
@@ -352,7 +352,7 @@ class _WeeklyTrendChart extends StatelessWidget {
           horizontalInterval: maxVal > 0 ? _niceStep(maxVal) : 100,
           getDrawingHorizontalLine: (value) => FlLine(
             color: AppColors.border(Theme.of(context).brightness)
-                .withOpacity(0.5),
+                .withValues(alpha: 0.5),
             strokeWidth: 1,
           ),
         ),
@@ -414,7 +414,7 @@ class _WeeklyTrendChart extends StatelessWidget {
             ),
             belowBarData: BarAreaData(
               show: true,
-              color: AppColors.success.withOpacity(0.1),
+              color: AppColors.success.withValues(alpha: 0.1),
             ),
           ),
         ],

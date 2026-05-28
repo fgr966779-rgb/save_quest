@@ -196,7 +196,7 @@ class _LootboxScreenState extends ConsumerState<LootboxScreen> with TickerProvid
               ),
               if (_isOpening)
                 Container(
-                  color: Colors.black.withOpacity(0.5),
+                  color: Colors.black.withValues(alpha: 0.5),
                   child: Center(
                     child: Column(
                       mainAxisSize: MainAxisSize.min,

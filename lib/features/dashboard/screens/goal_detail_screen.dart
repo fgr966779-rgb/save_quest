@@ -338,9 +338,9 @@ class GoalDetailScreen extends ConsumerWidget {
                     width: 40.0,
                     height: 40.0,
                     decoration: BoxDecoration(
-                      color: accentColor.withOpacity(0.08),
+                      color: accentColor.withValues(alpha: 0.08),
                       shape: BoxShape.circle,
-                      border: Border.all(color: accentColor.withOpacity(0.4), width: 1.0),
+                      border: Border.all(color: accentColor.withValues(alpha: 0.4), width: 1.0),
                     ),
                     child: Icon(Icons.arrow_downward_rounded, color: accentColor, size: 20.0),
                   ),

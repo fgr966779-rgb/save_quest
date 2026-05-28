@@ -82,7 +82,7 @@ class _NotificationCenterScreenState
             ),
             IconButton(
               icon: Icon(Icons.delete_sweep_outlined,
-                  color: AppColors.error.withOpacity(0.7)),
+                  color: AppColors.error.withValues(alpha: 0.7)),
               tooltip: t('notif_delete_all'),
               onPressed: _deleteAll,
             ),
@@ -139,7 +139,7 @@ class _NotificationCenterScreenState
     return SurfaceCard(
       padding: const EdgeInsets.all(16),
       borderColor:
-          notif.isRead ? null : AppColors.accent.withOpacity(0.3),
+          notif.isRead ? null : AppColors.accent.withValues(alpha: 0.3),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -147,7 +147,7 @@ class _NotificationCenterScreenState
             width: 40,
             height: 40,
             decoration: BoxDecoration(
-              color: iconColor.withOpacity(0.1),
+              color: iconColor.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(10),
             ),
             child: Icon(iconData, color: iconColor, size: 20),
@@ -162,7 +162,7 @@ class _NotificationCenterScreenState
                     Expanded(
                       child: Text(
                         notif.title,
-                        style: AppTypography.body(context,
+                        style: AppTypography.body(context).copyWith(
                             fontWeight: notif.isRead
                                 ? FontWeight.w400
                                 : FontWeight.w600),

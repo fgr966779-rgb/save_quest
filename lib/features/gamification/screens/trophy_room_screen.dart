@@ -201,7 +201,7 @@ class TrophyRoomScreen extends ConsumerWidget {
                 width: 60.0,
                 height: 60.0,
                 decoration: BoxDecoration(
-                  color: isUnlocked ? rarityColor.withOpacity(0.1) : AppColors.surfaceMuted(brightness),
+                  color: isUnlocked ? rarityColor.withValues(alpha: 0.1) : AppColors.surfaceMuted(brightness),
                   shape: BoxShape.circle,
                   border: Border.all(
                     color: isUnlocked ? rarityColor : AppColors.border(brightness),
@@ -235,7 +235,7 @@ class TrophyRoomScreen extends ConsumerWidget {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 2.0),
               decoration: BoxDecoration(
-                color: isUnlocked ? rarityColor.withOpacity(0.1) : AppColors.surfaceMuted(brightness),
+                color: isUnlocked ? rarityColor.withValues(alpha: 0.1) : AppColors.surfaceMuted(brightness),
                 borderRadius: BorderRadius.circular(4.0),
               ),
               child: Text(
@@ -275,7 +275,7 @@ class TrophyRoomScreen extends ConsumerWidget {
                   width: 50.0,
                   height: 4.0,
                   decoration: BoxDecoration(
-                    color: AppColors.textSecondary(brightness).withOpacity(0.3),
+                    color: AppColors.textSecondary(brightness).withValues(alpha: 0.3),
                     borderRadius: BorderRadius.circular(2.0),
                   ),
                 ),

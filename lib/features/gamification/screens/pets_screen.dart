@@ -202,7 +202,7 @@ class PetsScreen extends ConsumerWidget {
                             width: 120,
                             height: 120,
                             decoration: BoxDecoration(
-                              color: moodColor.withOpacity(0.1),
+                              color: moodColor.withValues(alpha: 0.1),
                               borderRadius: BorderRadius.circular(24),
                             ),
                             child: Icon(
@@ -245,7 +245,7 @@ class PetsScreen extends ConsumerWidget {
                         padding: const EdgeInsets.symmetric(
                             horizontal: 12, vertical: 4),
                         decoration: BoxDecoration(
-                          color: moodColor.withOpacity(0.15),
+                          color: moodColor.withValues(alpha: 0.15),
                           borderRadius: BorderRadius.circular(20),
                         ),
                         child: Text(

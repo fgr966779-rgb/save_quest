@@ -164,7 +164,7 @@ class _AvatarBuilderScreenState extends ConsumerState<AvatarBuilderScreen> {
                 width: 3.0,
               ),
             ),
-            color: isSelected ? AppColors.accent.withOpacity(0.1) : Colors.transparent,
+            color: isSelected ? AppColors.accent.withValues(alpha: 0.1) : Colors.transparent,
           ),
           alignment: Alignment.center,
           child: Text(
@@ -424,7 +424,7 @@ class _AvatarBuilderScreenState extends ConsumerState<AvatarBuilderScreen> {
       } : () => _updateConfig(colorHex: hex),
       child: Container(
         decoration: BoxDecoration(
-          color: color.withOpacity(isUnlocked ? 0.8 : 0.2),
+          color: color.withValues(alpha: isUnlocked ? 0.8 : 0.2),
           shape: BoxShape.circle,
           border: Border.all(
             color: isSelected ? Colors.white : Colors.transparent,
