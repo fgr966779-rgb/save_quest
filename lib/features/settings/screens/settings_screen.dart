@@ -74,7 +74,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
         final ByteData? byteData =
             await image.toByteData(format: ui.ImageByteFormat.png);
 
-        if (byteData != null && mounted) {
+        if (byteData != null && mounted && context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(
@@ -743,6 +743,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       if (backup == null) return; // User cancelled picker
 
       // Show confirmation dialog
+      if (!mounted) return;
       final locale = ref.read(localeProvider);
       final brightness = Theme.of(context).brightness;
 
@@ -798,7 +799,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
         },
       );
 
-      if (confirmed != true || !mounted) return;
+      if (confirmed != true || !mounted || !context.mounted) return;
 
       // Restore
       setState(() => _isBackupBusy = true);
@@ -955,6 +956,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     final locale = ref.read(localeProvider);
     final resetWord = AppLocalizations.get(locale, 'settings_reset_word');
 
+    if (!context.mounted) return;
     final confirmed = await showDialog<bool>(
       context: context,
       barrierDismissible: false,
@@ -1128,7 +1130,6 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     HapticFeedback.lightImpact();
     final settings = ref.read(settingsServiceProvider);
     final locale = ref.read(localeProvider);
-    final brightness = Theme.of(context).brightness;
     final bio = BiometricService();
 
     if (val) {
