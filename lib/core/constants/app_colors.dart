@@ -22,6 +22,10 @@ class AppColors {
   static const Color darkBorder = Color(0xFF2A2A2E);
   static const Color darkBorderStrong = Color(0xFF3A3A3E);
 
+  // --- TERMINAL / SPECIAL ---
+  static const Color terminalCyan = Color(0xFF00E5FF);
+  static const Color digitalRust = Color(0xFF4A2C2C);
+
   // --- ACCENT (Single Color System) ---
   // A clean, modern indigo-violet that works for both modes
   static const Color accent = Color(0xFF6366F1);

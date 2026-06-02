@@ -144,7 +144,7 @@ class NeonAvatarPainter extends CustomPainter {
       // Digital "Rust" / Corrosion points
       if (dmg > 0.5) {
         final rustPaint = Paint()
-          ..color = const Color(0xFF4A2C2C).withValues(alpha: dmg * 0.7)
+          ..color = AppColors.digitalRust.withValues(alpha: dmg * 0.7)
           ..style = PaintingStyle.fill;
         for (int i = 0; i < (dmg * 20).toInt(); i++) {
           canvas.drawCircle(
