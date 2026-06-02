@@ -77,7 +77,6 @@ class _DailyBonusDialogState extends ConsumerState<DailyBonusDialog> {
     return dailyStateAsync.when(
       data: (state) {
         final streak = state.currentBonusStreak;
-        final amount = state.bonusAmountForToday;
 
         return Material(
           type: MaterialType.transparency,
