@@ -743,9 +743,9 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       if (backup == null) return; // User cancelled picker
 
       // Show confirmation dialog
+      if (!mounted) return;
       final locale = ref.read(localeProvider);
       final brightness = Theme.of(context).brightness;
-
       final confirmed = await showDialog<bool>(
         context: context,
         barrierDismissible: false,
@@ -805,6 +805,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
 
       await backupService.restoreBackup(backup);
 
+      if (!mounted) return;
       // Invalidate all providers to refresh UI
       ref.invalidate(goalsProvider);
       ref.invalidate(depositsProvider);
@@ -1128,7 +1129,6 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     HapticFeedback.lightImpact();
     final settings = ref.read(settingsServiceProvider);
     final locale = ref.read(localeProvider);
-    final brightness = Theme.of(context).brightness;
     final bio = BiometricService();
 
     if (val) {

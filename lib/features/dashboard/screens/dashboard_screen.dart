@@ -53,18 +53,19 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
         final state = next.value;
         if (state.shieldActivated && state.shieldDaysSaved > 0) {
           WidgetsBinding.instance.addPostFrameCallback((_) {
-            if (!context.mounted) return;
+            if (!mounted) return;
             ShieldActivationDialog.show(context, state.shieldDaysSaved);
             if (state.isBonusAvailable) {
               Future.delayed(const Duration(seconds: 2), () {
                 if (!mounted) return;
+                if (!context.mounted) return;
                 DailyBonusDialog.show(context);
               });
             }
           });
         } else if (state.isBonusAvailable) {
           WidgetsBinding.instance.addPostFrameCallback((_) {
-            if (!context.mounted) return;
+            if (!mounted) return;
             DailyBonusDialog.show(context);
           });
         }

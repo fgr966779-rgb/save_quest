@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../core/constants/app_colors.dart';
 import '../../../core/providers/providers.dart';
 
 class TerminalScreen extends ConsumerStatefulWidget {
@@ -196,7 +197,7 @@ class _TerminalScreenState extends ConsumerState<TerminalScreen> {
                         style: const TextStyle(
                           fontFamily: 'Courier', // Standard terminal font
                           fontSize: 14.0,
-                          color: Color(0xFF00E5FF), // Terminal cyan
+                          color: AppColors.terminalCyan,
                         ),
                       ),
                     );
@@ -214,7 +215,7 @@ class _TerminalScreenState extends ConsumerState<TerminalScreen> {
                       style: TextStyle(
                         fontFamily: 'Courier',
                         fontSize: 16.0,
-                        color: Color(0xFF00E5FF),
+                        color: AppColors.terminalCyan,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
@@ -227,7 +228,7 @@ class _TerminalScreenState extends ConsumerState<TerminalScreen> {
                           fontSize: 16.0,
                           color: Colors.white,
                         ),
-                        cursorColor: Color(0xFF00E5FF),
+                        cursorColor: AppColors.terminalCyan,
                         decoration: const InputDecoration(
                           border: InputBorder.none,
                           isDense: true,
