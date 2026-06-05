@@ -44,31 +44,16 @@ class _AnalyticsScreenState extends ConsumerState<AnalyticsScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            // Title
-            Text(
-              AppLocalizations.get(locale, 'analytics_title'),
-              style: AppTypography.h1(context),
-            ),
+            Text(AppLocalizations.get(locale, 'analytics_title'), style: AppTypography.h1(context)),
             const SizedBox(height: 4),
-            Text(
-              AppLocalizations.get(locale, 'analytics_subtitle'),
-              style: AppTypography.body(context),
-            ),
+            Text(AppLocalizations.get(locale, 'analytics_subtitle'), style: AppTypography.body(context)),
             const SizedBox(height: 24.0),
-
-            // Allocations breakdown (Pie chart)
             _buildAllocationBreakdownCard(goalsAsync, locale),
             const SizedBox(height: 20.0),
-
-            // Timeline Projections Graph (Line Chart)
             _buildTimelineChartCard(depositsAsync, locale),
             const SizedBox(height: 20.0),
-
-            // Projections breakdown card
             _buildProjectionsSummaryCard(goalsAsync, depositsAsync, locale),
             const SizedBox(height: 20.0),
-
-            // Penalty / Avoided Stats link
             AppButton(
               label: AppLocalizations.get(locale, 'stats_title'),
               onPressed: () => context.push('/savings-stats'),
@@ -88,14 +73,7 @@ class _AnalyticsScreenState extends ConsumerState<AnalyticsScreen> {
       error: (_, __) => const SizedBox.shrink(),
       data: (goals) {
         if (goals.isEmpty) return const SizedBox.shrink();
-
-        final int totalA = goals.firstWhere((g) => g.id == 'goal_a').currentAmount;
-        final int totalB = goals.firstWhere((g) => g.id == 'goal_b').currentAmount;
-        final int total = totalA + totalB;
-
-        final double percentA = total > 0 ? (totalA / total * 100) : 50;
-        final double percentB = total > 0 ? (totalB / total * 100) : 50;
-
+        final int total = goals.fold(0, (sum, g) => sum + g.currentAmount);
         final brightness = Theme.of(context).brightness;
 
         return SurfaceCard(
@@ -103,14 +81,10 @@ class _AnalyticsScreenState extends ConsumerState<AnalyticsScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Text(
-                AppLocalizations.get(locale, 'analytics_distribution'),
-                style: AppTypography.h3(context),
-              ),
+              Text(AppLocalizations.get(locale, 'analytics_distribution'), style: AppTypography.h3(context)),
               const SizedBox(height: 24.0),
               Row(
                 children: [
-                  // Pie Chart
                   SizedBox(
                     width: 110,
                     height: 110,
@@ -118,51 +92,27 @@ class _AnalyticsScreenState extends ConsumerState<AnalyticsScreen> {
                       PieChartData(
                         sectionsSpace: 4,
                         centerSpaceRadius: 28,
-                        sections: [
-                          PieChartSectionData(
-                            color: AppColors.goalA,
-                            value: percentA,
-                            title: '${percentA.toInt()}%',
+                        sections: goals.map((g) {
+                          final pct = total > 0 ? (g.currentAmount / total * 100) : (100 / goals.length);
+                          return PieChartSectionData(
+                            color: g.id == 'goal_a' ? AppColors.goalA : AppColors.goalB,
+                            value: pct,
+                            title: '${pct.toInt()}%',
                             radius: 20,
-                            titleStyle: TextStyle(
-                              fontSize: 10,
-                              fontWeight: FontWeight.w600,
-                              color: AppColors.textPrimary(brightness),
-                            ),
-                          ),
-                          PieChartSectionData(
-                            color: AppColors.goalB,
-                            value: percentB,
-                            title: '${percentB.toInt()}%',
-                            radius: 20,
-                            titleStyle: TextStyle(
-                              fontSize: 10,
-                              fontWeight: FontWeight.w600,
-                              color: AppColors.textPrimary(brightness),
-                            ),
-                          ),
-                        ],
+                            titleStyle: TextStyle(fontSize: 10, fontWeight: FontWeight.w600, color: AppColors.textPrimary(brightness)),
+                          );
+                        }).toList(),
                       ),
                     ),
                   ),
                   const SizedBox(width: 24.0),
-                  // Legends
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        _buildLegendItem(
-                          goals.firstWhere((g) => g.id == 'goal_a').name,
-                          '${formatAmount(totalA)} ${goals.first.currency}',
-                          AppColors.goalA,
-                        ),
-                        const SizedBox(height: 12.0),
-                        _buildLegendItem(
-                          goals.firstWhere((g) => g.id == 'goal_b').name,
-                          '${formatAmount(totalB)} ${goals.first.currency}',
-                          AppColors.goalB,
-                        ),
-                      ],
+                      children: goals.map((g) => Padding(
+                        padding: const EdgeInsets.only(bottom: 12.0),
+                        child: _buildLegendItem(g.name, '${formatAmount(g.currentAmount)} ${g.currency}', g.id == 'goal_a' ? AppColors.goalA : AppColors.goalB),
+                      )).toList(),
                     ),
                   ),
                 ],
@@ -177,26 +127,14 @@ class _AnalyticsScreenState extends ConsumerState<AnalyticsScreen> {
   Widget _buildLegendItem(String title, String amount, Color color) {
     return Row(
       children: [
-        Container(
-          width: 10.0,
-          height: 10.0,
-          decoration: BoxDecoration(color: color, shape: BoxShape.circle),
-        ),
+        Container(width: 10.0, height: 10.0, decoration: BoxDecoration(color: color, shape: BoxShape.circle)),
         const SizedBox(width: 8.0),
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                title,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: AppTypography.bodySmall(context),
-              ),
-              Text(
-                amount,
-                style: AppTypography.amount(context),
-              ),
+              Text(title, maxLines: 1, overflow: TextOverflow.ellipsis, style: AppTypography.bodySmall(context)),
+              Text(amount, style: AppTypography.amount(context)),
             ],
           ),
         ),
@@ -209,168 +147,51 @@ class _AnalyticsScreenState extends ConsumerState<AnalyticsScreen> {
       loading: () => const SkeletonList(itemCount: 2),
       error: (_, __) => const SizedBox.shrink(),
       data: (deposits) {
-        // Reverse list to show chronological progression
-        final timeline = deposits.reversed.toList();
+        return FutureBuilder<List<List<DepositAllocation>>>(
+          future: Future.wait(deposits.map((d) => ref.read(databaseProvider).getAllocationsForDeposit(d.id))),
+          builder: (context, snapshot) {
+            if (!snapshot.hasData) return const SizedBox.shrink();
+            final allAllocations = snapshot.data!;
+            final timeline = deposits.reversed.toList();
+            final allocationsReversed = allAllocations.reversed.toList();
 
-        // Calculate cumulative running values for A and B
-        List<FlSpot> spotsA = [];
-        List<FlSpot> spotsB = [];
+            Map<String, List<FlSpot>> goalSpots = {};
+            Map<String, double> cumulative = {};
 
-        double cumA = 0;
-        double cumB = 0;
-
-        spotsA.add(const FlSpot(0, 0));
-        spotsB.add(const FlSpot(0, 0));
-
-        for (int i = 0; i < timeline.length; i++) {
-          cumA += centsToDisplay(timeline[i].goalAAmount);
-          cumB += centsToDisplay(timeline[i].goalBAmount);
-          spotsA.add(FlSpot((i + 1).toDouble(), cumA));
-          spotsB.add(FlSpot((i + 1).toDouble(), cumB));
-        }
-
-        // Limit spot lengths for chart readability
-        if (spotsA.length > 8) {
-          spotsA = spotsA.sublist(spotsA.length - 8);
-          spotsB = spotsB.sublist(spotsB.length - 8);
-        }
-
-        final brightness = Theme.of(context).brightness;
-        final gridColor = AppColors.border(brightness).withValues(alpha: 0.15);
-
-        return SurfaceCard(
-          padding: const EdgeInsets.all(20.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Text(
-                AppLocalizations.get(locale, 'analytics_dynamics'),
-                style: AppTypography.h3(context),
-              ),
-              const SizedBox(height: 24.0),
-              SizedBox(
-                height: 180,
-                child: LineChart(
-                  LineChartData(
-                    gridData: FlGridData(
-                      show: true,
-                      drawVerticalLine: false,
-                      getDrawingHorizontalLine: (val) => FlLine(
-                        color: gridColor,
-                        strokeWidth: 1.0,
-                      ),
-                    ),
-                    titlesData: FlTitlesData(show: false),
-                    borderData: FlBorderData(show: false),
-                    lineBarsData: [
-                      // Goal A progress line
-                      LineChartBarData(
-                        spots: spotsA,
-                        isCurved: true,
-                        color: AppColors.goalA,
-                        barWidth: 2.5,
-                        dotData: FlDotData(show: spotsA.length < 5),
-                        belowBarData: BarAreaData(
-                          show: true,
-                          color: AppColors.goalA.withValues(alpha: 0.06),
-                        ),
-                      ),
-                      // Goal B progress line
-                      LineChartBarData(
-                        spots: spotsB,
-                        isCurved: true,
-                        color: AppColors.goalB,
-                        barWidth: 2.5,
-                        dotData: FlDotData(show: spotsB.length < 5),
-                        belowBarData: BarAreaData(
-                          show: true,
-                          color: AppColors.goalB.withValues(alpha: 0.06),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ],
-          ),
-        );
-      },
-    );
-  }
-
-  Widget _buildProjectionsSummaryCard(
-    AsyncValue<List<Goal>> goalsAsync,
-    AsyncValue<List<Deposit>> depositsAsync,
-    String locale,
-  ) {
-    return goalsAsync.when(
-      loading: () => const SizedBox.shrink(),
-      error: (_, __) => const SizedBox.shrink(),
-      data: (goals) {
-        if (goals.length < 2) return const SizedBox.shrink();
-
-        final goalA = goals.firstWhere((g) => g.id == 'goal_a');
-        final goalB = goals.firstWhere((g) => g.id == 'goal_b');
-
-        return depositsAsync.when(
-          loading: () => const SizedBox.shrink(),
-          error: (_, __) => const SizedBox.shrink(),
-          data: (deposits) {
-            double totalAWeekly = 0;
-            double totalBWeekly = 0;
-
-            final now = DateTime.now();
-            final oneWeekAgo = now.subtract(const Duration(days: 7));
-
-            for (var dep in deposits) {
-              if (dep.createdAt.isAfter(oneWeekAgo)) {
-                totalAWeekly += centsToDisplay(dep.goalAAmount);
-                totalBWeekly += centsToDisplay(dep.goalBAmount);
+            for (int i = 0; i < timeline.length; i++) {
+              for (var alloc in allocationsReversed[i]) {
+                cumulative[alloc.goalId] = (cumulative[alloc.goalId] ?? 0) + centsToDisplay(alloc.amount);
+                goalSpots.putIfAbsent(alloc.goalId, () => [const FlSpot(0, 0)]).add(FlSpot((i + 1).toDouble(), cumulative[alloc.goalId]!));
               }
             }
 
-            final double remainingA =
-                (centsToDisplay(goalA.targetAmount) - centsToDisplay(goalA.currentAmount))
-                    .clamp(0, double.infinity);
-            final double remainingB =
-                (centsToDisplay(goalB.targetAmount) - centsToDisplay(goalB.currentAmount))
-                    .clamp(0, double.infinity);
-
-            final double rateA = totalAWeekly / 7.0;
-            final double rateB = totalBWeekly / 7.0;
-
-            final String daysRemainingA =
-                rateA > 0 ? '${(remainingA / rateA).ceil()}${AppLocalizations.get(locale, 'daily_bonus_days')}' : '∞';
-            final String daysRemainingB =
-                rateB > 0 ? '${(remainingB / rateB).ceil()}${AppLocalizations.get(locale, 'daily_bonus_days')}' : '∞';
+            final brightness = Theme.of(context).brightness;
+            final gridColor = AppColors.border(brightness).withValues(alpha: 0.15);
 
             return SurfaceCard(
-              padding: const EdgeInsets.all(18.0),
+              padding: const EdgeInsets.all(20.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  Text(
-                    AppLocalizations.get(locale, 'analytics_projection'),
-                    style: AppTypography.h3(context),
-                  ),
-                  const SizedBox(height: 16.0),
-                  _buildProjectionSummaryRow(
-                    goalA.name,
-                    '${totalAWeekly.toStringAsFixed(2)} ${goalA.currency}',
-                    daysRemainingA,
-                    AppColors.goalA,
-                    locale,
-                  ),
-                  Divider(
-                    color: AppColors.border(Theme.of(context).brightness),
-                    height: 24.0,
-                  ),
-                  _buildProjectionSummaryRow(
-                    goalB.name,
-                    '${totalBWeekly.toStringAsFixed(2)} ${goalB.currency}',
-                    daysRemainingB,
-                    AppColors.goalB,
-                    locale,
+                  Text(AppLocalizations.get(locale, 'analytics_dynamics'), style: AppTypography.h3(context)),
+                  const SizedBox(height: 24.0),
+                  SizedBox(
+                    height: 180,
+                    child: LineChart(
+                      LineChartData(
+                        gridData: FlGridData(show: true, drawVerticalLine: false, getDrawingHorizontalLine: (val) => FlLine(color: gridColor, strokeWidth: 1.0)),
+                        titlesData: FlTitlesData(show: false),
+                        borderData: FlBorderData(show: false),
+                        lineBarsData: goalSpots.entries.map((e) => LineChartBarData(
+                          spots: e.value.length > 8 ? e.value.sublist(e.value.length - 8) : e.value,
+                          isCurved: true,
+                          color: e.key == 'goal_a' ? AppColors.goalA : AppColors.goalB,
+                          barWidth: 2.5,
+                          dotData: FlDotData(show: e.value.length < 5),
+                          belowBarData: BarAreaData(show: true, color: (e.key == 'goal_a' ? AppColors.goalA : AppColors.goalB).withValues(alpha: 0.06)),
+                        )).toList(),
+                      ),
+                    ),
                   ),
                 ],
               ),
@@ -381,13 +202,62 @@ class _AnalyticsScreenState extends ConsumerState<AnalyticsScreen> {
     );
   }
 
-  Widget _buildProjectionSummaryRow(
-    String goalName,
-    String weeklySum,
-    String expectedDays,
-    Color accentColor,
-    String locale,
-  ) {
+  Widget _buildProjectionsSummaryCard(AsyncValue<List<Goal>> goalsAsync, AsyncValue<List<Deposit>> depositsAsync, String locale) {
+    return goalsAsync.when(
+      loading: () => const SizedBox.shrink(),
+      error: (_, __) => const SizedBox.shrink(),
+      data: (goals) {
+        return depositsAsync.when(
+          loading: () => const SizedBox.shrink(),
+          error: (_, __) => const SizedBox.shrink(),
+          data: (deposits) {
+            return FutureBuilder<List<List<DepositAllocation>>>(
+              future: Future.wait(deposits.map((d) => ref.read(databaseProvider).getAllocationsForDeposit(d.id))),
+              builder: (context, snapshot) {
+                if (!snapshot.hasData) return const SizedBox.shrink();
+                final allAllocations = snapshot.data!;
+                final oneWeekAgo = DateTime.now().subtract(const Duration(days: 7));
+
+                Map<String, double> weeklyTotals = {};
+                for (int i = 0; i < deposits.length; i++) {
+                  if (deposits[i].createdAt.isAfter(oneWeekAgo)) {
+                    for (var alloc in allAllocations[i]) {
+                      weeklyTotals[alloc.goalId] = (weeklyTotals[alloc.goalId] ?? 0) + centsToDisplay(alloc.amount);
+                    }
+                  }
+                }
+
+                return SurfaceCard(
+                  padding: const EdgeInsets.all(18.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Text(AppLocalizations.get(locale, 'analytics_projection'), style: AppTypography.h3(context)),
+                      const SizedBox(height: 16.0),
+                      ...goals.map((g) {
+                        final totalWeekly = weeklyTotals[g.id] ?? 0;
+                        final remaining = (centsToDisplay(g.targetAmount) - centsToDisplay(g.currentAmount)).clamp(0.0, double.infinity);
+                        final rate = totalWeekly / 7.0;
+                        final daysRemaining = rate > 0 ? '${(remaining / rate).ceil()}${AppLocalizations.get(locale, 'daily_bonus_days')}' : '∞';
+                        return Column(
+                          children: [
+                            _buildProjectionSummaryRow(g.name, '${totalWeekly.toStringAsFixed(2)} ${g.currency}', daysRemaining, g.id == 'goal_a' ? AppColors.goalA : AppColors.goalB, locale),
+                            if (g != goals.last) Divider(color: AppColors.border(Theme.of(context).brightness), height: 24.0),
+                          ],
+                        );
+                      }).toList(),
+                    ],
+                  ),
+                );
+              },
+            );
+          },
+        );
+      },
+    );
+  }
+
+  Widget _buildProjectionSummaryRow(String goalName, String weeklySum, String expectedDays, Color accentColor, String locale) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
@@ -395,32 +265,18 @@ class _AnalyticsScreenState extends ConsumerState<AnalyticsScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                goalName,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: AppTypography.bodySmall(context, color: accentColor),
-              ),
+              Text(goalName, maxLines: 1, overflow: TextOverflow.ellipsis, style: AppTypography.bodySmall(context, color: accentColor)),
               const SizedBox(height: 3.0),
-              Text(
-                '${AppLocalizations.get(locale, 'analytics_weekly_sum')}$weeklySum',
-                style: AppTypography.caption(context),
-              ),
+              Text('${AppLocalizations.get(locale, 'analytics_weekly_sum')}$weeklySum', style: AppTypography.caption(context)),
             ],
           ),
         ),
         Column(
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
-            Text(
-              AppLocalizations.get(locale, 'analytics_to_100'),
-              style: AppTypography.overline(context),
-            ),
+            Text(AppLocalizations.get(locale, 'analytics_to_100'), style: AppTypography.overline(context)),
             const SizedBox(height: 2.0),
-            Text(
-              expectedDays,
-              style: AppTypography.metric(context),
-            ),
+            Text(expectedDays, style: AppTypography.metric(context)),
           ],
         ),
       ],

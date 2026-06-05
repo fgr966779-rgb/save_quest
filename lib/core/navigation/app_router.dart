@@ -4,8 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/providers.dart';
 import '../../features/onboarding/screens/splash_screen.dart';
 import '../../features/onboarding/screens/welcome_screen.dart';
-import '../../features/onboarding/screens/goal_a_setup_screen.dart';
-import '../../features/onboarding/screens/goal_b_setup_screen.dart';
+import '../../features/onboarding/screens/goal_setup_screen.dart';
 import '../../features/onboarding/screens/setup_finish_screen.dart';
 import '../../features/dashboard/screens/dashboard_screen.dart';
 import '../../features/dashboard/screens/goal_detail_screen.dart';
@@ -74,11 +73,21 @@ final routerProvider = Provider<GoRouter>((ref) {
       ),
       GoRoute(
         path: '/onboarding-a',
-        builder: (context, state) => const GoalASetupScreen(),
+        builder: (context, state) => const GoalSetupScreen(
+          goalIndex: 0,
+          totalGoals: 2,
+          nextPath: '/onboarding-b',
+          backPath: '/welcome',
+        ),
       ),
       GoRoute(
         path: '/onboarding-b',
-        builder: (context, state) => const GoalBSetupScreen(),
+        builder: (context, state) => const GoalSetupScreen(
+          goalIndex: 1,
+          totalGoals: 2,
+          nextPath: '/onboarding-finish',
+          backPath: '/onboarding-a',
+        ),
       ),
       GoRoute(
         path: '/onboarding-finish',

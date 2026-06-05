@@ -415,18 +415,6 @@ class $DepositsTable extends Deposits with TableInfo<$DepositsTable, Deposit> {
   late final GeneratedColumn<int> amount = GeneratedColumn<int>(
       'amount', aliasedName, false,
       type: DriftSqlType.int, requiredDuringInsert: true);
-  static const VerificationMeta _goalAAmountMeta =
-      const VerificationMeta('goalAAmount');
-  @override
-  late final GeneratedColumn<int> goalAAmount = GeneratedColumn<int>(
-      'goal_a_amount', aliasedName, false,
-      type: DriftSqlType.int, requiredDuringInsert: true);
-  static const VerificationMeta _goalBAmountMeta =
-      const VerificationMeta('goalBAmount');
-  @override
-  late final GeneratedColumn<int> goalBAmount = GeneratedColumn<int>(
-      'goal_b_amount', aliasedName, false,
-      type: DriftSqlType.int, requiredDuringInsert: true);
   static const VerificationMeta _noteMeta = const VerificationMeta('note');
   @override
   late final GeneratedColumn<String> note = GeneratedColumn<String>(
@@ -450,7 +438,7 @@ class $DepositsTable extends Deposits with TableInfo<$DepositsTable, Deposit> {
       defaultValue: const Constant(false));
   @override
   List<GeneratedColumn> get $columns =>
-      [id, amount, goalAAmount, goalBAmount, note, createdAt, isDeleted];
+      [id, amount, note, createdAt, isDeleted];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
@@ -471,22 +459,6 @@ class $DepositsTable extends Deposits with TableInfo<$DepositsTable, Deposit> {
           amount.isAcceptableOrUnknown(data['amount']!, _amountMeta));
     } else if (isInserting) {
       context.missing(_amountMeta);
-    }
-    if (data.containsKey('goal_a_amount')) {
-      context.handle(
-          _goalAAmountMeta,
-          goalAAmount.isAcceptableOrUnknown(
-              data['goal_a_amount']!, _goalAAmountMeta));
-    } else if (isInserting) {
-      context.missing(_goalAAmountMeta);
-    }
-    if (data.containsKey('goal_b_amount')) {
-      context.handle(
-          _goalBAmountMeta,
-          goalBAmount.isAcceptableOrUnknown(
-              data['goal_b_amount']!, _goalBAmountMeta));
-    } else if (isInserting) {
-      context.missing(_goalBAmountMeta);
     }
     if (data.containsKey('note')) {
       context.handle(
@@ -515,10 +487,6 @@ class $DepositsTable extends Deposits with TableInfo<$DepositsTable, Deposit> {
           .read(DriftSqlType.string, data['${effectivePrefix}id'])!,
       amount: attachedDatabase.typeMapping
           .read(DriftSqlType.int, data['${effectivePrefix}amount'])!,
-      goalAAmount: attachedDatabase.typeMapping
-          .read(DriftSqlType.int, data['${effectivePrefix}goal_a_amount'])!,
-      goalBAmount: attachedDatabase.typeMapping
-          .read(DriftSqlType.int, data['${effectivePrefix}goal_b_amount'])!,
       note: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}note']),
       createdAt: attachedDatabase.typeMapping
@@ -539,20 +507,12 @@ class Deposit extends DataClass implements Insertable<Deposit> {
 
   /// Total deposit amount in minor units (kopecks).
   final int amount;
-
-  /// Amount allocated to Goal A in minor units (kopecks).
-  final int goalAAmount;
-
-  /// Amount allocated to Goal B in minor units (kopecks).
-  final int goalBAmount;
   final String? note;
   final DateTime createdAt;
   final bool isDeleted;
   const Deposit(
       {required this.id,
       required this.amount,
-      required this.goalAAmount,
-      required this.goalBAmount,
       this.note,
       required this.createdAt,
       required this.isDeleted});
@@ -561,8 +521,6 @@ class Deposit extends DataClass implements Insertable<Deposit> {
     final map = <String, Expression>{};
     map['id'] = Variable<String>(id);
     map['amount'] = Variable<int>(amount);
-    map['goal_a_amount'] = Variable<int>(goalAAmount);
-    map['goal_b_amount'] = Variable<int>(goalBAmount);
     if (!nullToAbsent || note != null) {
       map['note'] = Variable<String>(note);
     }
@@ -575,8 +533,6 @@ class Deposit extends DataClass implements Insertable<Deposit> {
     return DepositsCompanion(
       id: Value(id),
       amount: Value(amount),
-      goalAAmount: Value(goalAAmount),
-      goalBAmount: Value(goalBAmount),
       note: note == null && nullToAbsent ? const Value.absent() : Value(note),
       createdAt: Value(createdAt),
       isDeleted: Value(isDeleted),
@@ -589,8 +545,6 @@ class Deposit extends DataClass implements Insertable<Deposit> {
     return Deposit(
       id: serializer.fromJson<String>(json['id']),
       amount: serializer.fromJson<int>(json['amount']),
-      goalAAmount: serializer.fromJson<int>(json['goalAAmount']),
-      goalBAmount: serializer.fromJson<int>(json['goalBAmount']),
       note: serializer.fromJson<String?>(json['note']),
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
       isDeleted: serializer.fromJson<bool>(json['isDeleted']),
@@ -602,8 +556,6 @@ class Deposit extends DataClass implements Insertable<Deposit> {
     return <String, dynamic>{
       'id': serializer.toJson<String>(id),
       'amount': serializer.toJson<int>(amount),
-      'goalAAmount': serializer.toJson<int>(goalAAmount),
-      'goalBAmount': serializer.toJson<int>(goalBAmount),
       'note': serializer.toJson<String?>(note),
       'createdAt': serializer.toJson<DateTime>(createdAt),
       'isDeleted': serializer.toJson<bool>(isDeleted),
@@ -613,16 +565,12 @@ class Deposit extends DataClass implements Insertable<Deposit> {
   Deposit copyWith(
           {String? id,
           int? amount,
-          int? goalAAmount,
-          int? goalBAmount,
           Value<String?> note = const Value.absent(),
           DateTime? createdAt,
           bool? isDeleted}) =>
       Deposit(
         id: id ?? this.id,
         amount: amount ?? this.amount,
-        goalAAmount: goalAAmount ?? this.goalAAmount,
-        goalBAmount: goalBAmount ?? this.goalBAmount,
         note: note.present ? note.value : this.note,
         createdAt: createdAt ?? this.createdAt,
         isDeleted: isDeleted ?? this.isDeleted,
@@ -631,10 +579,6 @@ class Deposit extends DataClass implements Insertable<Deposit> {
     return Deposit(
       id: data.id.present ? data.id.value : this.id,
       amount: data.amount.present ? data.amount.value : this.amount,
-      goalAAmount:
-          data.goalAAmount.present ? data.goalAAmount.value : this.goalAAmount,
-      goalBAmount:
-          data.goalBAmount.present ? data.goalBAmount.value : this.goalBAmount,
       note: data.note.present ? data.note.value : this.note,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
       isDeleted: data.isDeleted.present ? data.isDeleted.value : this.isDeleted,
@@ -646,8 +590,6 @@ class Deposit extends DataClass implements Insertable<Deposit> {
     return (StringBuffer('Deposit(')
           ..write('id: $id, ')
           ..write('amount: $amount, ')
-          ..write('goalAAmount: $goalAAmount, ')
-          ..write('goalBAmount: $goalBAmount, ')
           ..write('note: $note, ')
           ..write('createdAt: $createdAt, ')
           ..write('isDeleted: $isDeleted')
@@ -656,16 +598,13 @@ class Deposit extends DataClass implements Insertable<Deposit> {
   }
 
   @override
-  int get hashCode => Object.hash(
-      id, amount, goalAAmount, goalBAmount, note, createdAt, isDeleted);
+  int get hashCode => Object.hash(id, amount, note, createdAt, isDeleted);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other is Deposit &&
           other.id == this.id &&
           other.amount == this.amount &&
-          other.goalAAmount == this.goalAAmount &&
-          other.goalBAmount == this.goalBAmount &&
           other.note == this.note &&
           other.createdAt == this.createdAt &&
           other.isDeleted == this.isDeleted);
@@ -674,8 +613,6 @@ class Deposit extends DataClass implements Insertable<Deposit> {
 class DepositsCompanion extends UpdateCompanion<Deposit> {
   final Value<String> id;
   final Value<int> amount;
-  final Value<int> goalAAmount;
-  final Value<int> goalBAmount;
   final Value<String?> note;
   final Value<DateTime> createdAt;
   final Value<bool> isDeleted;
@@ -683,8 +620,6 @@ class DepositsCompanion extends UpdateCompanion<Deposit> {
   const DepositsCompanion({
     this.id = const Value.absent(),
     this.amount = const Value.absent(),
-    this.goalAAmount = const Value.absent(),
-    this.goalBAmount = const Value.absent(),
     this.note = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.isDeleted = const Value.absent(),
@@ -693,22 +628,16 @@ class DepositsCompanion extends UpdateCompanion<Deposit> {
   DepositsCompanion.insert({
     required String id,
     required int amount,
-    required int goalAAmount,
-    required int goalBAmount,
     this.note = const Value.absent(),
     required DateTime createdAt,
     this.isDeleted = const Value.absent(),
     this.rowid = const Value.absent(),
   })  : id = Value(id),
         amount = Value(amount),
-        goalAAmount = Value(goalAAmount),
-        goalBAmount = Value(goalBAmount),
         createdAt = Value(createdAt);
   static Insertable<Deposit> custom({
     Expression<String>? id,
     Expression<int>? amount,
-    Expression<int>? goalAAmount,
-    Expression<int>? goalBAmount,
     Expression<String>? note,
     Expression<DateTime>? createdAt,
     Expression<bool>? isDeleted,
@@ -717,8 +646,6 @@ class DepositsCompanion extends UpdateCompanion<Deposit> {
     return RawValuesInsertable({
       if (id != null) 'id': id,
       if (amount != null) 'amount': amount,
-      if (goalAAmount != null) 'goal_a_amount': goalAAmount,
-      if (goalBAmount != null) 'goal_b_amount': goalBAmount,
       if (note != null) 'note': note,
       if (createdAt != null) 'created_at': createdAt,
       if (isDeleted != null) 'is_deleted': isDeleted,
@@ -729,8 +656,6 @@ class DepositsCompanion extends UpdateCompanion<Deposit> {
   DepositsCompanion copyWith(
       {Value<String>? id,
       Value<int>? amount,
-      Value<int>? goalAAmount,
-      Value<int>? goalBAmount,
       Value<String?>? note,
       Value<DateTime>? createdAt,
       Value<bool>? isDeleted,
@@ -738,8 +663,6 @@ class DepositsCompanion extends UpdateCompanion<Deposit> {
     return DepositsCompanion(
       id: id ?? this.id,
       amount: amount ?? this.amount,
-      goalAAmount: goalAAmount ?? this.goalAAmount,
-      goalBAmount: goalBAmount ?? this.goalBAmount,
       note: note ?? this.note,
       createdAt: createdAt ?? this.createdAt,
       isDeleted: isDeleted ?? this.isDeleted,
@@ -755,12 +678,6 @@ class DepositsCompanion extends UpdateCompanion<Deposit> {
     }
     if (amount.present) {
       map['amount'] = Variable<int>(amount.value);
-    }
-    if (goalAAmount.present) {
-      map['goal_a_amount'] = Variable<int>(goalAAmount.value);
-    }
-    if (goalBAmount.present) {
-      map['goal_b_amount'] = Variable<int>(goalBAmount.value);
     }
     if (note.present) {
       map['note'] = Variable<String>(note.value);
@@ -782,11 +699,282 @@ class DepositsCompanion extends UpdateCompanion<Deposit> {
     return (StringBuffer('DepositsCompanion(')
           ..write('id: $id, ')
           ..write('amount: $amount, ')
-          ..write('goalAAmount: $goalAAmount, ')
-          ..write('goalBAmount: $goalBAmount, ')
           ..write('note: $note, ')
           ..write('createdAt: $createdAt, ')
           ..write('isDeleted: $isDeleted, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $DepositAllocationsTable extends DepositAllocations
+    with TableInfo<$DepositAllocationsTable, DepositAllocation> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $DepositAllocationsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+      'id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _depositIdMeta =
+      const VerificationMeta('depositId');
+  @override
+  late final GeneratedColumn<String> depositId = GeneratedColumn<String>(
+      'deposit_id', aliasedName, false,
+      type: DriftSqlType.string,
+      requiredDuringInsert: true,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('REFERENCES deposits (id)'));
+  static const VerificationMeta _goalIdMeta = const VerificationMeta('goalId');
+  @override
+  late final GeneratedColumn<String> goalId = GeneratedColumn<String>(
+      'goal_id', aliasedName, false,
+      type: DriftSqlType.string,
+      requiredDuringInsert: true,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('REFERENCES goals (id)'));
+  static const VerificationMeta _amountMeta = const VerificationMeta('amount');
+  @override
+  late final GeneratedColumn<int> amount = GeneratedColumn<int>(
+      'amount', aliasedName, false,
+      type: DriftSqlType.int, requiredDuringInsert: true);
+  @override
+  List<GeneratedColumn> get $columns => [id, depositId, goalId, amount];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'deposit_allocations';
+  @override
+  VerificationContext validateIntegrity(Insertable<DepositAllocation> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('deposit_id')) {
+      context.handle(_depositIdMeta,
+          depositId.isAcceptableOrUnknown(data['deposit_id']!, _depositIdMeta));
+    } else if (isInserting) {
+      context.missing(_depositIdMeta);
+    }
+    if (data.containsKey('goal_id')) {
+      context.handle(_goalIdMeta,
+          goalId.isAcceptableOrUnknown(data['goal_id']!, _goalIdMeta));
+    } else if (isInserting) {
+      context.missing(_goalIdMeta);
+    }
+    if (data.containsKey('amount')) {
+      context.handle(_amountMeta,
+          amount.isAcceptableOrUnknown(data['amount']!, _amountMeta));
+    } else if (isInserting) {
+      context.missing(_amountMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  DepositAllocation map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return DepositAllocation(
+      id: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}id'])!,
+      depositId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}deposit_id'])!,
+      goalId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}goal_id'])!,
+      amount: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}amount'])!,
+    );
+  }
+
+  @override
+  $DepositAllocationsTable createAlias(String alias) {
+    return $DepositAllocationsTable(attachedDatabase, alias);
+  }
+}
+
+class DepositAllocation extends DataClass
+    implements Insertable<DepositAllocation> {
+  final String id;
+  final String depositId;
+  final String goalId;
+  final int amount;
+  const DepositAllocation(
+      {required this.id,
+      required this.depositId,
+      required this.goalId,
+      required this.amount});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['deposit_id'] = Variable<String>(depositId);
+    map['goal_id'] = Variable<String>(goalId);
+    map['amount'] = Variable<int>(amount);
+    return map;
+  }
+
+  DepositAllocationsCompanion toCompanion(bool nullToAbsent) {
+    return DepositAllocationsCompanion(
+      id: Value(id),
+      depositId: Value(depositId),
+      goalId: Value(goalId),
+      amount: Value(amount),
+    );
+  }
+
+  factory DepositAllocation.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return DepositAllocation(
+      id: serializer.fromJson<String>(json['id']),
+      depositId: serializer.fromJson<String>(json['depositId']),
+      goalId: serializer.fromJson<String>(json['goalId']),
+      amount: serializer.fromJson<int>(json['amount']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'depositId': serializer.toJson<String>(depositId),
+      'goalId': serializer.toJson<String>(goalId),
+      'amount': serializer.toJson<int>(amount),
+    };
+  }
+
+  DepositAllocation copyWith(
+          {String? id, String? depositId, String? goalId, int? amount}) =>
+      DepositAllocation(
+        id: id ?? this.id,
+        depositId: depositId ?? this.depositId,
+        goalId: goalId ?? this.goalId,
+        amount: amount ?? this.amount,
+      );
+  DepositAllocation copyWithCompanion(DepositAllocationsCompanion data) {
+    return DepositAllocation(
+      id: data.id.present ? data.id.value : this.id,
+      depositId: data.depositId.present ? data.depositId.value : this.depositId,
+      goalId: data.goalId.present ? data.goalId.value : this.goalId,
+      amount: data.amount.present ? data.amount.value : this.amount,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('DepositAllocation(')
+          ..write('id: $id, ')
+          ..write('depositId: $depositId, ')
+          ..write('goalId: $goalId, ')
+          ..write('amount: $amount')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(id, depositId, goalId, amount);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is DepositAllocation &&
+          other.id == this.id &&
+          other.depositId == this.depositId &&
+          other.goalId == this.goalId &&
+          other.amount == this.amount);
+}
+
+class DepositAllocationsCompanion extends UpdateCompanion<DepositAllocation> {
+  final Value<String> id;
+  final Value<String> depositId;
+  final Value<String> goalId;
+  final Value<int> amount;
+  final Value<int> rowid;
+  const DepositAllocationsCompanion({
+    this.id = const Value.absent(),
+    this.depositId = const Value.absent(),
+    this.goalId = const Value.absent(),
+    this.amount = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  DepositAllocationsCompanion.insert({
+    required String id,
+    required String depositId,
+    required String goalId,
+    required int amount,
+    this.rowid = const Value.absent(),
+  })  : id = Value(id),
+        depositId = Value(depositId),
+        goalId = Value(goalId),
+        amount = Value(amount);
+  static Insertable<DepositAllocation> custom({
+    Expression<String>? id,
+    Expression<String>? depositId,
+    Expression<String>? goalId,
+    Expression<int>? amount,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (depositId != null) 'deposit_id': depositId,
+      if (goalId != null) 'goal_id': goalId,
+      if (amount != null) 'amount': amount,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  DepositAllocationsCompanion copyWith(
+      {Value<String>? id,
+      Value<String>? depositId,
+      Value<String>? goalId,
+      Value<int>? amount,
+      Value<int>? rowid}) {
+    return DepositAllocationsCompanion(
+      id: id ?? this.id,
+      depositId: depositId ?? this.depositId,
+      goalId: goalId ?? this.goalId,
+      amount: amount ?? this.amount,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (depositId.present) {
+      map['deposit_id'] = Variable<String>(depositId.value);
+    }
+    if (goalId.present) {
+      map['goal_id'] = Variable<String>(goalId.value);
+    }
+    if (amount.present) {
+      map['amount'] = Variable<int>(amount.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('DepositAllocationsCompanion(')
+          ..write('id: $id, ')
+          ..write('depositId: $depositId, ')
+          ..write('goalId: $goalId, ')
+          ..write('amount: $amount, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -4842,6 +5030,8 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
   late final $GoalsTable goals = $GoalsTable(this);
   late final $DepositsTable deposits = $DepositsTable(this);
+  late final $DepositAllocationsTable depositAllocations =
+      $DepositAllocationsTable(this);
   late final $UserProfilesTable userProfiles = $UserProfilesTable(this);
   late final $UnlockedAchievementsTable unlockedAchievements =
       $UnlockedAchievementsTable(this);
@@ -4866,6 +5056,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   List<DatabaseSchemaEntity> get allSchemaEntities => [
         goals,
         deposits,
+        depositAllocations,
         userProfiles,
         unlockedAchievements,
         unlockedSkills,
@@ -4903,6 +5094,28 @@ typedef $$GoalsTableUpdateCompanionBuilder = GoalsCompanion Function({
   Value<int> rowid,
 });
 
+final class $$GoalsTableReferences
+    extends BaseReferences<_$AppDatabase, $GoalsTable, Goal> {
+  $$GoalsTableReferences(super.$_db, super.$_table, super.$_typedResult);
+
+  static MultiTypedResultKey<$DepositAllocationsTable, List<DepositAllocation>>
+      _depositAllocationsRefsTable(_$AppDatabase db) =>
+          MultiTypedResultKey.fromTable(db.depositAllocations,
+              aliasName: $_aliasNameGenerator(
+                  db.goals.id, db.depositAllocations.goalId));
+
+  $$DepositAllocationsTableProcessedTableManager get depositAllocationsRefs {
+    final manager =
+        $$DepositAllocationsTableTableManager($_db, $_db.depositAllocations)
+            .filter((f) => f.goalId.id.sqlEquals($_itemColumn<String>('id')!));
+
+    final cache =
+        $_typedResult.readTableOrNull(_depositAllocationsRefsTable($_db));
+    return ProcessedTableManager(
+        manager.$state.copyWith(prefetchedData: cache));
+  }
+}
+
 class $$GoalsTableFilterComposer extends Composer<_$AppDatabase, $GoalsTable> {
   $$GoalsTableFilterComposer({
     required super.$db,
@@ -4931,6 +5144,27 @@ class $$GoalsTableFilterComposer extends Composer<_$AppDatabase, $GoalsTable> {
 
   ColumnFilters<DateTime> get createdAt => $composableBuilder(
       column: $table.createdAt, builder: (column) => ColumnFilters(column));
+
+  Expression<bool> depositAllocationsRefs(
+      Expression<bool> Function($$DepositAllocationsTableFilterComposer f) f) {
+    final $$DepositAllocationsTableFilterComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.id,
+        referencedTable: $db.depositAllocations,
+        getReferencedColumn: (t) => t.goalId,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$DepositAllocationsTableFilterComposer(
+              $db: $db,
+              $table: $db.depositAllocations,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return f(composer);
+  }
 }
 
 class $$GoalsTableOrderingComposer
@@ -4995,6 +5229,28 @@ class $$GoalsTableAnnotationComposer
 
   GeneratedColumn<DateTime> get createdAt =>
       $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  Expression<T> depositAllocationsRefs<T extends Object>(
+      Expression<T> Function($$DepositAllocationsTableAnnotationComposer a) f) {
+    final $$DepositAllocationsTableAnnotationComposer composer =
+        $composerBuilder(
+            composer: this,
+            getCurrentColumn: (t) => t.id,
+            referencedTable: $db.depositAllocations,
+            getReferencedColumn: (t) => t.goalId,
+            builder: (joinBuilder,
+                    {$addJoinBuilderToRootComposer,
+                    $removeJoinBuilderFromRootComposer}) =>
+                $$DepositAllocationsTableAnnotationComposer(
+                  $db: $db,
+                  $table: $db.depositAllocations,
+                  $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                  joinBuilder: joinBuilder,
+                  $removeJoinBuilderFromRootComposer:
+                      $removeJoinBuilderFromRootComposer,
+                ));
+    return f(composer);
+  }
 }
 
 class $$GoalsTableTableManager extends RootTableManager<
@@ -5006,9 +5262,9 @@ class $$GoalsTableTableManager extends RootTableManager<
     $$GoalsTableAnnotationComposer,
     $$GoalsTableCreateCompanionBuilder,
     $$GoalsTableUpdateCompanionBuilder,
-    (Goal, BaseReferences<_$AppDatabase, $GoalsTable, Goal>),
+    (Goal, $$GoalsTableReferences),
     Goal,
-    PrefetchHooks Function()> {
+    PrefetchHooks Function({bool depositAllocationsRefs})> {
   $$GoalsTableTableManager(_$AppDatabase db, $GoalsTable table)
       : super(TableManagerState(
           db: db,
@@ -5060,9 +5316,35 @@ class $$GoalsTableTableManager extends RootTableManager<
             rowid: rowid,
           ),
           withReferenceMapper: (p0) => p0
-              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .map((e) =>
+                  (e.readTable(table), $$GoalsTableReferences(db, table, e)))
               .toList(),
-          prefetchHooksCallback: null,
+          prefetchHooksCallback: ({depositAllocationsRefs = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [
+                if (depositAllocationsRefs) db.depositAllocations
+              ],
+              addJoins: null,
+              getPrefetchedDataCallback: (items) async {
+                return [
+                  if (depositAllocationsRefs)
+                    await $_getPrefetchedData<Goal, $GoalsTable,
+                            DepositAllocation>(
+                        currentTable: table,
+                        referencedTable: $$GoalsTableReferences
+                            ._depositAllocationsRefsTable(db),
+                        managerFromTypedResult: (p0) =>
+                            $$GoalsTableReferences(db, table, p0)
+                                .depositAllocationsRefs,
+                        referencedItemsForCurrentItem: (item,
+                                referencedItems) =>
+                            referencedItems.where((e) => e.goalId == item.id),
+                        typedResults: items)
+                ];
+              },
+            );
+          },
         ));
 }
 
@@ -5075,14 +5357,12 @@ typedef $$GoalsTableProcessedTableManager = ProcessedTableManager<
     $$GoalsTableAnnotationComposer,
     $$GoalsTableCreateCompanionBuilder,
     $$GoalsTableUpdateCompanionBuilder,
-    (Goal, BaseReferences<_$AppDatabase, $GoalsTable, Goal>),
+    (Goal, $$GoalsTableReferences),
     Goal,
-    PrefetchHooks Function()>;
+    PrefetchHooks Function({bool depositAllocationsRefs})>;
 typedef $$DepositsTableCreateCompanionBuilder = DepositsCompanion Function({
   required String id,
   required int amount,
-  required int goalAAmount,
-  required int goalBAmount,
   Value<String?> note,
   required DateTime createdAt,
   Value<bool> isDeleted,
@@ -5091,13 +5371,33 @@ typedef $$DepositsTableCreateCompanionBuilder = DepositsCompanion Function({
 typedef $$DepositsTableUpdateCompanionBuilder = DepositsCompanion Function({
   Value<String> id,
   Value<int> amount,
-  Value<int> goalAAmount,
-  Value<int> goalBAmount,
   Value<String?> note,
   Value<DateTime> createdAt,
   Value<bool> isDeleted,
   Value<int> rowid,
 });
+
+final class $$DepositsTableReferences
+    extends BaseReferences<_$AppDatabase, $DepositsTable, Deposit> {
+  $$DepositsTableReferences(super.$_db, super.$_table, super.$_typedResult);
+
+  static MultiTypedResultKey<$DepositAllocationsTable, List<DepositAllocation>>
+      _depositAllocationsRefsTable(_$AppDatabase db) =>
+          MultiTypedResultKey.fromTable(db.depositAllocations,
+              aliasName: $_aliasNameGenerator(
+                  db.deposits.id, db.depositAllocations.depositId));
+
+  $$DepositAllocationsTableProcessedTableManager get depositAllocationsRefs {
+    final manager = $$DepositAllocationsTableTableManager(
+            $_db, $_db.depositAllocations)
+        .filter((f) => f.depositId.id.sqlEquals($_itemColumn<String>('id')!));
+
+    final cache =
+        $_typedResult.readTableOrNull(_depositAllocationsRefsTable($_db));
+    return ProcessedTableManager(
+        manager.$state.copyWith(prefetchedData: cache));
+  }
+}
 
 class $$DepositsTableFilterComposer
     extends Composer<_$AppDatabase, $DepositsTable> {
@@ -5114,12 +5414,6 @@ class $$DepositsTableFilterComposer
   ColumnFilters<int> get amount => $composableBuilder(
       column: $table.amount, builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<int> get goalAAmount => $composableBuilder(
-      column: $table.goalAAmount, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<int> get goalBAmount => $composableBuilder(
-      column: $table.goalBAmount, builder: (column) => ColumnFilters(column));
-
   ColumnFilters<String> get note => $composableBuilder(
       column: $table.note, builder: (column) => ColumnFilters(column));
 
@@ -5128,6 +5422,27 @@ class $$DepositsTableFilterComposer
 
   ColumnFilters<bool> get isDeleted => $composableBuilder(
       column: $table.isDeleted, builder: (column) => ColumnFilters(column));
+
+  Expression<bool> depositAllocationsRefs(
+      Expression<bool> Function($$DepositAllocationsTableFilterComposer f) f) {
+    final $$DepositAllocationsTableFilterComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.id,
+        referencedTable: $db.depositAllocations,
+        getReferencedColumn: (t) => t.depositId,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$DepositAllocationsTableFilterComposer(
+              $db: $db,
+              $table: $db.depositAllocations,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return f(composer);
+  }
 }
 
 class $$DepositsTableOrderingComposer
@@ -5144,12 +5459,6 @@ class $$DepositsTableOrderingComposer
 
   ColumnOrderings<int> get amount => $composableBuilder(
       column: $table.amount, builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<int> get goalAAmount => $composableBuilder(
-      column: $table.goalAAmount, builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<int> get goalBAmount => $composableBuilder(
-      column: $table.goalBAmount, builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<String> get note => $composableBuilder(
       column: $table.note, builder: (column) => ColumnOrderings(column));
@@ -5176,12 +5485,6 @@ class $$DepositsTableAnnotationComposer
   GeneratedColumn<int> get amount =>
       $composableBuilder(column: $table.amount, builder: (column) => column);
 
-  GeneratedColumn<int> get goalAAmount => $composableBuilder(
-      column: $table.goalAAmount, builder: (column) => column);
-
-  GeneratedColumn<int> get goalBAmount => $composableBuilder(
-      column: $table.goalBAmount, builder: (column) => column);
-
   GeneratedColumn<String> get note =>
       $composableBuilder(column: $table.note, builder: (column) => column);
 
@@ -5190,6 +5493,28 @@ class $$DepositsTableAnnotationComposer
 
   GeneratedColumn<bool> get isDeleted =>
       $composableBuilder(column: $table.isDeleted, builder: (column) => column);
+
+  Expression<T> depositAllocationsRefs<T extends Object>(
+      Expression<T> Function($$DepositAllocationsTableAnnotationComposer a) f) {
+    final $$DepositAllocationsTableAnnotationComposer composer =
+        $composerBuilder(
+            composer: this,
+            getCurrentColumn: (t) => t.id,
+            referencedTable: $db.depositAllocations,
+            getReferencedColumn: (t) => t.depositId,
+            builder: (joinBuilder,
+                    {$addJoinBuilderToRootComposer,
+                    $removeJoinBuilderFromRootComposer}) =>
+                $$DepositAllocationsTableAnnotationComposer(
+                  $db: $db,
+                  $table: $db.depositAllocations,
+                  $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                  joinBuilder: joinBuilder,
+                  $removeJoinBuilderFromRootComposer:
+                      $removeJoinBuilderFromRootComposer,
+                ));
+    return f(composer);
+  }
 }
 
 class $$DepositsTableTableManager extends RootTableManager<
@@ -5201,9 +5526,9 @@ class $$DepositsTableTableManager extends RootTableManager<
     $$DepositsTableAnnotationComposer,
     $$DepositsTableCreateCompanionBuilder,
     $$DepositsTableUpdateCompanionBuilder,
-    (Deposit, BaseReferences<_$AppDatabase, $DepositsTable, Deposit>),
+    (Deposit, $$DepositsTableReferences),
     Deposit,
-    PrefetchHooks Function()> {
+    PrefetchHooks Function({bool depositAllocationsRefs})> {
   $$DepositsTableTableManager(_$AppDatabase db, $DepositsTable table)
       : super(TableManagerState(
           db: db,
@@ -5217,8 +5542,6 @@ class $$DepositsTableTableManager extends RootTableManager<
           updateCompanionCallback: ({
             Value<String> id = const Value.absent(),
             Value<int> amount = const Value.absent(),
-            Value<int> goalAAmount = const Value.absent(),
-            Value<int> goalBAmount = const Value.absent(),
             Value<String?> note = const Value.absent(),
             Value<DateTime> createdAt = const Value.absent(),
             Value<bool> isDeleted = const Value.absent(),
@@ -5227,8 +5550,6 @@ class $$DepositsTableTableManager extends RootTableManager<
               DepositsCompanion(
             id: id,
             amount: amount,
-            goalAAmount: goalAAmount,
-            goalBAmount: goalBAmount,
             note: note,
             createdAt: createdAt,
             isDeleted: isDeleted,
@@ -5237,8 +5558,6 @@ class $$DepositsTableTableManager extends RootTableManager<
           createCompanionCallback: ({
             required String id,
             required int amount,
-            required int goalAAmount,
-            required int goalBAmount,
             Value<String?> note = const Value.absent(),
             required DateTime createdAt,
             Value<bool> isDeleted = const Value.absent(),
@@ -5247,17 +5566,41 @@ class $$DepositsTableTableManager extends RootTableManager<
               DepositsCompanion.insert(
             id: id,
             amount: amount,
-            goalAAmount: goalAAmount,
-            goalBAmount: goalBAmount,
             note: note,
             createdAt: createdAt,
             isDeleted: isDeleted,
             rowid: rowid,
           ),
           withReferenceMapper: (p0) => p0
-              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .map((e) =>
+                  (e.readTable(table), $$DepositsTableReferences(db, table, e)))
               .toList(),
-          prefetchHooksCallback: null,
+          prefetchHooksCallback: ({depositAllocationsRefs = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [
+                if (depositAllocationsRefs) db.depositAllocations
+              ],
+              addJoins: null,
+              getPrefetchedDataCallback: (items) async {
+                return [
+                  if (depositAllocationsRefs)
+                    await $_getPrefetchedData<Deposit, $DepositsTable,
+                            DepositAllocation>(
+                        currentTable: table,
+                        referencedTable: $$DepositsTableReferences
+                            ._depositAllocationsRefsTable(db),
+                        managerFromTypedResult: (p0) =>
+                            $$DepositsTableReferences(db, table, p0)
+                                .depositAllocationsRefs,
+                        referencedItemsForCurrentItem:
+                            (item, referencedItems) => referencedItems
+                                .where((e) => e.depositId == item.id),
+                        typedResults: items)
+                ];
+              },
+            );
+          },
         ));
 }
 
@@ -5270,9 +5613,348 @@ typedef $$DepositsTableProcessedTableManager = ProcessedTableManager<
     $$DepositsTableAnnotationComposer,
     $$DepositsTableCreateCompanionBuilder,
     $$DepositsTableUpdateCompanionBuilder,
-    (Deposit, BaseReferences<_$AppDatabase, $DepositsTable, Deposit>),
+    (Deposit, $$DepositsTableReferences),
     Deposit,
-    PrefetchHooks Function()>;
+    PrefetchHooks Function({bool depositAllocationsRefs})>;
+typedef $$DepositAllocationsTableCreateCompanionBuilder
+    = DepositAllocationsCompanion Function({
+  required String id,
+  required String depositId,
+  required String goalId,
+  required int amount,
+  Value<int> rowid,
+});
+typedef $$DepositAllocationsTableUpdateCompanionBuilder
+    = DepositAllocationsCompanion Function({
+  Value<String> id,
+  Value<String> depositId,
+  Value<String> goalId,
+  Value<int> amount,
+  Value<int> rowid,
+});
+
+final class $$DepositAllocationsTableReferences extends BaseReferences<
+    _$AppDatabase, $DepositAllocationsTable, DepositAllocation> {
+  $$DepositAllocationsTableReferences(
+      super.$_db, super.$_table, super.$_typedResult);
+
+  static $DepositsTable _depositIdTable(_$AppDatabase db) =>
+      db.deposits.createAlias($_aliasNameGenerator(
+          db.depositAllocations.depositId, db.deposits.id));
+
+  $$DepositsTableProcessedTableManager get depositId {
+    final $_column = $_itemColumn<String>('deposit_id')!;
+
+    final manager = $$DepositsTableTableManager($_db, $_db.deposits)
+        .filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_depositIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+        manager.$state.copyWith(prefetchedData: [item]));
+  }
+
+  static $GoalsTable _goalIdTable(_$AppDatabase db) => db.goals.createAlias(
+      $_aliasNameGenerator(db.depositAllocations.goalId, db.goals.id));
+
+  $$GoalsTableProcessedTableManager get goalId {
+    final $_column = $_itemColumn<String>('goal_id')!;
+
+    final manager = $$GoalsTableTableManager($_db, $_db.goals)
+        .filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_goalIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+        manager.$state.copyWith(prefetchedData: [item]));
+  }
+}
+
+class $$DepositAllocationsTableFilterComposer
+    extends Composer<_$AppDatabase, $DepositAllocationsTable> {
+  $$DepositAllocationsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get amount => $composableBuilder(
+      column: $table.amount, builder: (column) => ColumnFilters(column));
+
+  $$DepositsTableFilterComposer get depositId {
+    final $$DepositsTableFilterComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.depositId,
+        referencedTable: $db.deposits,
+        getReferencedColumn: (t) => t.id,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$DepositsTableFilterComposer(
+              $db: $db,
+              $table: $db.deposits,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return composer;
+  }
+
+  $$GoalsTableFilterComposer get goalId {
+    final $$GoalsTableFilterComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.goalId,
+        referencedTable: $db.goals,
+        getReferencedColumn: (t) => t.id,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$GoalsTableFilterComposer(
+              $db: $db,
+              $table: $db.goals,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return composer;
+  }
+}
+
+class $$DepositAllocationsTableOrderingComposer
+    extends Composer<_$AppDatabase, $DepositAllocationsTable> {
+  $$DepositAllocationsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get amount => $composableBuilder(
+      column: $table.amount, builder: (column) => ColumnOrderings(column));
+
+  $$DepositsTableOrderingComposer get depositId {
+    final $$DepositsTableOrderingComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.depositId,
+        referencedTable: $db.deposits,
+        getReferencedColumn: (t) => t.id,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$DepositsTableOrderingComposer(
+              $db: $db,
+              $table: $db.deposits,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return composer;
+  }
+
+  $$GoalsTableOrderingComposer get goalId {
+    final $$GoalsTableOrderingComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.goalId,
+        referencedTable: $db.goals,
+        getReferencedColumn: (t) => t.id,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$GoalsTableOrderingComposer(
+              $db: $db,
+              $table: $db.goals,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return composer;
+  }
+}
+
+class $$DepositAllocationsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $DepositAllocationsTable> {
+  $$DepositAllocationsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<int> get amount =>
+      $composableBuilder(column: $table.amount, builder: (column) => column);
+
+  $$DepositsTableAnnotationComposer get depositId {
+    final $$DepositsTableAnnotationComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.depositId,
+        referencedTable: $db.deposits,
+        getReferencedColumn: (t) => t.id,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$DepositsTableAnnotationComposer(
+              $db: $db,
+              $table: $db.deposits,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return composer;
+  }
+
+  $$GoalsTableAnnotationComposer get goalId {
+    final $$GoalsTableAnnotationComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.goalId,
+        referencedTable: $db.goals,
+        getReferencedColumn: (t) => t.id,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$GoalsTableAnnotationComposer(
+              $db: $db,
+              $table: $db.goals,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return composer;
+  }
+}
+
+class $$DepositAllocationsTableTableManager extends RootTableManager<
+    _$AppDatabase,
+    $DepositAllocationsTable,
+    DepositAllocation,
+    $$DepositAllocationsTableFilterComposer,
+    $$DepositAllocationsTableOrderingComposer,
+    $$DepositAllocationsTableAnnotationComposer,
+    $$DepositAllocationsTableCreateCompanionBuilder,
+    $$DepositAllocationsTableUpdateCompanionBuilder,
+    (DepositAllocation, $$DepositAllocationsTableReferences),
+    DepositAllocation,
+    PrefetchHooks Function({bool depositId, bool goalId})> {
+  $$DepositAllocationsTableTableManager(
+      _$AppDatabase db, $DepositAllocationsTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$DepositAllocationsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$DepositAllocationsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$DepositAllocationsTableAnnotationComposer(
+                  $db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<String> id = const Value.absent(),
+            Value<String> depositId = const Value.absent(),
+            Value<String> goalId = const Value.absent(),
+            Value<int> amount = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              DepositAllocationsCompanion(
+            id: id,
+            depositId: depositId,
+            goalId: goalId,
+            amount: amount,
+            rowid: rowid,
+          ),
+          createCompanionCallback: ({
+            required String id,
+            required String depositId,
+            required String goalId,
+            required int amount,
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              DepositAllocationsCompanion.insert(
+            id: id,
+            depositId: depositId,
+            goalId: goalId,
+            amount: amount,
+            rowid: rowid,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (
+                    e.readTable(table),
+                    $$DepositAllocationsTableReferences(db, table, e)
+                  ))
+              .toList(),
+          prefetchHooksCallback: ({depositId = false, goalId = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [],
+              addJoins: <
+                  T extends TableManagerState<
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic>>(state) {
+                if (depositId) {
+                  state = state.withJoin(
+                    currentTable: table,
+                    currentColumn: table.depositId,
+                    referencedTable:
+                        $$DepositAllocationsTableReferences._depositIdTable(db),
+                    referencedColumn: $$DepositAllocationsTableReferences
+                        ._depositIdTable(db)
+                        .id,
+                  ) as T;
+                }
+                if (goalId) {
+                  state = state.withJoin(
+                    currentTable: table,
+                    currentColumn: table.goalId,
+                    referencedTable:
+                        $$DepositAllocationsTableReferences._goalIdTable(db),
+                    referencedColumn:
+                        $$DepositAllocationsTableReferences._goalIdTable(db).id,
+                  ) as T;
+                }
+
+                return state;
+              },
+              getPrefetchedDataCallback: (items) async {
+                return [];
+              },
+            );
+          },
+        ));
+}
+
+typedef $$DepositAllocationsTableProcessedTableManager = ProcessedTableManager<
+    _$AppDatabase,
+    $DepositAllocationsTable,
+    DepositAllocation,
+    $$DepositAllocationsTableFilterComposer,
+    $$DepositAllocationsTableOrderingComposer,
+    $$DepositAllocationsTableAnnotationComposer,
+    $$DepositAllocationsTableCreateCompanionBuilder,
+    $$DepositAllocationsTableUpdateCompanionBuilder,
+    (DepositAllocation, $$DepositAllocationsTableReferences),
+    DepositAllocation,
+    PrefetchHooks Function({bool depositId, bool goalId})>;
 typedef $$UserProfilesTableCreateCompanionBuilder = UserProfilesCompanion
     Function({
   Value<int> id,
@@ -7489,6 +8171,8 @@ class $AppDatabaseManager {
       $$GoalsTableTableManager(_db, _db.goals);
   $$DepositsTableTableManager get deposits =>
       $$DepositsTableTableManager(_db, _db.deposits);
+  $$DepositAllocationsTableTableManager get depositAllocations =>
+      $$DepositAllocationsTableTableManager(_db, _db.depositAllocations);
   $$UserProfilesTableTableManager get userProfiles =>
       $$UserProfilesTableTableManager(_db, _db.userProfiles);
   $$UnlockedAchievementsTableTableManager get unlockedAchievements =>
