@@ -6,7 +6,7 @@ part of 'leaderboard_provider.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$weeklyLeaderboardHash() => r'547945377b9f949abf45c373b0936a2f0940ce10';
+String _$weeklyLeaderboardHash() => r'2fe359ab19fe59337aff5664d766e236597212a1';
 
 /// See also [weeklyLeaderboard].
 @ProviderFor(weeklyLeaderboard)
@@ -26,7 +26,7 @@ final weeklyLeaderboardProvider =
 typedef WeeklyLeaderboardRef
     = AutoDisposeFutureProviderRef<List<LeaderboardEntry>>;
 String _$monthlyLeaderboardHash() =>
-    r'5c18c8f7f8721a35fb7a5ddf426c479caba2eb16';
+    r'03784976f993c4fee2a5569bfd569cc4ffea0b31';
 
 /// See also [monthlyLeaderboard].
 @ProviderFor(monthlyLeaderboard)

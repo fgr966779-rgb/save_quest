@@ -26,13 +26,19 @@ class Deposits extends Table {
   TextColumn get id => text()();
   /// Total deposit amount in minor units (kopecks).
   IntColumn get amount => integer()();
-  /// Amount allocated to Goal A in minor units (kopecks).
-  IntColumn get goalAAmount => integer()();
-  /// Amount allocated to Goal B in minor units (kopecks).
-  IntColumn get goalBAmount => integer()();
   TextColumn get note => text().nullable()();
   DateTimeColumn get createdAt => dateTime()();
   BoolColumn get isDeleted => boolean().withDefault(const Constant(false))();
+
+  @override
+  Set<Column> get primaryKey => {id};
+}
+
+class DepositAllocations extends Table {
+  TextColumn get id => text()();
+  TextColumn get depositId => text().references(Deposits, #id)();
+  TextColumn get goalId => text().references(Goals, #id)();
+  IntColumn get amount => integer()();
 
   @override
   Set<Column> get primaryKey => {id};
@@ -182,7 +188,8 @@ class AvoidedPurchases extends Table {
 
 @DriftDatabase(tables: [
   Goals, 
-  Deposits, 
+  Deposits,
+  DepositAllocations,
   UserProfiles, 
   UnlockedAchievements,
   UnlockedSkills,
@@ -203,7 +210,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase.connect(super.connection);
 
   @override
-  int get schemaVersion => 8;
+  int get schemaVersion => 9;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -295,6 +302,47 @@ class AppDatabase extends _$AppDatabase {
           if (from < 8) {
             await m.createTable(avoidedPurchases);
           }
+          if (from < 9) {
+            // Create the new allocations table
+            await m.createTable(depositAllocations);
+
+            // Migrate data from deposits to deposit_allocations
+            // Since we're removing columns from deposits, we need the "recreate and copy" strategy again.
+            // 1. Insert into deposit_allocations for goal_a
+            await customStatement('''
+              INSERT INTO deposit_allocations (id, deposit_id, goal_id, amount)
+              SELECT id || '_a', id, 'goal_a', goal_a_amount
+              FROM deposits WHERE goal_a_amount > 0
+            ''');
+
+            // 2. Insert into deposit_allocations for goal_b
+            await customStatement('''
+              INSERT INTO deposit_allocations (id, deposit_id, goal_id, amount)
+              SELECT id || '_b', id, 'goal_b', goal_b_amount
+              FROM deposits WHERE goal_b_amount > 0
+            ''');
+
+            // 3. Recreate deposits table without goal_a_amount and goal_b_amount
+            await customStatement('''
+              CREATE TABLE deposits_new (
+                id TEXT NOT NULL PRIMARY KEY,
+                amount INTEGER NOT NULL,
+                note TEXT,
+                created_at INTEGER NOT NULL,
+                is_deleted INTEGER NOT NULL DEFAULT 0
+                  CHECK (is_deleted IN (0, 1))
+              )
+            ''');
+
+            await customStatement('''
+              INSERT INTO deposits_new (id, amount, note, created_at, is_deleted)
+              SELECT id, amount, note, created_at, is_deleted
+              FROM deposits
+            ''');
+
+            await customStatement('DROP TABLE deposits');
+            await customStatement('ALTER TABLE deposits_new RENAME TO deposits');
+          }
         },
       );
 
@@ -317,31 +365,40 @@ class AppDatabase extends _$AppDatabase {
       (select(deposits)..where((tbl) => tbl.isDeleted.equals(false))..orderBy([(t) => OrderingTerm.desc(t.createdAt)])).get();
 
   Future<int> insertDeposit(Deposit deposit) => into(deposits).insert(deposit);
+  Future<int> insertAllocation(DepositAllocation allocation) => into(depositAllocations).insert(allocation);
+
+  Future<List<DepositAllocation>> getAllocationsForDeposit(String depositId) =>
+      (select(depositAllocations)..where((tbl) => tbl.depositId.equals(depositId))).get();
 
   // Update a deposit and adjust Goal amounts (within transactions)
   Future<void> saveDepositAndUpdateGoals({
     required Deposit deposit,
-    required int goalADelta,
-    required int goalBDelta,
+    required Map<String, int> allocations,
   }) async {
     await transaction(() async {
-      // Insert the deposit
+      // 1. Insert the deposit
       await insertDeposit(deposit);
 
-      // Adjust Goal A
-      final goalA = await getGoalById('goal_a');
-      if (goalA != null) {
-        await updateGoal(goalA.copyWith(
-          currentAmount: goalA.currentAmount + goalADelta,
-        ));
-      }
+      // 2. Insert allocations and update each goal
+      for (final entry in allocations.entries) {
+        final goalId = entry.key;
+        final amount = entry.value;
 
-      // Adjust Goal B
-      final goalB = await getGoalById('goal_b');
-      if (goalB != null) {
-        await updateGoal(goalB.copyWith(
-          currentAmount: goalB.currentAmount + goalBDelta,
+        // Create allocation record
+        await insertAllocation(DepositAllocation(
+          id: '${deposit.id}_$goalId',
+          depositId: deposit.id,
+          goalId: goalId,
+          amount: amount,
         ));
+
+        // Update goal balance
+        final goal = await getGoalById(goalId);
+        if (goal != null) {
+          await updateGoal(goal.copyWith(
+            currentAmount: goal.currentAmount + amount,
+          ));
+        }
       }
     });
   }
@@ -349,29 +406,22 @@ class AppDatabase extends _$AppDatabase {
   // Delete a deposit (soft delete) and revert Goal amounts
   Future<void> softDeleteDepositAndUpdateGoals({
     required String depositId,
-    required int goalAAmount,
-    required int goalBAmount,
   }) async {
     await transaction(() async {
-      // Mark deposit as deleted
+      // 1. Mark deposit as deleted
       await (update(deposits)..where((tbl) => tbl.id.equals(depositId))).write(
         const DepositsCompanion(isDeleted: Value(true)),
       );
 
-      // Revert Goal A
-      final goalA = await getGoalById('goal_a');
-      if (goalA != null) {
-        await updateGoal(goalA.copyWith(
-          currentAmount: (goalA.currentAmount - goalAAmount).clamp(0, 999999999),
-        ));
-      }
-
-      // Revert Goal B
-      final goalB = await getGoalById('goal_b');
-      if (goalB != null) {
-        await updateGoal(goalB.copyWith(
-          currentAmount: (goalB.currentAmount - goalBAmount).clamp(0, 999999999),
-        ));
+      // 2. Load allocations to revert goal balances
+      final allocations = await getAllocationsForDeposit(depositId);
+      for (final allocation in allocations) {
+        final goal = await getGoalById(allocation.goalId);
+        if (goal != null) {
+          await updateGoal(goal.copyWith(
+            currentAmount: (goal.currentAmount - allocation.amount).clamp(0, 999999999),
+          ));
+        }
       }
     });
   }

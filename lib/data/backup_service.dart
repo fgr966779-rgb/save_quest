@@ -19,6 +19,7 @@ class PiggyVaultBackup {
   // Drift tables — each is a List of JSON-serializable maps (camelCase keys).
   final List<Map<String, dynamic>> goals;
   final List<Map<String, dynamic>> deposits;
+  final List<Map<String, dynamic>> depositAllocations;
   final List<Map<String, dynamic>> userProfiles;
   final List<Map<String, dynamic>> unlockedAchievements;
   final List<Map<String, dynamic>> unlockedSkills;
@@ -42,6 +43,7 @@ class PiggyVaultBackup {
     required this.appVersion,
     required this.goals,
     required this.deposits,
+    required this.depositAllocations,
     required this.userProfiles,
     required this.unlockedAchievements,
     required this.unlockedSkills,
@@ -64,6 +66,7 @@ class PiggyVaultBackup {
         'appVersion': appVersion,
         'goals': goals,
         'deposits': deposits,
+        'depositAllocations': depositAllocations,
         'userProfiles': userProfiles,
         'unlockedAchievements': unlockedAchievements,
         'unlockedSkills': unlockedSkills,
@@ -89,6 +92,7 @@ class PiggyVaultBackup {
       appVersion: json['appVersion'] as String? ?? 'unknown',
       goals: _castList(json['goals']),
       deposits: _castList(json['deposits']),
+      depositAllocations: _castList(json['depositAllocations']),
       userProfiles: _castList(json['userProfiles']),
       unlockedAchievements: _castList(json['unlockedAchievements']),
       unlockedSkills: _castList(json['unlockedSkills']),
@@ -141,6 +145,7 @@ class BackupService {
       appVersion: _appVersion,
       goals: await _readAll(_db.select(_db.goals)),
       deposits: await _readAll(_db.select(_db.deposits)),
+      depositAllocations: await _readAll(_db.select(_db.depositAllocations)),
       userProfiles: await _readAll(_db.select(_db.userProfiles)),
       unlockedAchievements:
           await _readAll(_db.select(_db.unlockedAchievements)),
@@ -241,6 +246,7 @@ class BackupService {
       const tables = [
         'goals',
         'deposits',
+        'deposit_allocations',
         'user_profiles',
         'unlocked_achievements',
         'unlocked_skills',
@@ -262,6 +268,7 @@ class BackupService {
       // 2. Insert backup data using typed Drift insertOrReplace
       await _insertGoals(backup.goals);
       await _insertDeposits(backup.deposits);
+      await _insertAllocations(backup.depositAllocations);
       await _insertUserProfiles(backup.userProfiles);
       await _insertAchievements(backup.unlockedAchievements);
       await _insertSkills(backup.unlockedSkills);
@@ -308,11 +315,23 @@ class BackupService {
             Deposit(
               id: r['id'] as String,
               amount: r['amount'] as int,
-              goalAAmount: r['goalAAmount'] as int,
-              goalBAmount: r['goalBAmount'] as int,
               note: r['note'] as String?,
               createdAt: _parseDate(r['createdAt']),
               isDeleted: r['isDeleted'] as bool? ?? false,
+            ),
+            mode: InsertMode.insertOrReplace,
+          );
+    }
+  }
+
+  Future<void> _insertAllocations(List<Map<String, dynamic>> rows) async {
+    for (final r in rows) {
+      await _db.into(_db.depositAllocations).insert(
+            DepositAllocation(
+              id: r['id'] as String,
+              depositId: r['depositId'] as String,
+              goalId: r['goalId'] as String,
+              amount: r['amount'] as int,
             ),
             mode: InsertMode.insertOrReplace,
           );
@@ -631,8 +650,13 @@ class BackupService {
     for (final d in deposits) {
       final date = d.createdAt.toIso8601String().split('T').first;
       final noteEscaped = _csvEscape(d.note ?? '');
-      final goalAAmount = (d.goalAAmount / 100).toStringAsFixed(2);
-      final goalBAmount = (d.goalBAmount / 100).toStringAsFixed(2);
+
+      final allocations = await _db.getAllocationsForDeposit(d.id);
+      final goalA = allocations.where((a) => a.goalId == 'goal_a').firstOrNull;
+      final goalB = allocations.where((a) => a.goalId == 'goal_b').firstOrNull;
+
+      final goalAAmount = ((goalA?.amount ?? 0) / 100).toStringAsFixed(2);
+      final goalBAmount = ((goalB?.amount ?? 0) / 100).toStringAsFixed(2);
       final totalAmount = (d.amount / 100).toStringAsFixed(2);
 
       buffer.writeln(
@@ -769,18 +793,38 @@ class BackupService {
             ? fields[noteIdx].trim()
             : 'CSV Import';
 
-        // Insert deposit
+        // Insert deposit and allocations
+        final depositId = '${DateTime.now().millisecondsSinceEpoch}_$i';
         await _db.into(_db.deposits).insert(
               Deposit(
-                id: '${DateTime.now().millisecondsSinceEpoch}_$i',
+                id: depositId,
                 amount: amount.round(),
-                goalAAmount: goalA.round(),
-                goalBAmount: goalB.round(),
                 note: note,
                 createdAt: date,
                 isDeleted: false,
               ),
             );
+
+        if (goalA > 0) {
+          await _db.into(_db.depositAllocations).insert(
+            DepositAllocation(
+              id: '${depositId}_a',
+              depositId: depositId,
+              goalId: 'goal_a',
+              amount: goalA.round(),
+            ),
+          );
+        }
+        if (goalB > 0) {
+          await _db.into(_db.depositAllocations).insert(
+            DepositAllocation(
+              id: '${depositId}_b',
+              depositId: depositId,
+              goalId: 'goal_b',
+              amount: goalB.round(),
+            ),
+          );
+        }
 
         importedCount++;
       }

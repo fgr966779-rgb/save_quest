@@ -34,4 +34,16 @@ class XpService {
 
     return xp;
   }
+
+  static (int level, bool leveledUp) calculateNewLevel(int currentLevel, int currentXp, int xpGained) {
+    var newXP = currentXp + xpGained;
+    var level = currentLevel;
+    bool leveledUp = false;
+
+    while (newXP >= xpRequiredForLevel(level)) {
+      level++;
+      leveledUp = true;
+    }
+    return (level, leveledUp);
+  }
 }

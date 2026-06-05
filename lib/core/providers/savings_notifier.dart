@@ -84,12 +84,15 @@ class SavingsNotifier extends StateNotifier<AsyncValue<void>> {
       final deposit = Deposit(
         id: depositId,
         amount: totalCents,
-        goalAAmount: goalACents,
-        goalBAmount: goalBCents,
         note: note,
         createdAt: now,
         isDeleted: false,
       );
+
+      final Map<String, int> allocations = {
+        'goal_a': goalACents,
+        'goal_b': goalBCents,
+      };
 
       // ----------------------------------------
       // Single atomic transaction: savings + gamification
@@ -113,8 +116,7 @@ class SavingsNotifier extends StateNotifier<AsyncValue<void>> {
         // 1. Save deposit and update goal balances
         await _db.saveDepositAndUpdateGoals(
           deposit: deposit,
-          goalADelta: goalACents,
-          goalBDelta: goalBCents,
+          allocations: allocations,
         );
 
         // 2. Load or create user profile
@@ -145,10 +147,8 @@ class SavingsNotifier extends StateNotifier<AsyncValue<void>> {
         freezeUsed = streakResults['freezeUsed'] as bool;
         final currentFreezes = streakResults['freezeTokens'] as int;
 
-        // 5. XP multiplier (streak-based)
+        // 5. XP calculation
         double multiplier = XpService.calculateStreakMultiplier(newStreak);
-
-        // Combine streak multiplier with Cyber-Event multiplier
         if (activeEvent != null && activeEvent.isActive) {
           multiplier *= activeEvent.xpMultiplier;
         }
@@ -162,23 +162,15 @@ class SavingsNotifier extends StateNotifier<AsyncValue<void>> {
 
         // Critical Hit logic
         double baseCritChance = profile.playerClass == 'mage' ? 0.25 : 0.10;
-        // hacker_crit_boost: +10% crit chance
         if (unlockedSkillIds.contains('hacker_crit_boost')) {
           baseCritChance += 0.10;
         }
         isCritical = math.Random().nextDouble() < baseCritChance;
         bonusXp = isCritical ? xpGained : 0;
 
-        var newXP = profile.xp + xpGained + bonusXp;
-        var currentLevel = profile.level;
-        leveledUp = false;
-
-        // 5. Level-up loop
-        while (newXP >= XpService.xpRequiredForLevel(currentLevel)) {
-          currentLevel++;
-          leveledUp = true;
-        }
-        finalLevel = currentLevel;
+        final levelResult = XpService.calculateNewLevel(profile.level, profile.xp, xpGained + bonusXp);
+        finalLevel = levelResult.$1;
+        leveledUp = levelResult.$2;
 
         final finalFreezes = currentFreezes + (leveledUp ? 1 : 0);
         final levelUps = finalLevel - profile.level;
@@ -291,7 +283,7 @@ class SavingsNotifier extends StateNotifier<AsyncValue<void>> {
 
         updatedProfile = UserProfile(
           id: profile.id,
-          xp: newXP,
+          xp: profile.xp + xpGained + bonusXp,
           level: finalLevel,
           streakCount: newStreak,
           maxStreak: maxStreak,
@@ -354,8 +346,6 @@ class SavingsNotifier extends StateNotifier<AsyncValue<void>> {
     try {
       await _db.softDeleteDepositAndUpdateGoals(
         depositId: deposit.id,
-        goalAAmount: deposit.goalAAmount,
-        goalBAmount: deposit.goalBAmount,
       );
       state = const AsyncValue.data(null);
       return true;

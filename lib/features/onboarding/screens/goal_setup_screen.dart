@@ -10,14 +10,25 @@ import '../../../core/widgets/app_button.dart';
 import '../../../core/widgets/surface_card.dart';
 import '../../../core/widgets/goal_template_picker.dart';
 
-class GoalBSetupScreen extends ConsumerStatefulWidget {
-  const GoalBSetupScreen({super.key});
+class GoalSetupScreen extends ConsumerStatefulWidget {
+  final int goalIndex; // 0 for Goal A, 1 for Goal B, etc.
+  final int totalGoals;
+  final String nextPath;
+  final String backPath;
+
+  const GoalSetupScreen({
+    super.key,
+    required this.goalIndex,
+    required this.totalGoals,
+    required this.nextPath,
+    required this.backPath,
+  });
 
   @override
-  ConsumerState<GoalBSetupScreen> createState() => _GoalBSetupScreenState();
+  ConsumerState<GoalSetupScreen> createState() => _GoalSetupScreenState();
 }
 
-class _GoalBSetupScreenState extends ConsumerState<GoalBSetupScreen> {
+class _GoalSetupScreenState extends ConsumerState<GoalSetupScreen> {
   final _formKey = GlobalKey<FormState>();
   late TextEditingController _titleController;
   late TextEditingController _targetController;
@@ -26,8 +37,12 @@ class _GoalBSetupScreenState extends ConsumerState<GoalBSetupScreen> {
   @override
   void initState() {
     super.initState();
-    final initialTitle = ref.read(onboardingGoalBTitleProvider);
-    final initialTarget = ref.read(onboardingGoalBTargetProvider);
+    final initialTitle = widget.goalIndex == 0
+        ? ref.read(onboardingGoalATitleProvider)
+        : ref.read(onboardingGoalBTitleProvider);
+    final initialTarget = widget.goalIndex == 0
+        ? ref.read(onboardingGoalATargetProvider)
+        : ref.read(onboardingGoalBTargetProvider);
     _selectedCurrency = ref.read(settingsServiceProvider).currency;
 
     _titleController = TextEditingController(text: initialTitle);
@@ -44,13 +59,22 @@ class _GoalBSetupScreenState extends ConsumerState<GoalBSetupScreen> {
 
   void _onNextPressed() {
     if (_formKey.currentState?.validate() ?? false) {
-      ref.read(onboardingGoalBTitleProvider.notifier).state =
-          _titleController.text.trim();
-      ref.read(onboardingGoalBTargetProvider.notifier).state =
-          double.tryParse(_targetController.text) ?? 15000.0;
-      ref.read(onboardingGoalBCurrencyProvider.notifier).state =
-          _selectedCurrency;
-      context.go('/onboarding-finish');
+      if (widget.goalIndex == 0) {
+        ref.read(onboardingGoalATitleProvider.notifier).state =
+            _titleController.text.trim();
+        ref.read(onboardingGoalATargetProvider.notifier).state =
+            double.tryParse(_targetController.text) ?? 25000.0;
+        ref.read(onboardingGoalACurrencyProvider.notifier).state =
+            _selectedCurrency;
+      } else {
+        ref.read(onboardingGoalBTitleProvider.notifier).state =
+            _titleController.text.trim();
+        ref.read(onboardingGoalBTargetProvider.notifier).state =
+            double.tryParse(_targetController.text) ?? 15000.0;
+        ref.read(onboardingGoalBCurrencyProvider.notifier).state =
+            _selectedCurrency;
+      }
+      context.go(widget.nextPath);
     }
   }
 
@@ -58,6 +82,7 @@ class _GoalBSetupScreenState extends ConsumerState<GoalBSetupScreen> {
   Widget build(BuildContext context) {
     final brightness = Theme.of(context).brightness;
     final locale = ref.watch(localeProvider);
+    final isA = widget.goalIndex == 0;
 
     return Scaffold(
       backgroundColor: AppColors.background(brightness),
@@ -79,22 +104,22 @@ class _GoalBSetupScreenState extends ConsumerState<GoalBSetupScreen> {
                       color: AppColors.textPrimary(brightness),
                       size: 20,
                     ),
-                    onPressed: () => context.go('/onboarding-a'),
+                    onPressed: () => context.go(widget.backPath),
                   ),
                 ),
                 const SizedBox(height: 16),
                 // Step label
                 Text(
-                  AppLocalizations.get(locale, 'onb_step_2_3'),
+                  AppLocalizations.get(locale, isA ? 'onb_step_1_3' : 'onb_step_2_3'),
                   style: AppTypography.caption(
                     context,
-                    color: AppColors.goalB,
+                    color: isA ? AppColors.goalA : AppColors.goalB,
                   ),
                 ),
                 const SizedBox(height: 4),
                 // Page title
                 Text(
-                  AppLocalizations.get(locale, 'onb_goal_b_title'),
+                  AppLocalizations.get(locale, isA ? 'onb_goal_a_title' : 'onb_goal_b_title'),
                   style: AppTypography.h1(
                     context,
                     color: AppColors.textPrimary(brightness),
@@ -102,7 +127,7 @@ class _GoalBSetupScreenState extends ConsumerState<GoalBSetupScreen> {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  AppLocalizations.get(locale, 'onb_goal_b_desc'),
+                  AppLocalizations.get(locale, isA ? 'onb_goal_a_desc' : 'onb_goal_b_desc'),
                   style: AppTypography.body(
                     context,
                     color: AppColors.textSecondary(brightness),
@@ -121,17 +146,17 @@ class _GoalBSetupScreenState extends ConsumerState<GoalBSetupScreen> {
                           Container(
                             width: 10,
                             height: 10,
-                            decoration: const BoxDecoration(
+                            decoration: BoxDecoration(
                               shape: BoxShape.circle,
-                              color: AppColors.goalB,
+                              color: isA ? AppColors.goalA : AppColors.goalB,
                             ),
                           ),
                           const SizedBox(width: 10),
                           Text(
-                            AppLocalizations.get(locale, 'onb_goal_card_header_b'),
+                            AppLocalizations.get(locale, isA ? 'onb_goal_card_header_a' : 'onb_goal_card_header_b'),
                             style: AppTypography.h3(
                               context,
-                              color: AppColors.goalB,
+                              color: isA ? AppColors.goalA : AppColors.goalB,
                             ),
                           ),
                         ],
@@ -172,19 +197,21 @@ class _GoalBSetupScreenState extends ConsumerState<GoalBSetupScreen> {
                       const SizedBox(height: 8),
                       TextFormField(
                         controller: _targetController,
-                        keyboardType:
-                            const TextInputType.numberWithOptions(decimal: true),
-                        decoration: const InputDecoration(
-                          hintText: '15000',
-                          prefixIcon: Icon(Icons.attach_money_rounded),
+                        keyboardType: const TextInputType.numberWithOptions(
+                            decimal: true),
+                        decoration: InputDecoration(
+                          hintText: isA ? '25000' : '15000',
+                          prefixIcon: const Icon(Icons.attach_money_rounded),
                         ),
                         validator: (val) {
                           if (val == null || val.trim().isEmpty) {
-                            return AppLocalizations.get(locale, 'onb_goal_amount_validator');
+                            return AppLocalizations.get(
+                                locale, 'onb_goal_amount_validator');
                           }
                           final numVal = double.tryParse(val);
                           if (numVal == null || numVal <= 0) {
-                            return AppLocalizations.get(locale, 'onb_goal_amount_invalid');
+                            return AppLocalizations.get(
+                                locale, 'onb_goal_amount_invalid');
                           }
                           return null;
                         },
@@ -278,9 +305,9 @@ class _GoalBSetupScreenState extends ConsumerState<GoalBSetupScreen> {
       children: [
         _buildDot(isActive: false, brightness: brightness),
         const SizedBox(width: 8),
-        _buildDot(isActive: false, brightness: brightness),
+        _buildDot(isActive: widget.goalIndex == 0, brightness: brightness),
         const SizedBox(width: 8),
-        _buildDot(isActive: true, brightness: brightness),
+        _buildDot(isActive: widget.goalIndex == 1, brightness: brightness),
         const SizedBox(width: 8),
         _buildDot(isActive: false, brightness: brightness),
       ],

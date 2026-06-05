@@ -72,7 +72,21 @@ Keep targetAmount between 50 and 500. Write title and description in Ukrainian.
       final response = await openRouter.generateText(prompt: prompt);
       
       try {
-        final cleanJson = response.replaceAll('```json', '').replaceAll('```', '').trim();
+        String cleanJson = response;
+        if (cleanJson.contains('```')) {
+          final start = cleanJson.indexOf('```') + 3;
+          if (cleanJson.substring(start).startsWith('json')) {
+            cleanJson = cleanJson.substring(start + 4);
+          } else {
+            cleanJson = cleanJson.substring(start);
+          }
+          final end = cleanJson.lastIndexOf('```');
+          if (end != -1) {
+            cleanJson = cleanJson.substring(0, end);
+          }
+        }
+        cleanJson = cleanJson.trim();
+
         final map = json.decode(cleanJson) as Map<String, dynamic>;
         
         final bounty = Bounty(
