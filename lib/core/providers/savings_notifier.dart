@@ -11,6 +11,7 @@ import '../../features/gamification/providers/bounty_provider.dart';
 import '../../features/gamification/providers/quest_provider.dart';
 import '../services/gamification/xp_service.dart';
 import '../services/gamification/streak_service.dart';
+import '../services/gamification/leveling_service.dart';
 import '../services/gamification/achievement_service.dart';
 
 enum ActionContext {
@@ -66,29 +67,27 @@ class SavingsNotifier extends StateNotifier<AsyncValue<void>> {
   // ==========================================
   Future<DepositResult?> createDeposit({
     required double amount,
-    required double goalAPercent,
+    required Map<String, double> goalAllocations, // goalId -> percent (0.0-100.0)
     String? note,
     CyberEvent? activeEvent,
     ActionContext context = ActionContext.standard,
   }) async {
     state = const AsyncValue.loading();
     try {
-      // --- Convert to minor units (kopecks) ---
-      final int totalCents   = displayToCents(amount);
-      final int goalACents   = (totalCents * goalAPercent / 100.0).round();
-      final int goalBCents   = totalCents - goalACents; // exact, no rounding drift
-
+      final int totalCents = displayToCents(amount);
       final depositId = const Uuid().v4();
       final now = DateTime.now();
 
       final deposit = Deposit(
         id: depositId,
         amount: totalCents,
-        goalAAmount: goalACents,
-        goalBAmount: goalBCents,
+        goalAAmount: 0, // Deprecated
+        goalBAmount: 0, // Deprecated
         note: note,
         createdAt: now,
         isDeleted: false,
+        updatedAt: now,
+        isSynced: false,
       );
 
       // ----------------------------------------
@@ -110,33 +109,63 @@ class SavingsNotifier extends StateNotifier<AsyncValue<void>> {
       Lootbox? earnedLootbox;
 
       await _db.transaction(() async {
-        // 1. Save deposit and update goal balances
-        await _db.saveDepositAndUpdateGoals(
-          deposit: deposit,
-          goalADelta: goalACents,
-          goalBDelta: goalBCents,
-        );
+        // 1. Save deposit and allocations
+        await _db.into(_db.deposits).insert(deposit);
+
+        int remainingCents = totalCents;
+        final goalIds = goalAllocations.keys.toList();
+
+        for (int i = 0; i < goalIds.length; i++) {
+          final gid = goalIds[i];
+          final percent = goalAllocations[gid]!;
+
+          int allocCents;
+          if (i == goalIds.length - 1) {
+            allocCents = remainingCents; // Ensure no rounding drift
+          } else {
+            allocCents = (totalCents * percent / 100.0).round();
+            remainingCents -= allocCents;
+          }
+
+          await _db.into(_db.depositAllocations).insert(DepositAllocationsCompanion.insert(
+            id: const Uuid().v4(),
+            depositId: depositId,
+            goalId: gid,
+            amount: allocCents,
+            createdAt: now,
+          ));
+
+          // Update goal balance
+          final goal = await _db.getGoalById(gid);
+          if (goal != null) {
+            await _db.updateGoal(goal.copyWith(
+              currentAmount: goal.currentAmount + allocCents,
+              updatedAt: drift.Value(now),
+            ));
+          }
+        }
 
         // 2. Load or create user profile
         var profile = await _db.getUserProfile();
-        profile ??= UserProfile(
+        final effectiveProfile = profile ?? UserProfile(
           id: 1, xp: 0, level: 1, streakCount: 0, maxStreak: 0, freezeTokens: 0, 
           skillPoints: 0, playerClass: null, currentTheme: 'default', avatarConfig: null,
           penaltyBalance: 0, hackerXp: 0, magnateXp: 0, resilienceXp: 0,
           lastBonusClaimDate: null, bonusStreak: 0, crystalsBalance: 0,
+          isSynced: false,
         );
 
-        // 3. Load unlocked skills for bonus application
+        // 3. Load unlocked skills
         final unlockedSkillList = await _db.getUnlockedSkills();
         final unlockedSkillIds = unlockedSkillList.map((s) => s.id).toSet();
 
         // 4. Streak calculation
         final streakResults = StreakService.calculateStreak(
-          lastDepositDate: profile.lastDepositDate,
-          currentStreak: profile.streakCount,
-          maxStreak: profile.maxStreak,
-          freezeTokens: profile.freezeTokens,
-          playerClass: profile.playerClass,
+          lastDepositDate: effectiveProfile.lastDepositDate,
+          currentStreak: effectiveProfile.streakCount,
+          maxStreak: effectiveProfile.maxStreak,
+          freezeTokens: effectiveProfile.freezeTokens,
+          playerClass: effectiveProfile.playerClass,
           unlockedSkillIds: unlockedSkillIds,
         );
 
@@ -145,10 +174,8 @@ class SavingsNotifier extends StateNotifier<AsyncValue<void>> {
         freezeUsed = streakResults['freezeUsed'] as bool;
         final currentFreezes = streakResults['freezeTokens'] as int;
 
-        // 5. XP multiplier (streak-based)
+        // 5. XP calculation
         double multiplier = XpService.calculateStreakMultiplier(newStreak);
-
-        // Combine streak multiplier with Cyber-Event multiplier
         if (activeEvent != null && activeEvent.isActive) {
           multiplier *= activeEvent.xpMultiplier;
         }
@@ -156,158 +183,114 @@ class SavingsNotifier extends StateNotifier<AsyncValue<void>> {
         xpGained = XpService.calculateXpGained(
           baseAmount: 100,
           multiplier: multiplier,
-          playerClass: profile.playerClass,
+          playerClass: effectiveProfile.playerClass,
           hasXpBoostSkill: unlockedSkillIds.contains('magnate_xp_boost'),
         );
 
         // Critical Hit logic
-        double baseCritChance = profile.playerClass == 'mage' ? 0.25 : 0.10;
-        // hacker_crit_boost: +10% crit chance
+        double baseCritChance = effectiveProfile.playerClass == 'mage' ? 0.25 : 0.10;
         if (unlockedSkillIds.contains('hacker_crit_boost')) {
           baseCritChance += 0.10;
         }
         isCritical = math.Random().nextDouble() < baseCritChance;
         bonusXp = isCritical ? xpGained : 0;
 
-        var newXP = profile.xp + xpGained + bonusXp;
-        var currentLevel = profile.level;
-        leveledUp = false;
+        final (level, hasLeveledUp) = LevelingService.calculateNewLevel(
+          currentLevel: effectiveProfile.level,
+          totalXp: effectiveProfile.xp + xpGained + bonusXp,
+        );
+        leveledUp = hasLeveledUp;
+        finalLevel = level;
 
-        // 5. Level-up loop
-        while (newXP >= XpService.xpRequiredForLevel(currentLevel)) {
-          currentLevel++;
-          leveledUp = true;
-        }
-        finalLevel = currentLevel;
+        final newSkillPoints = LevelingService.calculateSkillPoints(
+          effectiveProfile.level, finalLevel, effectiveProfile.skillPoints);
 
-        final finalFreezes = currentFreezes + (leveledUp ? 1 : 0);
-        final levelUps = finalLevel - profile.level;
-        final newSkillPoints = profile.skillPoints + levelUps;
-
-        // 5a. Cyber-Market Credits calculation + Badge updates
-        // 1 Credit per 10 UAH (1000 kopecks)
-        double creditsMulti = 1.0;
-        if (activeEvent != null && activeEvent.isActive) {
-          creditsMulti = activeEvent.creditsMultiplier;
-        }
-        
+        // 5a. Credits + Skill XP
+        double creditsMulti = activeEvent?.isActive == true ? activeEvent!.creditsMultiplier : 1.0;
         earnedCredits = ((totalCents ~/ 1000) * creditsMulti).toInt();
         
-        // Calculate Specific Skill XP
-        hackerXpInc = 0;
-        magnateXpInc = 0;
-        resilienceXpInc = 0;
-
-        // Hacker XP
-        if (context == ActionContext.cli) hackerXpInc += 150;
-        if (context == ActionContext.bounty) hackerXpInc += 300;
-
-        // Magnate XP
-        if (totalCents >= 50000) { // >= 500 UAH
-          magnateXpInc += 250;
-        } else if (totalCents >= 10000) { // >= 100 UAH
-          magnateXpInc += 100;
-        }
-        magnateXpInc += (totalCents ~/ 500); // 1 XP per 5 UAH
-
-        // Resilience XP
-        if (context == ActionContext.recovery) resilienceXpInc += 200;
-        if (newStreak > 1 && newStreak % 7 == 0) resilienceXpInc += 100; // Bonus every week
-        if (newStreak >= 30) resilienceXpInc += 50; // Daily passive for long streaks
-
-        // Load or create avatar config for credit + badge updates
-        final existingConfig = profile.avatarConfig != null 
-            ? AvatarConfig.fromJson(profile.avatarConfig!)
-            : const AvatarConfig();
-
-        // Calculate total saved for badge checks (loaded after save)
-        final goalANow = await _db.getGoalById('goal_a');
-        final goalBNow = await _db.getGoalById('goal_b');
-        int totalSavedCents = 0;
-        if (goalANow != null) totalSavedCents += goalANow.currentAmount;
-        if (goalBNow != null) totalSavedCents += goalBNow.currentAmount;
-
+        hackerXpInc = (context == ActionContext.cli ? 150 : 0) + (context == ActionContext.bounty ? 300 : 0);
+        magnateXpInc = (totalCents >= 50000 ? 250 : (totalCents >= 10000 ? 100 : 0)) + (totalCents ~/ 500);
+        resilienceXpInc = (context == ActionContext.recovery ? 200 : 0) +
+                          (newStreak > 1 && newStreak % 7 == 0 ? 100 : 0) +
+                          (newStreak >= 30 ? 50 : 0);
 
         // 5b. Squads update
         final squads = await _db.select(_db.squads).get();
         if (squads.isNotEmpty) {
           final squad = squads.first;
           await (_db.update(_db.squads)..where((t) => t.id.equals(squad.id))).write(
-            SquadsCompanion(totalXp: drift.Value(squad.totalXp + xpGained + bonusXp)),
+            SquadsCompanion(
+              totalXp: drift.Value(squad.totalXp + xpGained + bonusXp),
+              updatedAt: drift.Value(now),
+            ),
           );
         }
 
-        // 6. Achievement validation (inside same transaction)
+        // 6. Achievements
         final unlockedList = await _db.getUnlockedAchievements();
         final unlockedIds = unlockedList.map((e) => e.id).toSet();
 
-        // Lootbox drop logic
+        // Lootbox logic
         final rnd = math.Random().nextDouble();
-        if (rnd < 0.05) {
+        if (rnd < 0.25) {
           earnedLootbox = Lootbox(
               id: const Uuid().v4(),
-              rarity: 'rare',
+              rarity: rnd < 0.05 ? 'rare' : 'common',
               isOpened: false,
-              earnedAt: now);
-        } else if (rnd < 0.25) {
-          earnedLootbox = Lootbox(
-              id: const Uuid().v4(),
-              rarity: 'common',
-              isOpened: false,
-              earnedAt: now);
-        }
-
-        if (earnedLootbox != null) {
+              earnedAt: now,
+              isSynced: false);
           await _db.into(_db.lootboxes).insert(earnedLootbox!);
         }
 
         final allDeps = await _db.getAllDeposits();
+        final goalsNow = await _db.getAllGoals();
+        int totalSavedCents = goalsNow.fold(0, (sum, g) => sum + g.currentAmount);
+
         newlyUnlocked = await AchievementService.validateRewards(
           db: _db,
           newStreak: newStreak,
           totalSavedCents: totalSavedCents,
           depositAmountCents: totalCents,
           totalDepositsCount: allDeps.length,
-          depositsToday: 1, // simplified
+          depositsToday: 1, // Simplified
           currentLevel: finalLevel,
           freezeUsed: freezeUsed,
-          goalAPercent: goalAPercent,
+          goalAPercent: goalAllocations['goal_a'] ?? 0.0,
           now: now,
           unlockedIds: unlockedIds,
         );
 
-        final allNewBadges = [
-          ...existingConfig.badges,
-          ...newlyUnlocked
-              .where((r) => r.type == RewardType.badge)
-              .map((r) => r.id)
-        ];
+        final existingConfig = effectiveProfile.avatarConfig != null
+            ? AvatarConfig.fromJson(effectiveProfile.avatarConfig!)
+            : const AvatarConfig();
 
         final updatedConfig = existingConfig.copyWith(
           credits: existingConfig.credits + earnedCredits,
-          badges: allNewBadges,
+          badges: [...existingConfig.badges, ...newlyUnlocked.where((r) => r.type == RewardType.badge).map((r) => r.id)],
         );
-        final newAvatarConfigJson = updatedConfig.toJson();
 
         updatedProfile = UserProfile(
-          id: profile.id,
-          xp: newXP,
+          id: effectiveProfile.id,
+          xp: effectiveProfile.xp + xpGained + bonusXp,
           level: finalLevel,
           streakCount: newStreak,
           maxStreak: maxStreak,
-          freezeTokens: finalFreezes,
+          freezeTokens: currentFreezes + (leveledUp ? 1 : 0),
           lastDepositDate: now,
           skillPoints: newSkillPoints,
-          playerClass: profile.playerClass,
-          currentTheme: profile.currentTheme,
-          avatarConfig: newAvatarConfigJson,
-          penaltyBalance: profile.penaltyBalance,
-          hackerXp: profile.hackerXp + hackerXpInc,
-          magnateXp: profile.magnateXp + magnateXpInc,
-          resilienceXp: profile.resilienceXp + resilienceXpInc,
-          lastBonusClaimDate: profile.lastBonusClaimDate,
-          bonusStreak: profile.bonusStreak,
-          crystalsBalance: profile.crystalsBalance,
+          playerClass: effectiveProfile.playerClass,
+          currentTheme: effectiveProfile.currentTheme,
+          avatarConfig: updatedConfig.toJson(),
+          penaltyBalance: effectiveProfile.penaltyBalance,
+          hackerXp: effectiveProfile.hackerXp + hackerXpInc,
+          magnateXp: effectiveProfile.magnateXp + magnateXpInc,
+          resilienceXp: effectiveProfile.resilienceXp + resilienceXpInc,
+          lastBonusClaimDate: effectiveProfile.lastBonusClaimDate,
+          bonusStreak: effectiveProfile.bonusStreak,
+          crystalsBalance: effectiveProfile.crystalsBalance,
+          updatedAt: now,
+          isSynced: false,
         );
         await _db.insertUserProfile(updatedProfile);
       }); // end transaction
@@ -352,11 +335,7 @@ class SavingsNotifier extends StateNotifier<AsyncValue<void>> {
 
     state = const AsyncValue.loading();
     try {
-      await _db.softDeleteDepositAndUpdateGoals(
-        depositId: deposit.id,
-        goalAAmount: deposit.goalAAmount,
-        goalBAmount: deposit.goalBAmount,
-      );
+      await _db.softDeleteDepositAndUpdateGoals(deposit.id);
       state = const AsyncValue.data(null);
       return true;
     } catch (e, stack) {

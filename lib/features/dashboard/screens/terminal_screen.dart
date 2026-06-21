@@ -143,7 +143,7 @@ class _TerminalScreenState extends ConsumerState<TerminalScreen> {
 
         final result = await ref.read(savingsNotifierProvider.notifier).createDeposit(
           amount: amount,
-          goalAPercent: 50.0,
+          goalAllocations: {'goal_a': 50.0, 'goal_b': 50.0},
           note: 'CLI Deposit',
           context: ActionContext.cli,
         );

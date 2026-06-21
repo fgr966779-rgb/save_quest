@@ -199,7 +199,10 @@ class _DepositScreenState extends ConsumerState<DepositScreen>
         .read(savingsNotifierProvider.notifier)
         .createDeposit(
           amount: _enteredAmount,
-          goalAPercent: _splitRatio,
+          goalAllocations: {
+            'goal_a': _splitRatio,
+            'goal_b': 100.0 - _splitRatio,
+          },
           note: AppLocalizations.get(ref.read(localeProvider), 'dep_note_manual'),
           activeEvent: activeEvent,
         );
@@ -558,11 +561,11 @@ class _DepositScreenState extends ConsumerState<DepositScreen>
 
           // ── Split slider ──
           SplitSlider(
-            valueA: _splitRatio / 100.0,
-            labelA: goalA.name,
-            labelB: goalB.name,
-            onChanged: (val) =>
-                setState(() => _splitRatio = val * 100.0),
+            allocations: [
+              GoalAllocation(id: goalA.id, name: goalA.name, percent: _splitRatio, color: AppColors.goalA),
+              GoalAllocation(id: goalB.id, name: goalB.name, percent: 100.0 - _splitRatio, color: AppColors.goalB),
+            ],
+            onGoalAChanged: (val) => setState(() => _splitRatio = val * 100.0),
           ),
           const SizedBox(height: 24),
 

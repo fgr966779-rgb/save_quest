@@ -373,18 +373,15 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
       loading: () => const SizedBox(height: 200),
       error: (_, __) => const SizedBox(height: 200),
       data: (goals) {
-        if (goals.length < 2) return const SizedBox(height: 200);
-
-        final goalA = goals.firstWhere((g) => g.id == 'goal_a');
-        final goalB = goals.firstWhere((g) => g.id == 'goal_b');
-
-        final ratioA = (goalA.currentAmount / goalA.targetAmount).clamp(0.0, 1.0);
-        final ratioB = (goalB.currentAmount / goalB.targetAmount).clamp(0.0, 1.0);
+        if (goals.isEmpty) return const SizedBox(height: 200);
 
         return Center(
           child: DualProgressRing(
-            progressA: ratioA,
-            progressB: ratioB,
+            goals: goals.map((g) => GoalProgressData(
+              progress: (g.currentAmount / g.targetAmount).clamp(0.0, 1.0),
+              color: g.id == 'goal_a' ? AppColors.goalA : AppColors.goalB,
+              label: g.name,
+            )).toList(),
             size: 180,
           ),
         );
@@ -417,34 +414,22 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
       loading: () => const SizedBox(height: 100),
       error: (_, __) => const SizedBox.shrink(),
       data: (goals) {
-        if (goals.length < 2) return const SizedBox.shrink();
-
-        final goalA = goals.firstWhere((g) => g.id == 'goal_a');
-        final goalB = goals.firstWhere((g) => g.id == 'goal_b');
+        if (goals.isEmpty) return const SizedBox.shrink();
         final isPrivate = settings.privacyMode;
 
         return Column(
-          children: [
-            _buildSingleGoalCard(
+          children: goals.map((goal) => Padding(
+            padding: const EdgeInsets.only(bottom: AppTheme.spaceMd),
+            child: _buildSingleGoalCard(
               context: context,
               ref: ref,
-              goal: goalA,
-              icon: Icons.sports_esports_rounded,
-              accentColor: AppColors.goalA,
+              goal: goal,
+              icon: goal.id == 'goal_a' ? Icons.sports_esports_rounded : Icons.monitor_rounded,
+              accentColor: goal.id == 'goal_a' ? AppColors.goalA : AppColors.goalB,
               isPrivate: isPrivate,
-              heroTag: 'goal_hero_goal_a',
+              heroTag: 'goal_hero_${goal.id}',
             ),
-            const SizedBox(height: AppTheme.spaceMd),
-            _buildSingleGoalCard(
-              context: context,
-              ref: ref,
-              goal: goalB,
-              icon: Icons.monitor_rounded,
-              accentColor: AppColors.goalB,
-              isPrivate: isPrivate,
-              heroTag: 'goal_hero_goal_b',
-            ),
-          ],
+          )).toList(),
         );
       },
     );
@@ -473,7 +458,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
           final activeEvent = ref.read(eventsProvider);
           await ref.read(savingsNotifierProvider.notifier).createDeposit(
                 amount: 50.0,
-                goalAPercent: goal.id == 'goal_a' ? 100.0 : 0.0,
+                goalAllocations: {goal.id: 100.0},
                 activeEvent: activeEvent,
               );
         }
