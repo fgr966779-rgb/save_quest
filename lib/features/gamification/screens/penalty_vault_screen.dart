@@ -125,7 +125,7 @@ class PenaltyVaultScreen extends ConsumerWidget {
                             // Pay fine -> deposit into savings
                             await ref.read(savingsNotifierProvider.notifier).createDeposit(
                               amount: fine.amountKopecks / 100.0,
-                              goalAPercent: 50.0,
+                              goalAllocations: {'goal_a': 50.0, 'goal_b': 50.0},
                             );
                             await ref.read(penaltyProvider.notifier).payFine(fine.id);
 

@@ -595,7 +595,7 @@ class BackupService {
   // ────────────────────────────────────────────
 
   /// Exports all non-deleted deposits as a CSV file and opens share sheet.
-  /// CSV format: date,goalA_name,goalA_amount,goalB_name,goalB_amount,currency,note
+  /// CSV format: date,total_amount,currency,note,goal_allocations...
   /// Returns the file path on success.
   /// Throws [StateError] if no deposits exist.
   Future<String> exportCsv() async {
@@ -605,18 +605,8 @@ class BackupService {
       throw StateError('No deposits to export');
     }
 
-    // 2. Read goals for names
     final goals = await _db.getAllGoals();
-    final goalAName = goals
-            .where((g) => g.id == 'goal_a')
-            .map((g) => g.name)
-            .firstOrNull ??
-        'Goal A';
-    final goalBName = goals
-            .where((g) => g.id == 'goal_b')
-            .map((g) => g.name)
-            .firstOrNull ??
-        'Goal B';
+    final goalMap = {for (var g in goals) g.id: g.name};
     final currency = _settings?.currency ?? '₴';
 
     // 3. Build CSV content
@@ -624,19 +614,18 @@ class BackupService {
     // BOM for Excel UTF-8 compatibility
     buffer.write('\uFEFF');
     // Header
-    buffer.writeln(
-        'date,goalA_name,goalA_amount,goalB_name,goalB_amount,total_amount,currency,note');
+    buffer.writeln('date,total_amount,currency,note,allocations');
 
     // Rows
     for (final d in deposits) {
       final date = d.createdAt.toIso8601String().split('T').first;
       final noteEscaped = _csvEscape(d.note ?? '');
-      final goalAAmount = (d.goalAAmount / 100).toStringAsFixed(2);
-      final goalBAmount = (d.goalBAmount / 100).toStringAsFixed(2);
       final totalAmount = (d.amount / 100).toStringAsFixed(2);
 
-      buffer.writeln(
-          '$date,${_csvEscape(goalAName)},$goalAAmount,${_csvEscape(goalBName)},$goalBAmount,$totalAmount,$currency,$noteEscaped');
+      final allocations = await (_db.select(_db.depositAllocations)..where((tbl) => tbl.depositId.equals(d.id))).get();
+      final allocStr = allocations.map((a) => '${goalMap[a.goalId] ?? a.goalId}: ${(a.amount / 100).toStringAsFixed(2)}').join('; ');
+
+      buffer.writeln('$date,$totalAmount,$currency,$noteEscaped,${_csvEscape(allocStr)}');
     }
 
     // 4. Write to temp file
@@ -770,17 +759,38 @@ class BackupService {
             : 'CSV Import';
 
         // Insert deposit
+        final depositId = '${DateTime.now().millisecondsSinceEpoch}_$i';
         await _db.into(_db.deposits).insert(
               Deposit(
-                id: '${DateTime.now().millisecondsSinceEpoch}_$i',
+                id: depositId,
                 amount: amount.round(),
-                goalAAmount: goalA.round(),
-                goalBAmount: goalB.round(),
+                goalAAmount: 0,
+                goalBAmount: 0,
                 note: note,
                 createdAt: date,
                 isDeleted: false,
+                updatedAt: DateTime.now(),
               ),
             );
+
+        if (goalA > 0) {
+          await _db.into(_db.depositAllocations).insert(DepositAllocationsCompanion.insert(
+            id: const Uuid().v4(),
+            depositId: depositId,
+            goalId: 'goal_a',
+            amount: goalA.round(),
+            createdAt: date,
+          ));
+        }
+        if (goalB > 0) {
+          await _db.into(_db.depositAllocations).insert(DepositAllocationsCompanion.insert(
+            id: const Uuid().v4(),
+            depositId: depositId,
+            goalId: 'goal_b',
+            amount: goalB.round(),
+            createdAt: date,
+          ));
+        }
 
         importedCount++;
       }
