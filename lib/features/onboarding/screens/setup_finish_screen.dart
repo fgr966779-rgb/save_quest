@@ -57,6 +57,7 @@ class _SetupFinishScreenState extends ConsumerState<SetupFinishScreen> {
           currency: goalACurrency,
           accentColor: '#6366F1',
           createdAt: DateTime.now(),
+          isSynced: false,
         ),
       );
 
@@ -69,6 +70,7 @@ class _SetupFinishScreenState extends ConsumerState<SetupFinishScreen> {
           currency: goalBCurrency,
           accentColor: '#10B981',
           createdAt: DateTime.now(),
+          isSynced: false,
         ),
       );
 
@@ -92,6 +94,7 @@ class _SetupFinishScreenState extends ConsumerState<SetupFinishScreen> {
           lastBonusClaimDate: null,
           bonusStreak: 0,
           crystalsBalance: 0,
+          isSynced: false,
         ),
       );
 
