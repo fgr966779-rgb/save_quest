@@ -89,6 +89,7 @@ class SavingsNotifier extends StateNotifier<AsyncValue<void>> {
         note: note,
         createdAt: now,
         isDeleted: false,
+        isSynced: false,
       );
 
       // ----------------------------------------
@@ -118,12 +119,13 @@ class SavingsNotifier extends StateNotifier<AsyncValue<void>> {
         );
 
         // 2. Load or create user profile
-        var profile = await _db.getUserProfile();
-        profile ??= UserProfile(
+        final existingProfile = await _db.getUserProfile();
+        final profile = existingProfile ?? UserProfile(
           id: 1, xp: 0, level: 1, streakCount: 0, maxStreak: 0, freezeTokens: 0, 
           skillPoints: 0, playerClass: null, currentTheme: 'default', avatarConfig: null,
           penaltyBalance: 0, hackerXp: 0, magnateXp: 0, resilienceXp: 0,
           lastBonusClaimDate: null, bonusStreak: 0, crystalsBalance: 0,
+          isSynced: false,
         );
 
         // 3. Load unlocked skills for bonus application
@@ -248,13 +250,15 @@ class SavingsNotifier extends StateNotifier<AsyncValue<void>> {
               id: const Uuid().v4(),
               rarity: 'rare',
               isOpened: false,
-              earnedAt: now);
+              earnedAt: now,
+              isSynced: false);
         } else if (rnd < 0.25) {
           earnedLootbox = Lootbox(
               id: const Uuid().v4(),
               rarity: 'common',
               isOpened: false,
-              earnedAt: now);
+              earnedAt: now,
+              isSynced: false);
         }
 
         if (earnedLootbox != null) {
@@ -289,25 +293,19 @@ class SavingsNotifier extends StateNotifier<AsyncValue<void>> {
         );
         final newAvatarConfigJson = updatedConfig.toJson();
 
-        updatedProfile = UserProfile(
-          id: profile.id,
+        updatedProfile = profile.copyWith(
           xp: newXP,
           level: finalLevel,
           streakCount: newStreak,
           maxStreak: maxStreak,
           freezeTokens: finalFreezes,
-          lastDepositDate: now,
+          lastDepositDate: drift.Value(now),
           skillPoints: newSkillPoints,
-          playerClass: profile.playerClass,
-          currentTheme: profile.currentTheme,
-          avatarConfig: newAvatarConfigJson,
-          penaltyBalance: profile.penaltyBalance,
+          avatarConfig: drift.Value(newAvatarConfigJson),
           hackerXp: profile.hackerXp + hackerXpInc,
           magnateXp: profile.magnateXp + magnateXpInc,
           resilienceXp: profile.resilienceXp + resilienceXpInc,
-          lastBonusClaimDate: profile.lastBonusClaimDate,
-          bonusStreak: profile.bonusStreak,
-          crystalsBalance: profile.crystalsBalance,
+          isSynced: false,
         );
         await _db.insertUserProfile(updatedProfile);
       }); // end transaction
