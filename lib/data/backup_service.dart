@@ -296,6 +296,8 @@ class BackupService {
               currency: r['currency'] as String,
               accentColor: r['accentColor'] as String,
               createdAt: _parseDate(r['createdAt']),
+              updatedAt: _parseDate(r['updatedAt']),
+              isSynced: r['isSynced'] as bool? ?? false,
             ),
             mode: InsertMode.insertOrReplace,
           );
@@ -312,7 +314,9 @@ class BackupService {
               goalBAmount: r['goalBAmount'] as int,
               note: r['note'] as String?,
               createdAt: _parseDate(r['createdAt']),
+              updatedAt: _parseDate(r['updatedAt']),
               isDeleted: r['isDeleted'] as bool? ?? false,
+              isSynced: r['isSynced'] as bool? ?? false,
             ),
             mode: InsertMode.insertOrReplace,
           );
@@ -341,6 +345,8 @@ class BackupService {
               lastBonusClaimDate: _parseNullableDate(r['lastBonusClaimDate']),
               bonusStreak: r['bonusStreak'] as int? ?? 0,
               crystalsBalance: r['crystalsBalance'] as int? ?? 0,
+              updatedAt: _parseDate(r['updatedAt']),
+              isSynced: r['isSynced'] as bool? ?? false,
             ),
             mode: InsertMode.insertOrReplace,
           );
@@ -353,6 +359,8 @@ class BackupService {
             UnlockedAchievement(
               id: r['id'] as String,
               unlockedAt: _parseDate(r['unlockedAt']),
+              updatedAt: _parseDate(r['updatedAt']),
+              isSynced: r['isSynced'] as bool? ?? false,
             ),
             mode: InsertMode.insertOrReplace,
           );
@@ -365,6 +373,8 @@ class BackupService {
             UnlockedSkill(
               id: r['id'] as String,
               unlockedAt: _parseDate(r['unlockedAt']),
+              updatedAt: _parseDate(r['updatedAt']),
+              isSynced: r['isSynced'] as bool? ?? false,
             ),
             mode: InsertMode.insertOrReplace,
           );
@@ -379,6 +389,8 @@ class BackupService {
               rarity: r['rarity'] as String,
               isOpened: r['isOpened'] as bool? ?? false,
               earnedAt: _parseDate(r['earnedAt']),
+              updatedAt: _parseDate(r['updatedAt']),
+              isSynced: r['isSynced'] as bool? ?? false,
             ),
             mode: InsertMode.insertOrReplace,
           );
@@ -393,6 +405,8 @@ class BackupService {
               petType: r['petType'] as String,
               happinessLevel: r['happinessLevel'] as int? ?? 100,
               lastFedAt: _parseDate(r['lastFedAt']),
+              updatedAt: _parseDate(r['updatedAt']),
+              isSynced: r['isSynced'] as bool? ?? false,
             ),
             mode: InsertMode.insertOrReplace,
           );
@@ -406,6 +420,8 @@ class BackupService {
               id: r['id'] as String,
               name: r['name'] as String,
               totalXp: r['totalXp'] as int? ?? 0,
+              updatedAt: _parseDate(r['updatedAt']),
+              isSynced: r['isSynced'] as bool? ?? false,
             ),
             mode: InsertMode.insertOrReplace,
           );
@@ -421,6 +437,8 @@ class BackupService {
               description: r['description'] as String,
               isCompleted: r['isCompleted'] as bool? ?? false,
               expiresAt: _parseDate(r['expiresAt']),
+              updatedAt: _parseDate(r['updatedAt']),
+              isSynced: r['isSynced'] as bool? ?? false,
             ),
             mode: InsertMode.insertOrReplace,
           );
@@ -434,6 +452,8 @@ class BackupService {
               id: r['id'] as String,
               depositId: r['depositId'] as String,
               tag: r['tag'] as String,
+              updatedAt: _parseDate(r['updatedAt']),
+              isSynced: r['isSynced'] as bool? ?? false,
             ),
             mode: InsertMode.insertOrReplace,
           );
@@ -448,6 +468,8 @@ class BackupService {
               depositId: r['depositId'] as String,
               filePath: r['filePath'] as String,
               recordedAt: _parseDate(r['recordedAt']),
+              updatedAt: _parseDate(r['updatedAt']),
+              isSynced: r['isSynced'] as bool? ?? false,
             ),
             mode: InsertMode.insertOrReplace,
           );
@@ -461,6 +483,8 @@ class BackupService {
               id: r['id'] as String,
               habitName: r['habitName'] as String,
               penaltyAmount: r['penaltyAmount'] as int,
+              updatedAt: _parseDate(r['updatedAt']),
+              isSynced: r['isSynced'] as bool? ?? false,
             ),
             mode: InsertMode.insertOrReplace,
           );
@@ -477,6 +501,8 @@ class BackupService {
               currentAmount: r['currentAmount'] as int? ?? 0,
               deadline: _parseNullableDate(r['deadline']),
               createdAt: _parseDate(r['createdAt']),
+              updatedAt: _parseDate(r['updatedAt']),
+              isSynced: r['isSynced'] as bool? ?? false,
             ),
             mode: InsertMode.insertOrReplace,
           );
@@ -493,6 +519,8 @@ class BackupService {
               contributedAmount: r['contributedAmount'] as int? ?? 0,
               avatarIndex: r['avatarIndex'] as int? ?? 0,
               isCurrentUser: r['isCurrentUser'] as bool? ?? false,
+              updatedAt: _parseDate(r['updatedAt']),
+              isSynced: r['isSynced'] as bool? ?? false,
             ),
             mode: InsertMode.insertOrReplace,
           );
@@ -507,6 +535,8 @@ class BackupService {
               title: r['title'] as String,
               amount: r['amount'] as int,
               createdAt: _parseDate(r['createdAt']),
+              updatedAt: _parseDate(r['updatedAt']),
+              isSynced: r['isSynced'] as bool? ?? false,
             ),
             mode: InsertMode.insertOrReplace,
           );

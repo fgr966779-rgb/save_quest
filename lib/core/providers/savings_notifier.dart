@@ -88,7 +88,9 @@ class SavingsNotifier extends StateNotifier<AsyncValue<void>> {
         goalBAmount: goalBCents,
         note: note,
         createdAt: now,
+        updatedAt: now,
         isDeleted: false,
+        isSynced: false,
       );
 
       // ----------------------------------------
@@ -124,6 +126,8 @@ class SavingsNotifier extends StateNotifier<AsyncValue<void>> {
           skillPoints: 0, playerClass: null, currentTheme: 'default', avatarConfig: null,
           penaltyBalance: 0, hackerXp: 0, magnateXp: 0, resilienceXp: 0,
           lastBonusClaimDate: null, bonusStreak: 0, crystalsBalance: 0,
+          updatedAt: now,
+          isSynced: false,
         );
 
         // 3. Load unlocked skills for bonus application
@@ -248,13 +252,17 @@ class SavingsNotifier extends StateNotifier<AsyncValue<void>> {
               id: const Uuid().v4(),
               rarity: 'rare',
               isOpened: false,
-              earnedAt: now);
+              earnedAt: now,
+              updatedAt: now,
+              isSynced: false);
         } else if (rnd < 0.25) {
           earnedLootbox = Lootbox(
               id: const Uuid().v4(),
               rarity: 'common',
               isOpened: false,
-              earnedAt: now);
+              earnedAt: now,
+              updatedAt: now,
+              isSynced: false);
         }
 
         if (earnedLootbox != null) {
@@ -290,7 +298,7 @@ class SavingsNotifier extends StateNotifier<AsyncValue<void>> {
         final newAvatarConfigJson = updatedConfig.toJson();
 
         updatedProfile = UserProfile(
-          id: profile.id,
+          id: profile!.id,
           xp: newXP,
           level: finalLevel,
           streakCount: newStreak,
@@ -308,6 +316,8 @@ class SavingsNotifier extends StateNotifier<AsyncValue<void>> {
           lastBonusClaimDate: profile.lastBonusClaimDate,
           bonusStreak: profile.bonusStreak,
           crystalsBalance: profile.crystalsBalance,
+          updatedAt: now,
+          isSynced: false,
         );
         await _db.insertUserProfile(updatedProfile);
       }); // end transaction
