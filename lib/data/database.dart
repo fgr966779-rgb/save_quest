@@ -17,6 +17,8 @@ class Goals extends Table {
   TextColumn get currency => text()();
   TextColumn get accentColor => text()();
   DateTimeColumn get createdAt => dateTime()();
+  DateTimeColumn get updatedAt => dateTime().withDefault(currentDateAndTime)();
+  BoolColumn get isSynced => boolean().withDefault(const Constant(false))();
 
   @override
   Set<Column> get primaryKey => {id};
@@ -32,7 +34,22 @@ class Deposits extends Table {
   IntColumn get goalBAmount => integer()();
   TextColumn get note => text().nullable()();
   DateTimeColumn get createdAt => dateTime()();
+  DateTimeColumn get updatedAt => dateTime().withDefault(currentDateAndTime)();
   BoolColumn get isDeleted => boolean().withDefault(const Constant(false))();
+  BoolColumn get isSynced => boolean().withDefault(const Constant(false))();
+
+  @override
+  Set<Column> get primaryKey => {id};
+}
+
+class DepositAllocations extends Table {
+  TextColumn get id => text()();
+  TextColumn get depositId => text().customConstraint('REFERENCES deposits(id) NOT NULL')();
+  TextColumn get goalId => text().customConstraint('REFERENCES goals(id) NOT NULL')();
+  IntColumn get amount => integer()(); // minor units
+  DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
+  DateTimeColumn get updatedAt => dateTime().withDefault(currentDateAndTime)();
+  BoolColumn get isSynced => boolean().withDefault(const Constant(false))();
 
   @override
   Set<Column> get primaryKey => {id};
@@ -57,6 +74,8 @@ class UserProfiles extends Table {
   DateTimeColumn get lastBonusClaimDate => dateTime().nullable()();
   IntColumn get bonusStreak => integer().withDefault(const Constant(0))();
   IntColumn get crystalsBalance => integer().withDefault(const Constant(0))();
+  DateTimeColumn get updatedAt => dateTime().withDefault(currentDateAndTime)();
+  BoolColumn get isSynced => boolean().withDefault(const Constant(false))();
 
   @override
   Set<Column> get primaryKey => {id};
@@ -65,6 +84,8 @@ class UserProfiles extends Table {
 class UnlockedAchievements extends Table {
   TextColumn get id => text()();
   DateTimeColumn get unlockedAt => dateTime()();
+  DateTimeColumn get updatedAt => dateTime().withDefault(currentDateAndTime)();
+  BoolColumn get isSynced => boolean().withDefault(const Constant(false))();
 
   @override
   Set<Column> get primaryKey => {id};
@@ -73,6 +94,8 @@ class UnlockedAchievements extends Table {
 class UnlockedSkills extends Table {
   TextColumn get id => text()();
   DateTimeColumn get unlockedAt => dateTime()();
+  DateTimeColumn get updatedAt => dateTime().withDefault(currentDateAndTime)();
+  BoolColumn get isSynced => boolean().withDefault(const Constant(false))();
 
   @override
   Set<Column> get primaryKey => {id};
@@ -83,6 +106,8 @@ class Lootboxes extends Table {
   TextColumn get rarity => text()();
   BoolColumn get isOpened => boolean().withDefault(const Constant(false))();
   DateTimeColumn get earnedAt => dateTime()();
+  DateTimeColumn get updatedAt => dateTime().withDefault(currentDateAndTime)();
+  BoolColumn get isSynced => boolean().withDefault(const Constant(false))();
 
   @override
   Set<Column> get primaryKey => {id};
@@ -93,6 +118,8 @@ class Pets extends Table {
   TextColumn get petType => text()();
   IntColumn get happinessLevel => integer().withDefault(const Constant(100))();
   DateTimeColumn get lastFedAt => dateTime()();
+  DateTimeColumn get updatedAt => dateTime().withDefault(currentDateAndTime)();
+  BoolColumn get isSynced => boolean().withDefault(const Constant(false))();
 
   @override
   Set<Column> get primaryKey => {id};
@@ -102,6 +129,8 @@ class Squads extends Table {
   TextColumn get id => text()();
   TextColumn get name => text()();
   IntColumn get totalXp => integer().withDefault(const Constant(0))();
+  DateTimeColumn get updatedAt => dateTime().withDefault(currentDateAndTime)();
+  BoolColumn get isSynced => boolean().withDefault(const Constant(false))();
 
   @override
   Set<Column> get primaryKey => {id};
@@ -113,6 +142,8 @@ class SideQuests extends Table {
   TextColumn get description => text()();
   BoolColumn get isCompleted => boolean().withDefault(const Constant(false))();
   DateTimeColumn get expiresAt => dateTime()();
+  DateTimeColumn get updatedAt => dateTime().withDefault(currentDateAndTime)();
+  BoolColumn get isSynced => boolean().withDefault(const Constant(false))();
 
   @override
   Set<Column> get primaryKey => {id};
@@ -122,6 +153,8 @@ class TransactionTags extends Table {
   TextColumn get id => text()();
   TextColumn get depositId => text()();
   TextColumn get tag => text()();
+  DateTimeColumn get updatedAt => dateTime().withDefault(currentDateAndTime)();
+  BoolColumn get isSynced => boolean().withDefault(const Constant(false))();
 
   @override
   Set<Column> get primaryKey => {id};
@@ -132,6 +165,8 @@ class VoiceLogs extends Table {
   TextColumn get depositId => text()();
   TextColumn get filePath => text()();
   DateTimeColumn get recordedAt => dateTime()();
+  DateTimeColumn get updatedAt => dateTime().withDefault(currentDateAndTime)();
+  BoolColumn get isSynced => boolean().withDefault(const Constant(false))();
 
   @override
   Set<Column> get primaryKey => {id};
@@ -141,6 +176,8 @@ class PenaltyHabits extends Table {
   TextColumn get id => text()();
   TextColumn get habitName => text()();
   IntColumn get penaltyAmount => integer()();
+  DateTimeColumn get updatedAt => dateTime().withDefault(currentDateAndTime)();
+  BoolColumn get isSynced => boolean().withDefault(const Constant(false))();
 
   @override
   Set<Column> get primaryKey => {id};
@@ -153,6 +190,8 @@ class JointGoals extends Table {
   IntColumn get currentAmount => integer().withDefault(const Constant(0))();
   DateTimeColumn get deadline => dateTime().nullable()();
   DateTimeColumn get createdAt => dateTime()();
+  DateTimeColumn get updatedAt => dateTime().withDefault(currentDateAndTime)();
+  BoolColumn get isSynced => boolean().withDefault(const Constant(false))();
 
   @override
   Set<Column> get primaryKey => {id};
@@ -165,6 +204,8 @@ class JointGoalMembers extends Table {
   IntColumn get contributedAmount => integer().withDefault(const Constant(0))();
   IntColumn get avatarIndex => integer().withDefault(const Constant(0))();
   BoolColumn get isCurrentUser => boolean().withDefault(const Constant(false))();
+  DateTimeColumn get updatedAt => dateTime().withDefault(currentDateAndTime)();
+  BoolColumn get isSynced => boolean().withDefault(const Constant(false))();
 
   @override
   Set<Column> get primaryKey => {id};
@@ -175,6 +216,8 @@ class AvoidedPurchases extends Table {
   TextColumn get title => text()();
   IntColumn get amount => integer()(); // minor units
   DateTimeColumn get createdAt => dateTime()();
+  DateTimeColumn get updatedAt => dateTime().withDefault(currentDateAndTime)();
+  BoolColumn get isSynced => boolean().withDefault(const Constant(false))();
 
   @override
   Set<Column> get primaryKey => {id};
@@ -182,7 +225,8 @@ class AvoidedPurchases extends Table {
 
 @DriftDatabase(tables: [
   Goals, 
-  Deposits, 
+  Deposits,
+  DepositAllocations,
   UserProfiles, 
   UnlockedAchievements,
   UnlockedSkills,
@@ -203,7 +247,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase.connect(super.connection);
 
   @override
-  int get schemaVersion => 8;
+  int get schemaVersion => 9;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -294,6 +338,42 @@ class AppDatabase extends _$AppDatabase {
           }
           if (from < 8) {
             await m.createTable(avoidedPurchases);
+          }
+          if (from < 9) {
+            // Add synchronization columns to all existing tables
+            await m.addColumn(goals, goals.isSynced);
+            await m.addColumn(goals, goals.updatedAt);
+            await m.addColumn(deposits, deposits.isSynced);
+            await m.addColumn(deposits, deposits.updatedAt);
+            await m.addColumn(userProfiles, userProfiles.isSynced);
+            await m.addColumn(userProfiles, userProfiles.updatedAt);
+            await m.addColumn(unlockedAchievements, unlockedAchievements.isSynced);
+            await m.addColumn(unlockedAchievements, unlockedAchievements.updatedAt);
+            await m.addColumn(unlockedSkills, unlockedSkills.isSynced);
+            await m.addColumn(unlockedSkills, unlockedSkills.updatedAt);
+            await m.addColumn(lootboxes, lootboxes.isSynced);
+            await m.addColumn(lootboxes, lootboxes.updatedAt);
+            await m.addColumn(pets, pets.isSynced);
+            await m.addColumn(pets, pets.updatedAt);
+            await m.addColumn(squads, squads.isSynced);
+            await m.addColumn(squads, squads.updatedAt);
+            await m.addColumn(sideQuests, sideQuests.isSynced);
+            await m.addColumn(sideQuests, sideQuests.updatedAt);
+            await m.addColumn(transactionTags, transactionTags.isSynced);
+            await m.addColumn(transactionTags, transactionTags.updatedAt);
+            await m.addColumn(voiceLogs, voiceLogs.isSynced);
+            await m.addColumn(voiceLogs, voiceLogs.updatedAt);
+            await m.addColumn(penaltyHabits, penaltyHabits.isSynced);
+            await m.addColumn(penaltyHabits, penaltyHabits.updatedAt);
+            await m.addColumn(jointGoals, jointGoals.isSynced);
+            await m.addColumn(jointGoals, jointGoals.updatedAt);
+            await m.addColumn(jointGoalMembers, jointGoalMembers.isSynced);
+            await m.addColumn(jointGoalMembers, jointGoalMembers.updatedAt);
+            await m.addColumn(avoidedPurchases, avoidedPurchases.isSynced);
+            await m.addColumn(avoidedPurchases, avoidedPurchases.updatedAt);
+
+            // Create new tables for Phase 2
+            await m.createTable(depositAllocations);
           }
         },
       );
@@ -390,7 +470,12 @@ class AppDatabase extends _$AppDatabase {
   Future<List<UnlockedAchievement>> getUnlockedAchievements() => select(unlockedAchievements).get();
   Stream<List<UnlockedAchievement>> watchUnlockedAchievements() => select(unlockedAchievements).watch();
   Future<int> unlockAchievement(String id) => into(unlockedAchievements).insert(
-    UnlockedAchievement(id: id, unlockedAt: DateTime.now()),
+    UnlockedAchievement(
+      id: id,
+      unlockedAt: DateTime.now(),
+      updatedAt: DateTime.now(),
+      isSynced: false,
+    ),
     mode: InsertMode.insertOrReplace,
   );
 
@@ -404,7 +489,12 @@ class AppDatabase extends _$AppDatabase {
     return result != null;
   }
   Future<int> unlockSkill(String id) => into(unlockedSkills).insert(
-    UnlockedSkill(id: id, unlockedAt: DateTime.now()),
+    UnlockedSkill(
+      id: id,
+      unlockedAt: DateTime.now(),
+      updatedAt: DateTime.now(),
+      isSynced: false,
+    ),
     mode: InsertMode.insertOrReplace,
   );
 }
