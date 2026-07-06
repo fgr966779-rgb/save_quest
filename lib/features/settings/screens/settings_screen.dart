@@ -742,14 +742,15 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       final backup = await backupService.pickBackupFile();
       if (backup == null) return; // User cancelled picker
 
+      if (!mounted) return;
       // Show confirmation dialog
       final locale = ref.read(localeProvider);
-      final brightness = Theme.of(context).brightness;
 
       final confirmed = await showDialog<bool>(
         context: context,
         barrierDismissible: false,
         builder: (ctx) {
+          final brightness = Theme.of(ctx).brightness;
           return AlertDialog(
             backgroundColor: AppColors.surface(brightness),
             shape: RoundedRectangleBorder(
@@ -813,35 +814,33 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       ref.invalidate(unlockedSkillsProvider);
       ref.invalidate(localeProvider);
 
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              AppLocalizations.get(ref.read(localeProvider), 'backup_import_success'),
-              style: AppTypography.bodySmall(
-                context,
-                color: AppColors.success,
-              ),
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            AppLocalizations.get(ref.read(localeProvider), 'backup_import_success'),
+            style: AppTypography.bodySmall(
+              context,
+              color: AppColors.success,
             ),
           ),
-        );
-      }
+        ),
+      );
     } catch (e) {
-      if (mounted) {
-        final locale = ref.read(localeProvider);
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              '${AppLocalizations.get(locale, 'backup_import_error')}$e',
-              style: AppTypography.bodySmall(
-                context,
-                color: Colors.white,
-              ),
+      if (!mounted) return;
+      final locale = ref.read(localeProvider);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            '${AppLocalizations.get(locale, 'backup_import_error')}$e',
+            style: AppTypography.bodySmall(
+              context,
+              color: Colors.white,
             ),
-            backgroundColor: AppColors.error,
           ),
-        );
-      }
+          backgroundColor: AppColors.error,
+        ),
+      );
     } finally {
       if (mounted) setState(() => _isBackupBusy = false);
     }
@@ -913,35 +912,32 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       final backupService = BackupService(db);
       final count = await backupService.importCsv();
 
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(AppLocalizations.format(
-                locale, 'csv_import_success', {'count': '$count'})),
-            backgroundColor: AppColors.success,
-          ),
-        );
-      }
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(AppLocalizations.format(
+              locale, 'csv_import_success', {'count': '$count'})),
+          backgroundColor: AppColors.success,
+        ),
+      );
     } on FormatException catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              '${AppLocalizations.get(locale, 'csv_import_error')}: $e'),
-            backgroundColor: AppColors.error,
-          ),
-        );
-      }
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            '${AppLocalizations.get(locale, 'csv_import_error')}: $e'),
+          backgroundColor: AppColors.error,
+        ),
+      );
     } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              '${AppLocalizations.get(locale, 'csv_import_error')}: $e'),
-            backgroundColor: AppColors.error,
-          ),
-        );
-      }
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            '${AppLocalizations.get(locale, 'csv_import_error')}: $e'),
+          backgroundColor: AppColors.error,
+        ),
+      );
     } finally {
       if (mounted) setState(() => _isBackupBusy = false);
     }
@@ -1044,7 +1040,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
 
     confirmController.dispose();
 
-    if (confirmed != true || !context.mounted) return;
+    if (confirmed != true || !mounted) return;
 
     // Execute hard reset
     try {
@@ -1097,14 +1093,13 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       HapticFeedback.heavyImpact();
       context.go('/welcome');
     } catch (e) {
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('${AppLocalizations.get(ref.read(localeProvider), 'settings_reset_error')}$e'),
-            backgroundColor: AppColors.error,
-          ),
-        );
-      }
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('${AppLocalizations.get(ref.read(localeProvider), 'settings_reset_error')}$e'),
+          backgroundColor: AppColors.error,
+        ),
+      );
     }
   }
 
@@ -1128,7 +1123,6 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     HapticFeedback.lightImpact();
     final settings = ref.read(settingsServiceProvider);
     final locale = ref.read(localeProvider);
-    final brightness = Theme.of(context).brightness;
     final bio = BiometricService();
 
     if (val) {
@@ -1139,6 +1133,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       if (!mounted) return;
 
       if (success) {
+        if (!mounted) return;
         setState(() => _biometricEnabled = true);
         settings.isBiometricEnabled = true;
         ScaffoldMessenger.of(context).showSnackBar(
@@ -1257,6 +1252,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     required List<String> options,
     required ValueChanged<String> onSelected,
   }) {
+    final brightness = Theme.of(context).brightness;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -1268,7 +1264,6 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
         Row(
           children: options.map((opt) {
             final bool isSelected = value == opt;
-            final brightness = Theme.of(context).brightness;
             return Expanded(
               child: GestureDetector(
                 onTap: () => onSelected(opt),

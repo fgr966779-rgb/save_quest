@@ -151,7 +151,6 @@ class GoalDetailScreen extends ConsumerWidget {
   }
 
   Widget _buildMainMetrics(BuildContext context, String locale, Goal goal, double progressRatio, int progressPercent, Color accentColor) {
-    final brightness = Theme.of(context).brightness;
     final int remaining = (goal.targetAmount - goal.currentAmount).clamp(0, 999999999);
 
     return SurfaceCard(
