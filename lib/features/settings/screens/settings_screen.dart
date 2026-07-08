@@ -488,7 +488,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
 
             AppButton(
               label: t('settings_hard_reset'),
-              onPressed: () => _showHardResetDialog(context, ref),
+              onPressed: () => _showHardResetDialog(),
               variant: ButtonVariant.secondary,
               icon: const Icon(Icons.delete_forever, size: 18),
               fullWidth: true,
@@ -696,7 +696,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
 
       await backupService.exportAndShare();
 
-      if (mounted) {
+      if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
@@ -710,7 +710,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
         );
       }
     } catch (e) {
-      if (mounted) {
+      if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
@@ -744,6 +744,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
 
       // Show confirmation dialog
       final locale = ref.read(localeProvider);
+      if (!context.mounted) return;
       final brightness = Theme.of(context).brightness;
 
       final confirmed = await showDialog<bool>(
@@ -813,7 +814,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       ref.invalidate(unlockedSkillsProvider);
       ref.invalidate(localeProvider);
 
-      if (mounted) {
+      if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
@@ -827,7 +828,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
         );
       }
     } catch (e) {
-      if (mounted) {
+      if (context.mounted) {
         final locale = ref.read(localeProvider);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -948,7 +949,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   }
 
   /// Hard Reset — confirmation dialog requiring "ВИДАЛИТИ" text input.
-  Future<void> _showHardResetDialog(BuildContext context, WidgetRef ref) async {
+  Future<void> _showHardResetDialog() async {
     HapticFeedback.heavyImpact();
     final confirmController = TextEditingController();
     final brightness = Theme.of(context).brightness;
@@ -1044,7 +1045,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
 
     confirmController.dispose();
 
-    if (confirmed != true || !context.mounted) return;
+    if (confirmed != true || !mounted) return;
 
     // Execute hard reset
     try {
@@ -1093,9 +1094,11 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       await GoalDependencyService().clearAll();
 
       // 4. Navigate to onboarding
-      if (!context.mounted) return;
+      if (!mounted) return;
       HapticFeedback.heavyImpact();
-      context.go('/welcome');
+      if (context.mounted) {
+        context.go('/welcome');
+      }
     } catch (e) {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -1128,7 +1131,6 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     HapticFeedback.lightImpact();
     final settings = ref.read(settingsServiceProvider);
     final locale = ref.read(localeProvider);
-    final brightness = Theme.of(context).brightness;
     final bio = BiometricService();
 
     if (val) {
@@ -1257,6 +1259,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     required List<String> options,
     required ValueChanged<String> onSelected,
   }) {
+    final brightness = Theme.of(context).brightness;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -1268,7 +1271,6 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
         Row(
           children: options.map((opt) {
             final bool isSelected = value == opt;
-            final brightness = Theme.of(context).brightness;
             return Expanded(
               child: GestureDetector(
                 onTap: () => onSelected(opt),

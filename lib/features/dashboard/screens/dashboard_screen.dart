@@ -57,7 +57,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
             ShieldActivationDialog.show(context, state.shieldDaysSaved);
             if (state.isBonusAvailable) {
               Future.delayed(const Duration(seconds: 2), () {
-                if (!mounted) return;
+                if (!context.mounted) return;
                 DailyBonusDialog.show(context);
               });
             }

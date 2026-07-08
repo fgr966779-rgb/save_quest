@@ -36,28 +36,6 @@ class PetsScreen extends ConsumerWidget {
   /// XP-based leveling:
   /// Each deposit gives pet XP = (depositAmount / 100).round()
   /// Level thresholds: level * 200 XP needed per level
-  int _calculatePetLevel(int totalPetXp) {
-    // Level 1: 0 XP, Level 2: 200 XP, Level 3: 600 XP, Level N: N*(N-1)*100 XP
-    // Inverse: find max N where N*(N-1)*100 <= totalPetXp
-    int level = 1;
-    while ((level + 1) * level * 100 <= totalPetXp) {
-      level++;
-    }
-    return level;
-  }
-
-  int _xpForNextLevel(int level) {
-    // XP needed to go from current level to next
-    final currentThreshold = level * (level - 1) * 100;
-    final nextThreshold = (level + 1) * level * 100;
-    return nextThreshold - currentThreshold;
-  }
-
-  int _xpProgressInLevel(int totalPetXp, int level) {
-    final currentThreshold = level * (level - 1) * 100;
-    return totalPetXp - currentThreshold;
-  }
-
   /// Get pet mood label.
   String _getMoodLabel(int happiness, String Function(String) t) {
     if (happiness >= 60) return t('pet_happy');
