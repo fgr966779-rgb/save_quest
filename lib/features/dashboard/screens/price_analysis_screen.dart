@@ -319,7 +319,6 @@ class _PriceAnalysisScreenState extends ConsumerState<PriceAnalysisScreen> {
 
   Widget _buildGoalImpactCard(
       BuildContext context, String locale, PriceAnalysis a, int targetKopecks, String currency) {
-    final brightness = Theme.of(context).brightness;
     final diff = targetKopecks - a.minPriceKopecks;
     final overBudget = diff < 0;
     final color = overBudget ? AppColors.error : AppColors.success;
